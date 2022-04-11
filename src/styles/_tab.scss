@@ -1,0 +1,99 @@
+.tab {
+  &-root {
+    max-width: 360px;
+    min-width: 90px;
+    position: relative;
+    min-height: 48px;
+    flex-shrink: 0;
+    padding: 12px 16px;
+    overflow: hidden;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
+    font-weight: 500;
+    letter-spacing: 0.02857em;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+  }
+
+  &-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    background-color: transparent; // Reset default value
+    // We disable the focus ring for mouse, touch and keyboard users.
+    outline: 0;
+    border: 0;
+    margin: 0;
+    border-radius: 0;
+    padding: 0; // Remove the padding in Firefox
+    cursor: pointer;
+    user-select: none;
+    vertical-align: middle;
+    appearance: none;
+    text-decoration: none;
+    // So we take precedent over the style of a native <a /> element.
+    color: inherit;
+
+    &-disabled {
+      cursor: default;
+      pointer-events: none; // Disable link interactions
+    }
+
+    &::-moz-focus-inner {
+      border-style: none; // Remove Firefox dotted outline.
+    }
+
+    @media print {
+      color-adjust: exact;
+    }
+  }
+
+  &-flex-column {
+    flex-direction: column;
+  }
+
+  &-disabled {
+    color: $tab-disabled-color;
+  }
+
+  &-selected {
+    color: $tab-selected-color;
+  }
+
+  &-label-icon {
+    min-height: 72px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+  }
+
+  &-icon-wrapper {
+    &.tab-icon-position {
+      &-top {
+        margin-bottom: 6px;
+      }
+
+      &-bottom {
+        margin-top: 6px;
+      }
+
+      &-start {
+        margin-right: 8px;
+      }
+
+      &-end {
+        margin-left: 8px;
+      }
+    }
+  }
+
+  &-full-width {
+    flex-shrink: 1;
+    flex-grow: 1;
+    flex-basis: 0;
+    max-width: none;
+  }
+}
