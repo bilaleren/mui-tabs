@@ -1,5 +1,3 @@
-@import 'variables';
-
 .tab-touch-ripple {
   &-root {
     overflow: hidden;
@@ -37,7 +35,7 @@
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background-color: $ripple-color;
+    background-color: currentColor;
 
     &-leaving {
       opacity: 0;

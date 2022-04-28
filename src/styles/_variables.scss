@@ -1,7 +1,6 @@
-$tabs-bg-color: transparent;
-$ripple-color: currentColor;
-$indicator-size: 2px;
-$indicator-color: rgb(25, 118, 210);
-$tab-disabled-color: rgba(0, 0, 0, 0.38);
-$tab-selected-color: rgb(25, 118, 210);
-$scroll-buttons-disabled-opacity: 0;
+$tabs-bg-color: transparent !default;
+$indicator-size: 2px !default;
+$indicator-color: rgb(25, 118, 210) !default;
+$tab-disabled-color: rgba(0, 0, 0, 0.38) !default;
+$tab-selected-color: rgb(25, 118, 210) !default;
+$scroll-buttons-disabled-opacity: 0 !default;

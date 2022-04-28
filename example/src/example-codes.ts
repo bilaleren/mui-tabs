@@ -434,11 +434,9 @@ const App = () => {
 `
 
 export const customizationWithScssVariables = `
-// load the required variables
-@import '~mui-tabs/dist/scss/variables';
-
-$indicator-size: 3px;
-$indicator-color: blue;
-
-@import '~mui-tabs/dist/scss/main-without-variables';
+// see https://sass-lang.com/documentation/variables#configuring-modules
+@use '~mui-tabs/dist/scss/main' with (
+  $indicator-size: 3px,
+  $indicator-color: blue
+);
 `
