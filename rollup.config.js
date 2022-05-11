@@ -7,7 +7,6 @@ import autoprefixer from 'autoprefixer'
 import cssPlugin from './plugins/css-plugin'
 import typescript from 'rollup-plugin-typescript2'
 import externals from 'rollup-plugin-node-externals'
-import nodeResolve from '@rollup/plugin-node-resolve'
 import distFilesPlugin from './plugins/dist-files-plugin'
 
 const sourceDir = path.resolve(__dirname, './src')
@@ -20,12 +19,8 @@ const entries = glob.sync(path.resolve(sourceDir, '**/*.{tsx,ts}'), {
 })
 
 const plugins = [
-  typescript({ tsconfig: path.resolve(__dirname, 'tsconfig.json') }),
   externals({ deps: true, devDeps: true }),
-  nodeResolve({
-    browser: true,
-    extensions: ['.js', '.ts', '.tsx']
-  }),
+  typescript({ tsconfig: path.resolve(__dirname, 'tsconfig.json') }),
   copy({
     targets: [{ src: 'src/styles/*', dest: 'dist/dist/scss' }]
   }),
@@ -45,13 +40,24 @@ const plugins = [
  */
 export default {
   input: entries,
-  output: {
-    dir: 'dist',
-    format: 'es',
-    preserveModules: true,
-    globals: {
-      react: 'React'
+  plugins,
+  output: [
+    {
+      dir: 'dist/esm',
+      format: 'esm',
+      preserveModules: true,
+      globals: {
+        react: 'React'
+      }
+    },
+    {
+      dir: 'dist',
+      format: 'cjs',
+      exports: 'named',
+      preserveModules: true,
+      globals: {
+        react: 'React'
+      }
     }
-  },
-  plugins
+  ]
 }
