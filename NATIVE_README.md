@@ -1,6 +1,6 @@
 # Material UI Tabs For React Native
 
-Material UI is now available with React Native.
+Material UI is now available with React Native. [See example](https://snack.expo.dev/@bilaleren/mui-tabs?platform=android).
 
 ### Installation of requirements
 
