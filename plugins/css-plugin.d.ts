@@ -12,5 +12,4 @@ export interface CssPluginOptions {
 
 type CssPlugin = (options: CssPluginOptions) => Plugin
 
-// eslint-disable-next-line no-undef
 export default CssPlugin

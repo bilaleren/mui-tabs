@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["dom", "esnext"]
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "src/**/*.scss",
+    "example",
+    "src/test",
+    "src/**/*.test.tsx"
+  ]
+}

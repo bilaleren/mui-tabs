@@ -25,6 +25,7 @@
     }
   },
   "rules": {
+    "no-undef": "off",
     "no-unused-expressions": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
@@ -40,6 +41,8 @@
     "react/jsx-fragments": "off",
     "react/no-unused-prop-types": "off",
     "import/export": "off",
+    "react/jsx-boolean-value": "off",
+    "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/member-delimiter-style": ["error", {
       "multiline": {
         "delimiter": "none",

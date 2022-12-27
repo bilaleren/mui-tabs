@@ -1,0 +1,15 @@
+{
+  "name": "@mui-tabs/native",
+  "version": "1.0.0",
+  "license": "MIT",
+  "devDependencies": {
+    "@mui-tabs/utils": "1.0.0",
+    "@types/color": "^3.0.3",
+    "@types/react": "^18.0.26",
+    "@types/react-native": "^0.70.8",
+    "color": "^4.2.3",
+    "react": "^18.2.0",
+    "react-native": "^0.70.6",
+    "react-native-svg": "^13.6.0"
+  }
+}

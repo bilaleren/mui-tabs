@@ -1,6 +1,9 @@
 # Material UI Tabs
 
-[![NPM](https://img.shields.io/npm/v/mui-tabs.svg)](https://www.npmjs.com/package/mui-tabs) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![License MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/bilaleren/mui-tabs/blob/master/LICENCE)
+[![NPM](https://img.shields.io/npm/v/mui-tabs.svg)](https://www.npmjs.com/package/mui-tabs)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![npm downloads](https://img.shields.io/npm/dt/mui-tabs.svg)](#installation)
 
 This package was developed based on the [Material UI Tabs](https://mui.com/components/tabs/#main-content) component. [See demo](https://bilaleren.github.io/mui-tabs).
 
@@ -17,22 +20,21 @@ This package was developed based on the [Material UI Tabs](https://mui.com/compo
 - [x] [Full width tabs](https://bilaleren.github.io/mui-tabs#fullwidth-tabs)
 - [x] [Centered tabs](https://bilaleren.github.io/mui-tabs#centered-tabs)
 - [x] [Ripple effect supported](https://bilaleren.github.io/mui-tabs#ripple-effect) (optional)
-
-## Dependencies
-
-- [clsx](https://www.npmjs.com/package/clsx)
-- [react-transition-group](https://www.npmjs.com/package/react-transition-group) (used for ripple effect)
+- [x] [React Native supported](./NATIVE_README.md)
 
 ## Installation
 
+- If you want to use it for the web, you need to install the **clsx** package.
+- If you want to use a [RippleButton](#ripple-effect-example), you need to install the **react-transition-group** package.
+
 ```bash
-yarn add mui-tabs
+yarn add mui-tabs clsx
 ```
 
-or
+if you want to use the RippleButton
 
 ```bash
-npm install mui-tabs
+yarn add mui-tabs clsx react-transition-group
 ```
 
 ## Examples
@@ -76,11 +78,12 @@ const App = () => {
   return (
     <Tabs
       value={value}
-      ButtonComponent={RippleButton}
-      onChange={(value) => setValue(value)}
       variant="scrollable"
       scrollButtons={true}
-      allowScrollButtonsMobile
+      onChange={(value) => setValue(value)}
+      TabComponent={RippleButton}
+      ScrollButtonComponent={RippleButton}
+      allowScrollButtonsMobile={true}
     >
       <Tab value={1} label="Tab 1" />
       <Tab value={2} label="Tab 2" />

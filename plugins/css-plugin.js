@@ -9,11 +9,7 @@ import { promises as fs } from 'fs'
  */
 const cssPlugin = (options) => ({
   name: 'css-plugin',
-  buildEnd: async (err) => {
-    if (err) {
-      throw err
-    }
-
+  buildEnd: async () => {
     const paths = glob
       .sync(options.input, options.globOptions)
       .filter((value) => !path.basename(value).startsWith('_'))
