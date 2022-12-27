@@ -36,10 +36,10 @@ function getAliases(esModules = false) {
     entries: [
       {
         find: '@mui-tabs/utils/src',
-        replacement: esModules ? '../../utils/esm' : '../../utils'
+        replacement: esModules ? '../../utils/esm' : '../utils'
       }
     ],
-    customResolver: (id) => ({
+    customResolver: (id, x) => ({
       id: `${id}.js`,
       external: 'relative'
     })
