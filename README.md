@@ -5,7 +5,7 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![npm downloads](https://img.shields.io/npm/dt/mui-tabs.svg)](#installation)
 
-This package was developed based on the [Material UI Tabs](https://mui.com/components/tabs/#main-content) component. [See demo](https://bilaleren.github.io/mui-tabs).
+This package was developed based on the [Material UI Tabs](https://mui.com/components/tabs/#main-content) component. [See example](https://bilaleren.github.io/mui-tabs).
 
 ## Differences
 
