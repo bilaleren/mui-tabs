@@ -2,12 +2,13 @@ import path from 'path'
 import glob from 'fast-glob'
 import postcss from 'postcss'
 import cssnano from 'cssnano'
+import pkg from './package.json'
 import copy from 'rollup-plugin-copy'
 import autoprefixer from 'autoprefixer'
 import alias from '@rollup/plugin-alias'
 import babel from '@rollup/plugin-babel'
 import cssPlugin from './plugins/css-plugin'
-import tsDeclaration from './plugins/tsDecleration'
+import tsDeclaration from './plugins/tsDeclaration'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import nodeExternals from 'rollup-plugin-node-externals'
 
@@ -39,7 +40,7 @@ function getAliases(esModules = false) {
         replacement: esModules ? '../../utils/esm' : '../utils'
       }
     ],
-    customResolver: (id, x) => ({
+    customResolver: (id) => ({
       id: `${id}.js`,
       external: 'relative'
     })
@@ -87,6 +88,10 @@ function getBabelConfig(options = {}) {
   })
 }
 
+function getTsConfigPath(sourceDir) {
+  return path.resolve(sourceDir, '..', 'tsconfig.json')
+}
+
 /**
  * @type {import('rollup').RollupOptions[]}
  */
@@ -99,10 +104,10 @@ export default [
       nodeResolve({ extensions }),
       getBabelConfig({
         sourceDir: utilsSourceDir,
-        targets: ['last 3 versions', '> 5%']
+        targets: pkg.browserslist
       }),
       tsDeclaration({
-        tsconfig: path.resolve(utilsSourceDir, '..', 'tsconfig.json'),
+        tsconfig: getTsConfigPath(utilsSourceDir),
         outputPath: path.join(distDir, 'utils')
       })
     ],
@@ -127,7 +132,7 @@ export default [
         useESModules: true
       }),
       tsDeclaration({
-        tsconfig: path.resolve(utilsSourceDir, '..', 'tsconfig.json'),
+        tsconfig: getTsConfigPath(utilsSourceDir),
         outputPath: path.join(distDir, 'utils/esm')
       })
     ],
@@ -149,29 +154,11 @@ export default [
       nodeResolve({ extensions }),
       getBabelConfig({
         sourceDir: webSourceDir,
-        targets: ['last 3 versions', '> 5%'],
+        targets: pkg.browserslist,
         useESModules: false
       }),
-      copy({
-        targets: [
-          {
-            src: path.join(webSourceDir, 'styles/*'),
-            dest: 'dist/dist/scss'
-          }
-        ]
-      }),
-      cssPlugin({
-        input: path.join(webSourceDir, '**/*.{css,scss}'),
-        outputDir: path.join(__dirname, 'dist/dist'),
-        globOptions: {
-          ignore: [
-            path.join(webSourceDir, 'styles/main-without-variables.scss')
-          ]
-        },
-        postcss: () => postcss([autoprefixer(), cssnano()])
-      }),
       tsDeclaration({
-        tsconfig: path.resolve(webSourceDir, '..', 'tsconfig.json'),
+        tsconfig: getTsConfigPath(webSourceDir),
         outputPath: path.join(__dirname, 'dist')
       })
     ],
@@ -196,8 +183,21 @@ export default [
         targets: ['node 14'],
         useESModules: true
       }),
+      copy({
+        targets: [
+          {
+            src: path.join(webSourceDir, 'styles/*'),
+            dest: 'dist/dist/scss'
+          }
+        ]
+      }),
+      cssPlugin({
+        input: path.join(webSourceDir, '**/*.{css,scss}'),
+        outputDir: path.join(__dirname, 'dist/dist'),
+        postcss: () => postcss([autoprefixer(), cssnano()])
+      }),
       tsDeclaration({
-        tsconfig: path.resolve(webSourceDir, '..', 'tsconfig.json'),
+        tsconfig: getTsConfigPath(webSourceDir),
         outputPath: path.join(__dirname, 'dist/esm')
       })
     ],
@@ -223,7 +223,7 @@ export default [
         useESModules: true
       }),
       tsDeclaration({
-        tsconfig: path.resolve(nativeSourceDir, '..', 'tsconfig.json'),
+        tsconfig: getTsConfigPath(nativeSourceDir),
         outputPath: path.join(__dirname, 'dist', 'native')
       })
     ],

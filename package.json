@@ -1,6 +1,6 @@
 {
   "name": "mui-tabs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Material UI tabs for React and React Native projects.",
   "author": "Bilal Eren",
@@ -27,6 +27,10 @@
     "material ui tabs",
     "react material tabs",
     "react native material tabs"
+  ],
+  "browserslist": [
+    "last 3 versions",
+    "> 5%"
   ],
   "scripts": {
     "prebuild": "rm -rf dist",

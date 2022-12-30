@@ -1,10 +1,12 @@
 import * as React from 'react'
 import {
   View,
+  Text,
   Easing,
   Animated,
   Dimensions,
   ViewProps,
+  TextProps,
   StyleSheet,
   ScrollView,
   ColorValue,
@@ -107,7 +109,7 @@ export interface TabsProps<
    *
    *  - `scrollable` will invoke scrolling properties and allow for horizontally
    *  scrolling (or swiping) of the tab bar.
-   *  -`fullWidth` will make the tabs grow to use all the available space,
+   *  - `fullWidth` will make the tabs grow to use all the available space,
    *  which should be used for small views, like on mobile.
    *  - `standard` will render the default state.
    * @default 'standard'
@@ -158,7 +160,6 @@ export interface TabsProps<
     Partial<ScrollViewProps>,
     | 'horizontal'
     | 'scrollsToTop'
-    | 'scrollEnabled'
     | 'showsVerticalScrollIndicator'
     | 'showsHorizontalScrollIndicator'
   >
@@ -167,6 +168,11 @@ export interface TabsProps<
    * The component used to render the tabs.
    */
   TabComponent?: React.ComponentType<TabButtonProps>
+
+  /**
+   * The component used to render the tabs label.
+   */
+  TabLabelComponent?: React.ComponentType<TextProps>
 
   /**
    * The component used to render the scroll buttons.
@@ -223,7 +229,7 @@ interface TabsWithForwardRef
 }
 
 const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
-  function Tabs(props, ref) {
+  (props, ref) => {
     const {
       value,
       style,
@@ -242,12 +248,20 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
       scrollViewContainerProps = {},
       children: childrenProp,
       TabComponent = TabButton,
+      TabLabelComponent = Text,
       ScrollButtonComponent = TabButton,
       ...other
     } = props
 
+    const {
+      onScroll,
+      scrollEnabled = true,
+      onContentSizeChange,
+      contentContainerStyle,
+      ...otherScrollViewProps
+    } = scrollViewProps
     const fullWidth = variant === 'fullWidth'
-    const scrollable = variant === 'scrollable'
+    const scrollable = variant === 'scrollable' && scrollEnabled
     const showScrollButtons = scrollable && scrollButtons
 
     const {
@@ -534,7 +548,7 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
       const scrollableAreaContentSize = getScrollableAreaContentWidth()
       const isEndReached =
         scrollPositionRef.current + scrollableAreaWidth <=
-        scrollableAreaContentSize - 20
+        scrollableAreaContentSize - 1
 
       let showStartScroll
       let showEndScroll
@@ -563,7 +577,7 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
         nativeEvent: { contentOffset }
       } = event
 
-      scrollViewProps.onScroll?.(event)
+      onScroll?.(event)
 
       scrollPositionRef.current = contentOffset.x
 
@@ -599,7 +613,7 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
       scrollSelectedIntoView(false)
       mountedRef.current = true
 
-      scrollViewProps.onContentSizeChange?.(w, h)
+      onContentSizeChange?.(w, h)
     }
 
     const indicator = indicatorVisibility ? (
@@ -731,6 +745,7 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
           index !== 0 && !centered && { marginLeft: tabSpace }
         ],
         value: childValue,
+        LabelComponent: TabLabelComponent,
         ButtonComponent: TabComponent,
         indicator: indicatorVisibility
           ? selected && !mounted && indicator
@@ -755,17 +770,17 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
             accessibilityRole="tablist"
             automaticallyAdjustContentInsets={false}
             automaticallyAdjustsScrollIndicatorInsets={false}
-            {...scrollViewProps}
+            {...otherScrollViewProps}
             ref={scrollViewRef}
             onScroll={handleScroll}
             onContentSizeChange={handleScrollViewContentSizeChange}
-            scrollEnabled={scrollable}
             contentContainerStyle={[
-              scrollViewProps.contentContainerStyle,
+              contentContainerStyle,
               centered && styles.centered
             ]}
             horizontal={true}
             scrollsToTop={false}
+            scrollEnabled={scrollable}
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
           >

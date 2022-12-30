@@ -5,7 +5,7 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "start:native-example": "react-native start",
+    "start:native-example": "react-native start --reset-cache",
     "lint:native-example": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
