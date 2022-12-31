@@ -61,6 +61,16 @@ export interface TabProps extends Omit<TabButtonProps, 'rippleColor'> {
   selected?: boolean
 
   /**
+   * The content used to after the tab label.
+   */
+  afterLabel?: React.ReactNode
+
+  /**
+   * The content used to before the tab label.
+   */
+  beforeLabel?: React.ReactNode
+
+  /**
    * Used to assign a custom indicator.
    */
   indicator?: React.ReactNode
@@ -129,6 +139,8 @@ const Tab: React.FC<TabProps> = (props: TabProps) => {
     indicator,
     onPress,
     onChange,
+    afterLabel,
+    beforeLabel,
     selected = false,
     disabled = false,
     labelProps = {},
@@ -172,6 +184,7 @@ const Tab: React.FC<TabProps> = (props: TabProps) => {
       ]}
       rippleColor={color}
     >
+      {beforeLabel}
       <View
         {...labelContainerProps}
         style={[
@@ -198,6 +211,7 @@ const Tab: React.FC<TabProps> = (props: TabProps) => {
           labelProp
         )}
       </View>
+      {afterLabel}
       {indicator}
     </ButtonComponent>
   )

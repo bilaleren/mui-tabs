@@ -7,4 +7,4 @@ export type { TabButtonProps } from './TabButton'
 export { default as Tabs } from './Tabs'
 export type { TabsProps, TabsActionRefAttributes } from './Tabs'
 
-export type { IconPosition, ChangeHandler } from './types'
+export type { TabValue, IconPosition, ChangeHandler } from './types'

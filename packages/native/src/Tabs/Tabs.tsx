@@ -143,10 +143,7 @@ export interface TabsProps<
   /**
    * Override the Tab props.
    */
-  tabProps?: Omit<
-    Partial<TabProps>,
-    'selected' | 'label' | 'fullWidth' | 'onChange'
-  >
+  tabProps?: Omit<Partial<TabProps>, 'selected' | 'label' | 'onChange'>
 
   /**
    * Override the Indicator props.
@@ -165,6 +162,11 @@ export interface TabsProps<
   >
 
   /**
+   * Override the ScrollButtons props.
+   */
+  scrollButtonsProps?: Partial<TabScrollButtonProps>
+
+  /**
    * The component used to render the tabs.
    */
   TabComponent?: React.ComponentType<TabButtonProps>
@@ -178,11 +180,6 @@ export interface TabsProps<
    * The component used to render the scroll buttons.
    */
   ScrollButtonComponent?: React.ComponentType<TabButtonProps>
-
-  /**
-   * Override the ScrollButtons props.
-   */
-  scrollButtonsProps?: Partial<TabScrollButtonProps>
 
   /**
    * Override the ScrollViewContainer props.
