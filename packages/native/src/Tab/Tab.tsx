@@ -176,6 +176,7 @@ const Tab: React.FC<TabProps> = (props: TabProps) => {
       disabled={disabled}
       onPress={handlePress}
       accessibilityRole="tab"
+      accessibilityState={{ disabled, selected }}
       style={[
         styles.container,
         disabled && { opacity: disabledOpacity },

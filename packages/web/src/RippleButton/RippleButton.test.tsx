@@ -8,8 +8,8 @@ import {
   createRenderer,
   simulatePointerDevice
 } from '../test/utils'
+import type { TouchRippleRefAttributes } from './TouchRipple'
 import RippleButton, { RippleButtonActionRefAttributes } from './RippleButton'
-import { TouchRippleRefAttributes } from './TouchRipple'
 
 describe('<RippleButton />', () => {
   const { render } = createRenderer()

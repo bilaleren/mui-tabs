@@ -1,5 +1,5 @@
-const { promises: fs } = require('fs')
-const path = require('path')
+import path from 'path'
+import fs from 'fs/promises'
 
 const IGNORE_FILES = ['LICENCE', 'README.md', 'package.json']
 
@@ -54,9 +54,9 @@ async function writeFilesToPackageJson() {
   )
 }
 
-async function bootstrap() {
+async function generatePackageJson() {
   await writeFilesToPackageJson()
   await copyFiles()
 }
 
-bootstrap().catch()
+generatePackageJson().catch()

@@ -2,6 +2,11 @@
   "name": "@mui-tabs/native",
   "version": "1.0.0",
   "license": "MIT",
+  "scripts": {
+    "build": "yarn build:modern && yarn build:types",
+    "build:modern": "node ../../scripts/build.mjs --env modern --out-dir native",
+    "build:types": "node ../../scripts/buildTypes.mjs --out-dir native"
+  },
   "devDependencies": {
     "@mui-tabs/utils": "1.0.0",
     "@types/color": "^3.0.3",

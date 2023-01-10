@@ -4,7 +4,12 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "test:web": "NODE_ENV=test mocha --exit"
+    "build": "yarn build:node && yarn build:modern && yarn build:styles && yarn build:types",
+    "build:node": "node ../../scripts/build.mjs --env node --out-dir ./",
+    "build:modern": "node ../../scripts/build.mjs --env modern --out-dir ./esm",
+    "build:types": "node ../../scripts/buildTypes.mjs --out-dir ./ && node ../../scripts/buildTypes.mjs --out-dir ./esm",
+    "build:styles": "node ../../scripts/buildStyles.mjs --source-dir ./styles --out-dir ./dist --copy-source-to ./scss",
+    "test": "NODE_ENV=test mocha --exit"
   },
   "dependencies": {
     "clsx": "^1.1.1",

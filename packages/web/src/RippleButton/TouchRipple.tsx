@@ -7,25 +7,6 @@ import touchRippleClasses, { TouchRippleClasses } from './touchRippleClasses'
 const RIPPLE_TIMEOUT = 550
 export const DELAY_RIPPLE = 80
 
-export const TouchRippleRoot = React.forwardRef<
-  HTMLSpanElement,
-  React.HTMLAttributes<HTMLSpanElement>
->((props, ref) => {
-  const { className, ...other } = props
-
-  return (
-    <span
-      {...other}
-      ref={ref}
-      className={clsx(touchRippleClasses.root, className)}
-    />
-  )
-})
-
-export const TouchRippleRipple: React.FC<RippleProps> = (props) => (
-  <Ripple {...props} />
-)
-
 type Noop = () => void
 
 export type StartFn = (
@@ -105,7 +86,7 @@ const TouchRipple = React.forwardRef<
 
       setRipples((oldRipples) => [
         ...oldRipples,
-        <TouchRippleRipple
+        <Ripple
           key={nextKey.current}
           classes={{
             ripple: clsx(classes.ripple, touchRippleClasses.ripple),
@@ -289,15 +270,15 @@ const TouchRipple = React.forwardRef<
   )
 
   return (
-    <TouchRippleRoot
+    <span
       {...other}
       ref={container}
-      className={clsx(classes.root, className)}
+      className={clsx(touchRippleClasses.root, classes.root, className)}
     >
       <TransitionGroup component={null} exit>
         {ripples}
       </TransitionGroup>
-    </TouchRippleRoot>
+    </span>
   )
 })
 

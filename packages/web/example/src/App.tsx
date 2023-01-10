@@ -1,10 +1,10 @@
 import * as React from 'react'
 import styled from 'styled-components'
 import Example from './components/Example'
-import { Tab, Tabs, TabsProps } from 'mui-tabs/esm'
-import tabClasses from 'mui-tabs/esm/Tab/tabClasses'
-import RippleButton from 'mui-tabs/esm/RippleButton'
-import tabsClasses from 'mui-tabs/esm/Tabs/tabsClasses'
+import { Tab, Tabs, TabsProps } from 'mui-tabs'
+import tabClasses from 'mui-tabs/Tab/tabClasses'
+import RippleButton from 'mui-tabs/RippleButton'
+import tabsClasses from 'mui-tabs/Tabs/tabsClasses'
 import {
   basicTab,
   iconTabs,

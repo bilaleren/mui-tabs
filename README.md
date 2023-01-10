@@ -1,4 +1,4 @@
-# Material UI Tabs
+# MUI Tabs
 
 [![License MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/bilaleren/mui-tabs/blob/master/LICENCE)
 [![NPM](https://img.shields.io/npm/v/mui-tabs.svg)](https://www.npmjs.com/package/mui-tabs)
@@ -19,7 +19,7 @@ This package was developed based on the [Material UI Tabs](https://mui.com/compo
 - [x] [Scrollable tabs](https://bilaleren.github.io/mui-tabs#scrollable-tabs)
 - [x] [Full width tabs](https://bilaleren.github.io/mui-tabs#fullwidth-tabs)
 - [x] [Centered tabs](https://bilaleren.github.io/mui-tabs#centered-tabs)
-- [x] [Ripple effect supported](https://bilaleren.github.io/mui-tabs#ripple-effect) (optional)
+- [x] [Ripple effect supported](https://bilaleren.github.io/mui-tabs#ripple-effect)
 - [x] [React Native supported](./NATIVE_README.md)
 
 ## Installation
