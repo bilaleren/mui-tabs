@@ -8,7 +8,7 @@ import {
   PressableProps
 } from 'react-native'
 
-type ButtonProps = Omit<Partial<PressableProps>, 'style'>
+type ButtonProps = Partial<Omit<PressableProps, 'style'>>
 
 export interface TabButtonProps extends ButtonProps {
   style?: StyleProp<ViewStyle>

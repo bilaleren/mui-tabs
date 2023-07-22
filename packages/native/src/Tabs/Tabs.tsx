@@ -7,6 +7,8 @@ import {
   Dimensions,
   ViewProps,
   TextProps,
+  StyleProp,
+  ViewStyle,
   StyleSheet,
   ScrollView,
   ColorValue,
@@ -307,9 +309,8 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
       }
     ) as React.ReactElement<TabProps>[]
 
-    const [layoutSize, setLayoutSize] =
-      React.useState<number>(getInitialLayoutSize)
     const [mounted, setMounted] = React.useState(false)
+    const [layoutSize, setLayoutSize] = React.useState(getInitialLayoutSize)
     const [displayScroll, setDisplayScroll] = React.useState({
       start: false,
       end: false
@@ -323,6 +324,28 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
     const scrollPositionRef = React.useRef<number>(0)
     const indicatorWidth = React.useRef(new Animated.Value(0)).current
     const indicatorPosition = React.useRef(new Animated.Value(0)).current
+
+    const getTabCoordinate = React.useCallback(
+      (index: number): number => {
+        let sizes: number[]
+        const values = Array.from(valueToSizeRef.current.values()).slice(
+          0,
+          childrenArray.length
+        )
+
+        if (I18nManager.isRTL) {
+          sizes = values.slice(index)
+        } else {
+          sizes = values.slice(0, index + 1)
+        }
+
+        return sizes.reduce<number>((previousValue, currentValue) => {
+          previousValue += currentValue
+          return previousValue
+        }, 0)
+      },
+      [childrenArray.length]
+    )
 
     const getScrollButtonSize = React.useCallback((): number => {
       if (!showScrollButtons) {
@@ -341,35 +364,11 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
       )
     }, [layoutSize, showScrollButtons, scrollButtonsProps.style])
 
-    const getTabCoordinate = React.useCallback(
-      (index: number): number => {
-        let sizes: number[]
-        const values = Array.from(valueToSizeRef.current.values()).slice(
-          0,
-          childrenArray.length
-        )
-
-        if (I18nManager.isRTL) {
-          sizes = values.slice(index)
-        } else {
-          sizes = values.slice(0, index + 1)
-        }
-
-        return sizes.reduce<number>((previousValue, currentValue) => {
-          previousValue += currentValue
-
-          return previousValue
-        }, 0)
-      },
-      [childrenArray.length]
-    )
-
     const getScrollableAreaContentWidth = React.useCallback((): number => {
       return Array.from(valueToSizeRef.current.values())
         .slice(0, childrenArray.length)
         .reduce<number>((previousValue, currentValue) => {
           previousValue += currentValue
-
           return previousValue
         }, insets)
     }, [insets, childrenArray.length])
@@ -381,77 +380,66 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
           .slice(index)
           .reduce<number>((previousValue, currentValue) => {
             previousValue += currentValue
-
             return previousValue
           }, 0)
       },
       [childrenArray.length]
     )
 
-    const getScrollableAreaWidth = (): number => {
+    const getScrollableAreaWidth = React.useCallback((): number => {
       let width = layoutSize
 
       if (showScrollButtons) {
-        width -= getScrollButtonSize() * 2
+        const scrollButtonSize = getScrollButtonSize()
+        width -= scrollButtonSize * 2
       }
 
       width -= insets
 
       return width
-    }
+    }, [insets, layoutSize, getScrollButtonSize, showScrollButtons])
 
-    const calculateTabSize = (tab: TabProps): number => {
-      if (fullWidth) {
-        return getScrollableAreaWidth() / childrenArray.length
-      }
-
-      const flattenedSize = flattenSize(
-        tab.width ?? tabProps.width,
-        getScrollableAreaWidth()
-      )
-
-      return flattenedSize || DEFAULT_TAB_WIDTH
-    }
-
-    const scroll = (delta: number, animated?: boolean): void => {
-      const scrollView = scrollViewRef.current
-
-      if (!scrollView) {
-        return
-      }
-
-      scrollView.scrollTo({
-        x: delta,
-        animated
-      })
-    }
-
-    const moveTabsScroll = (delta: number, animated = true) => {
-      scrollPositionRef.current += delta * (I18nManager.isRTL ? -1 : 1)
-
-      scroll(scrollPositionRef.current, animated)
-    }
-
-    const scrollSelectedIntoView = useEventCallback((animated?: boolean) => {
-      let index = valueToIndexRef.current.get(value as number)
-
-      if (scrollable && index !== undefined) {
-        const tabCoordinate = getTabCoordinate(index)
-        const scrollableAreaWidth = getScrollableAreaWidth()
-
-        if (I18nManager.isRTL) {
-          index = childrenArray.length - 1 - index
+    const calculateTabSize = React.useCallback(
+      (props: TabProps): number => {
+        if (fullWidth) {
+          return getScrollableAreaWidth() / childrenArray.length
         }
 
-        const calculatedSpace = index * tabSpace
-
-        const delta = Math.ceil(
-          tabCoordinate - scrollableAreaWidth + insets + calculatedSpace
+        const flattenedSize = flattenSize(
+          props.width ?? tabProps.width,
+          getScrollableAreaWidth()
         )
 
-        scroll(delta, animated)
+        return flattenedSize || DEFAULT_TAB_WIDTH
+      },
+      [fullWidth, tabProps.width, childrenArray.length, getScrollableAreaWidth]
+    )
+
+    const scroll = useEventCallback(
+      (delta: number, animated?: boolean): void => {
+        const scrollView = scrollViewRef.current
+
+        if (!scrollView) {
+          return
+        }
+
+        scrollView.scrollTo({
+          x: delta,
+          animated
+        })
       }
-    })
+    )
+
+    const moveTabsScroll = useEventCallback(
+      (delta: number, animated?: boolean) => {
+        scrollPositionRef.current += delta * (I18nManager.isRTL ? -1 : 1)
+
+        scroll(
+          scrollPositionRef.current,
+          typeof animated === 'undefined' ? true : animated
+        )
+      }
+    )
 
     const updateIndicatorState = useEventCallback((animated?: boolean) => {
       if (!childrenArray.length) {
@@ -536,16 +524,37 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
       }
     })
 
+    const scrollSelectedIntoView = useEventCallback((animated?: boolean) => {
+      let index = valueToIndexRef.current.get(value as number)
+
+      if (scrollable && index !== undefined) {
+        const tabCoordinate = getTabCoordinate(index)
+        const scrollableAreaWidth = getScrollableAreaWidth()
+
+        if (I18nManager.isRTL) {
+          index = childrenArray.length - 1 - index
+        }
+
+        const calculatedSpace = index * tabSpace
+
+        const delta = Math.ceil(
+          tabCoordinate - scrollableAreaWidth + insets + calculatedSpace
+        )
+
+        scroll(delta, animated)
+      }
+    })
+
     const updateScrollButtonState = useEventCallback(() => {
       if (!scrollable || !childrenArray.length) {
         return
       }
 
       const scrollableAreaWidth = getScrollableAreaWidth()
-      const scrollableAreaContentSize = getScrollableAreaContentWidth()
+      const scrollableAreaContentWidth = getScrollableAreaContentWidth()
       const isEndReached =
         scrollPositionRef.current + scrollableAreaWidth <=
-        scrollableAreaContentSize - 1
+        scrollableAreaContentWidth - 1
 
       let showStartScroll
       let showEndScroll
@@ -569,19 +578,21 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
       }
     })
 
-    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const {
-        nativeEvent: { contentOffset }
-      } = event
+    const handleScroll = useEventCallback(
+      (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const {
+          nativeEvent: { contentOffset }
+        } = event
 
-      onScroll?.(event)
+        onScroll?.(event)
 
-      scrollPositionRef.current = contentOffset.x
+        scrollPositionRef.current = contentOffset.x
 
-      updateScrollButtonState()
-    }
+        updateScrollButtonState()
+      }
+    )
 
-    const handleLayout = (event: LayoutChangeEvent) => {
+    const handleLayout = useEventCallback((event: LayoutChangeEvent) => {
       const {
         nativeEvent: { layout: currentLayout }
       } = event
@@ -596,72 +607,24 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
 
         setLayoutSize(currentLayoutWidth)
       }
-    }
+    })
 
-    const handleStartScrollClick = () => {
+    const handleStartScrollClick = useEventCallback(() => {
       moveTabsScroll(-1 * getScrollableAreaWidth())
-    }
+    })
 
-    const handleEndScrollClick = () => {
+    const handleEndScrollClick = useEventCallback(() => {
       moveTabsScroll(getScrollableAreaWidth())
-    }
+    })
 
-    const handleScrollViewContentSizeChange = (w: number, h: number) => {
-      scrollSelectedIntoView(false)
-      mountedRef.current = true
+    const handleScrollViewContentSizeChange = useEventCallback(
+      (w: number, h: number) => {
+        scrollSelectedIntoView(false)
+        mountedRef.current = true
 
-      onContentSizeChange?.(w, h)
-    }
-
-    const indicator = indicatorVisibility ? (
-      <Animated.View
-        {...otherIndicatorProps}
-        style={[
-          {
-            position: 'absolute',
-            left: indicatorPosition,
-            width: mounted ? indicatorWidth : '100%',
-            height: indicatorSizeProp,
-            [indicatorPositionProp]: 0,
-            backgroundColor: indicatorColorProp
-          },
-          otherIndicatorProps.style
-        ]}
-      />
-    ) : null
-
-    const getConditionalElements = () => {
-      const conditionalElements: any = {}
-      const scrollButtonSize = getScrollButtonSize()
-      const scrollButtonsStyle = [
-        scrollButtonsProps.style,
-        { width: scrollButtonSize, maxWidth: scrollButtonSize }
-      ]
-
-      conditionalElements.scrollButtonStart = showScrollButtons ? (
-        <TabScrollButton
-          {...scrollButtonsProps}
-          direction="left"
-          style={scrollButtonsStyle}
-          onPress={handleStartScrollClick}
-          disabled={!displayScroll.start}
-          ButtonComponent={ScrollButtonComponent}
-        />
-      ) : null
-
-      conditionalElements.scrollButtonEnd = showScrollButtons ? (
-        <TabScrollButton
-          {...scrollButtonsProps}
-          direction="right"
-          style={scrollButtonsStyle}
-          onPress={handleEndScrollClick}
-          disabled={!displayScroll.end}
-          ButtonComponent={ScrollButtonComponent}
-        />
-      ) : null
-
-      return conditionalElements
-    }
+        onContentSizeChange?.(w, h)
+      }
+    )
 
     React.useEffect(() => {
       return () => {
@@ -691,7 +654,6 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
 
     React.useEffect(() => {
       updateIndicatorState(animatedRef.current)
-
       animatedRef.current = true
     }, [
       value,
@@ -717,40 +679,58 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
     let childIndex = 0
 
     const children = childrenArray.map((child, index) => {
-      const childProps = child.props
-      const childValue =
-        childProps.value === undefined ? childIndex : childProps.value
-
-      const tabSize = calculateTabSize(childProps)
+      const props = child.props
+      const tabSize = calculateTabSize(props)
+      const childValue = props.value === undefined ? childIndex : props.value
+      const selected = childValue === value
 
       valueToSizeRef.current.set(childValue, tabSize)
       valueToIndexRef.current.set(childValue, childIndex)
-
-      const selected = childValue === value
 
       childIndex += 1
 
       return React.cloneElement<TabProps>(child, {
         ...tabProps,
-        ...childProps,
+        ...props,
         width: tabSize,
+        value: childValue,
         onChange,
         selected,
         style: [
           tabProps.style,
-          childProps.style,
+          props.style,
           index !== 0 && !centered && { marginLeft: tabSpace }
         ],
-        value: childValue,
         LabelComponent: TabLabelComponent,
         ButtonComponent: TabComponent,
         indicator: indicatorVisibility
           ? selected && !mounted && indicator
-          : selected && (childProps.indicator || tabProps.indicator)
+          : selected && (props.indicator || tabProps.indicator)
       })
     })
 
-    const conditionalElements = getConditionalElements()
+    const indicator = indicatorVisibility ? (
+      <Animated.View
+        {...otherIndicatorProps}
+        style={[
+          {
+            position: 'absolute',
+            left: indicatorPosition,
+            width: mounted ? indicatorWidth : '100%',
+            height: indicatorSizeProp,
+            [indicatorPositionProp]: 0,
+            backgroundColor: indicatorColorProp
+          },
+          otherIndicatorProps.style
+        ]}
+      />
+    ) : null
+
+    const scrollButtonSize = getScrollButtonSize()
+    const scrollButtonStyle: StyleProp<ViewStyle>[] = [
+      scrollButtonsProps.style,
+      { width: scrollButtonSize, maxWidth: scrollButtonSize }
+    ]
 
     return childrenArray.length > 0 ? (
       <View
@@ -758,7 +738,17 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
         onLayout={handleLayout}
         style={[styles.container, style]}
       >
-        {conditionalElements.scrollButtonStart}
+        {showScrollButtons && (
+          <TabScrollButton
+            {...scrollButtonsProps}
+            direction="left"
+            style={scrollButtonStyle}
+            onPress={handleStartScrollClick}
+            disabled={!displayScroll.start}
+            ButtonComponent={ScrollButtonComponent}
+          />
+        )}
+
         <View
           {...scrollViewContainerProps}
           style={[styles.scrollViewContainer, scrollViewContainerProps.style]}
@@ -785,7 +775,17 @@ const Tabs: TabsWithForwardRef = React.forwardRef<TabsRefAttributes, TabsProps>(
             {mounted && indicator}
           </ScrollView>
         </View>
-        {conditionalElements.scrollButtonEnd}
+
+        {showScrollButtons && (
+          <TabScrollButton
+            {...scrollButtonsProps}
+            direction="right"
+            style={scrollButtonStyle}
+            onPress={handleEndScrollClick}
+            disabled={!displayScroll.end}
+            ButtonComponent={ScrollButtonComponent}
+          />
+        )}
       </View>
     ) : null
   }

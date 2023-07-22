@@ -186,6 +186,23 @@ const Tabs: TabsWithForwardRef = React.forwardRef<HTMLDivElement, TabsProps>(
       ...other
     } = props
 
+    const [mounted, setMounted] = React.useState(false)
+    const [indicatorStyle, setIndicatorStyle] =
+      React.useState<React.CSSProperties>(defaultIndicatorStyle)
+    const [displayScroll, setDisplayScroll] = React.useState({
+      start: false,
+      end: false
+    })
+
+    const [scrollerStyle, setScrollerStyle] = React.useState<any>({
+      overflow: 'hidden',
+      scrollbarWidth: 0
+    })
+
+    const valueToIndex = new Map<TabsProps['value'], number>()
+    const tabsRef = React.useRef<Maybe<HTMLDivElement>>(null)
+    const tabListRef = React.useRef<Maybe<HTMLDivElement>>(null)
+
     const isRtl = direction === 'rtl'
     const scrollable = variant === 'scrollable'
     const vertical = orientation === 'vertical'
@@ -209,22 +226,11 @@ const Tabs: TabsWithForwardRef = React.forwardRef<HTMLDivElement, TabsProps>(
 
     const classes = useTabsClasses(ownerState)
 
-    const [mounted, setMounted] = React.useState(false)
-    const [indicatorStyle, setIndicatorStyle] =
-      React.useState<React.CSSProperties>(defaultIndicatorStyle)
-    const [displayScroll, setDisplayScroll] = React.useState({
-      start: false,
-      end: false
-    })
-
-    const [scrollerStyle, setScrollerStyle] = React.useState<any>({
-      overflow: 'hidden',
-      scrollbarWidth: 0
-    })
-
-    const valueToIndex = new Map<TabsProps['value'], number>()
-    const tabsRef = React.useRef<Maybe<HTMLDivElement>>(null)
-    const tabListRef = React.useRef<Maybe<HTMLDivElement>>(null)
+    const scrollButtonsActive = displayScroll.start || displayScroll.end
+    const showScrollButtons =
+      scrollable &&
+      ((scrollButtons === 'auto' && scrollButtonsActive) ||
+        scrollButtons === true)
 
     const getTabsMeta = () => {
       const tabsNode = tabsRef.current
@@ -432,59 +438,6 @@ const Tabs: TabsWithForwardRef = React.forwardRef<HTMLDivElement, TabsProps>(
       []
     )
 
-    const getConditionalElements = () => {
-      const conditionalElements: any = {}
-
-      conditionalElements.scrollbarSizeListener = scrollable ? (
-        <TabsScrollbarSize
-          onChange={handleScrollbarSizeChange}
-          className={clsx(
-            classes.scrollableX,
-            classes.scrollableY,
-            classes.hideScrollbar
-          )}
-        />
-      ) : null
-
-      const scrollButtonsActive = displayScroll.start || displayScroll.end
-      const showScrollButtons =
-        scrollable &&
-        ((scrollButtons === 'auto' && scrollButtonsActive) ||
-          scrollButtons === true)
-
-      conditionalElements.scrollButtonStart = showScrollButtons ? (
-        <TabScrollButton
-          direction={isRtl ? 'right' : 'left'}
-          orientation={orientation}
-          onClick={handleStartScrollClick}
-          disabled={!displayScroll.start}
-          {...TabScrollButtonProps}
-          ButtonComponent={ScrollButtonComponent}
-          className={clsx(
-            classes.scrollButtons,
-            TabScrollButtonProps.className
-          )}
-        />
-      ) : null
-
-      conditionalElements.scrollButtonEnd = showScrollButtons ? (
-        <TabScrollButton
-          {...TabScrollButtonProps}
-          direction={isRtl ? 'left' : 'right'}
-          orientation={orientation}
-          onClick={handleEndScrollClick}
-          disabled={!displayScroll.end}
-          ButtonComponent={ScrollButtonComponent}
-          className={clsx(
-            classes.scrollButtons,
-            TabScrollButtonProps.className
-          )}
-        />
-      ) : null
-
-      return conditionalElements
-    }
-
     const scrollSelectedIntoView = useEventCallback((animation: boolean) => {
       const { tabsMeta, tabMeta } = getTabsMeta()
 
@@ -574,7 +527,9 @@ const Tabs: TabsWithForwardRef = React.forwardRef<HTMLDivElement, TabsProps>(
 
       return () => {
         handleResize.clear()
+
         win.removeEventListener('resize', handleResize)
+
         if (resizeObserver) {
           resizeObserver.disconnect()
         }
@@ -647,35 +602,56 @@ const Tabs: TabsWithForwardRef = React.forwardRef<HTMLDivElement, TabsProps>(
         }
       }
 
-      const childValue =
-        child.props.value === undefined ? childIndex : child.props.value
+      const props = child.props as Record<string, any>
+      const childValue = props.value === undefined ? childIndex : props.value
+      const selected = childValue === value
 
       valueToIndex.set(childValue, childIndex)
-
-      const selected = childValue === value
 
       childIndex += 1
 
       return React.cloneElement<TabProps>(child as React.ReactElement, {
         ...TabProps,
-        indicator: selected && !mounted && indicator,
         selected,
-        fullWidth: variant === 'fullWidth',
         onChange,
+        value: childValue,
+        indicator: selected && !mounted && indicator,
+        className: props.className,
+        fullWidth: variant === 'fullWidth',
         selectionFollowsFocus,
         ButtonComponent: TabComponent,
-        value: childValue,
-        className: child.props.className,
-        ...(childIndex === 1 && !child.props.tabIndex ? { tabIndex: 0 } : {})
+        ...(childIndex === 1 && !props.tabIndex ? { tabIndex: 0 } : {})
       })
     })
 
-    const conditionalElements = getConditionalElements()
-
     return (
       <div {...other} ref={ref} className={clsx(classes.root, className)}>
-        {conditionalElements.scrollButtonStart}
-        {conditionalElements.scrollbarSizeListener}
+        {showScrollButtons && (
+          <TabScrollButton
+            direction={isRtl ? 'right' : 'left'}
+            orientation={orientation}
+            onClick={handleStartScrollClick}
+            disabled={!displayScroll.start}
+            {...TabScrollButtonProps}
+            ButtonComponent={ScrollButtonComponent}
+            className={clsx(
+              classes.scrollButtons,
+              TabScrollButtonProps.className
+            )}
+          />
+        )}
+
+        {scrollable && (
+          <TabsScrollbarSize
+            onChange={handleScrollbarSizeChange}
+            className={clsx(
+              classes.scrollableX,
+              classes.scrollableY,
+              classes.hideScrollbar
+            )}
+          />
+        )}
+
         <div
           ref={tabsRef}
           style={{
@@ -698,7 +674,21 @@ const Tabs: TabsWithForwardRef = React.forwardRef<HTMLDivElement, TabsProps>(
           </div>
           {mounted && indicator}
         </div>
-        {conditionalElements.scrollButtonEnd}
+
+        {showScrollButtons && (
+          <TabScrollButton
+            {...TabScrollButtonProps}
+            direction={isRtl ? 'left' : 'right'}
+            orientation={orientation}
+            onClick={handleEndScrollClick}
+            disabled={!displayScroll.end}
+            ButtonComponent={ScrollButtonComponent}
+            className={clsx(
+              classes.scrollButtons,
+              TabScrollButtonProps.className
+            )}
+          />
+        )}
       </div>
     )
   }

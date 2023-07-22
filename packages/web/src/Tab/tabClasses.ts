@@ -40,9 +40,14 @@ const tabClasses: TabClasses = {
   iconPositionEnd: 'tab-icon-position-end'
 }
 
+export type UseTabClassesReturn = Record<
+  keyof Pick<TabClasses, 'root' | 'iconWrapper'>,
+  ClassArray
+>
+
 export const useTabClasses = (
   ownerState: TabOwnerState
-): Record<keyof Pick<TabClasses, 'root' | 'iconWrapper'>, ClassArray> => {
+): UseTabClassesReturn => {
   const { icon, label, iconPosition, selected, disabled, fullWidth, classes } =
     ownerState
 

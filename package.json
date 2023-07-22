@@ -1,6 +1,6 @@
 {
   "name": "mui-tabs",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "private": true,
   "description": "Material UI tabs for React and React Native projects.",
   "author": "Bilal Eren",
@@ -29,10 +29,10 @@
     "react native material tabs"
   ],
   "scripts": {
-    "prebuild": "rm -rf dist",
+    "prebuild": "rm -rf dist && yarn test",
     "postbuild": "node ./scripts/generatePackageJson.mjs",
+    "test": "yarn workspaces run test",
     "build": "yarn workspaces run build",
-    "test": "yarn test:web",
     "publish:package": "yarn build && bash release.sh",
     "fix": "eslint --fix \"packages/*/src/**/*.{ts,tsx}\"",
     "test:lint": "eslint \"packages/*/src/**/*.{ts,tsx}\"",
@@ -42,7 +42,13 @@
   },
   "peerDependencies": {
     "@babel/runtime": ">=7.0.0",
-    "react": ">=16.9.0"
+    "react": ">=16.9.0",
+    "react-native": ">=0.70.6"
+  },
+  "peerDependenciesMeta": {
+    "react-native": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@babel/cli": "^7.20.7",

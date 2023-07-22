@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
+    "test": "echo \"Test not found.\"",
     "build": "yarn build:modern && yarn build:types",
     "build:modern": "node ../../scripts/build.mjs --env modern --out-dir native",
     "build:types": "node ../../scripts/buildTypes.mjs --out-dir native"

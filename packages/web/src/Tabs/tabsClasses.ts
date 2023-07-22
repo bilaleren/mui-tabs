@@ -45,9 +45,7 @@ const tabsClasses: TabsClasses = {
   scrollButtonsHideMobile: 'tabs-scroll-buttons-hide-mobile'
 }
 
-export const useTabsClasses = (
-  ownerState: TabsOwnerState
-): Record<
+export type UseTabsClassesReturn = Record<
   keyof Pick<
     TabsClasses,
     | 'root'
@@ -60,7 +58,11 @@ export const useTabsClasses = (
     | 'hideScrollbar'
   >,
   ClassArray
-> => {
+>
+
+export const useTabsClasses = (
+  ownerState: TabsOwnerState
+): UseTabsClassesReturn => {
   const {
     fixed,
     classes,
