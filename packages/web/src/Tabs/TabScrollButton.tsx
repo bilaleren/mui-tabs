@@ -53,6 +53,7 @@ const TabScrollButton = React.forwardRef<
   } = props
 
   const vertical = orientation === 'vertical'
+  const IconComponent = direction === 'left' ? ChevronLeft : ChevronRight
 
   return (
     <ButtonComponent
@@ -66,7 +67,7 @@ const TabScrollButton = React.forwardRef<
       )}
       disabled={disabled}
     >
-      {direction === 'left' ? <ChevronLeft /> : <ChevronRight />}
+      <IconComponent />
     </ButtonComponent>
   )
 })

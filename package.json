@@ -1,13 +1,14 @@
 {
   "name": "mui-tabs",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "private": true,
   "description": "Material UI tabs for React and React Native projects.",
   "author": "Bilal Eren",
   "license": "MIT",
-  "repository": "https://github.com/bilaleren/mui-tabs.git",
-  "main": "index.js",
+  "main": "./index.js",
+  "module": "./esm/index.js",
   "homepage": "https://bilaleren.github.io/mui-tabs",
+  "repository": "https://github.com/bilaleren/mui-tabs.git",
   "engines": {
     "node": ">=10"
   },

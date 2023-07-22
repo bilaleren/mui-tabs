@@ -1,4 +1,4 @@
-import type { ClassArray } from 'clsx'
+import type { ClassValue } from 'clsx'
 
 export interface TabsOwnerState {
   fixed: boolean
@@ -12,20 +12,20 @@ export interface TabsOwnerState {
 }
 
 export interface TabsClasses {
-  root: string
-  fixed: string
-  centered: string
-  vertical: string
-  scroller: string
-  indicator: string
-  scrollableX: string
-  scrollableY: string
-  hideScrollbar: string
-  scrollButtons: string
-  flexContainer: string
-  indicatorVertical: string
-  flexContainerVertical: string
-  scrollButtonsHideMobile: string
+  root: ClassValue
+  fixed: ClassValue
+  centered: ClassValue
+  vertical: ClassValue
+  scroller: ClassValue
+  indicator: ClassValue
+  scrollableX: ClassValue
+  scrollableY: ClassValue
+  hideScrollbar: ClassValue
+  scrollButtons: ClassValue
+  flexContainer: ClassValue
+  indicatorVertical: ClassValue
+  flexContainerVertical: ClassValue
+  scrollButtonsHideMobile: ClassValue
 }
 
 const tabsClasses: TabsClasses = {
@@ -57,12 +57,12 @@ export type UseTabsClassesReturn = Record<
     | 'scrollableY'
     | 'hideScrollbar'
   >,
-  ClassArray
+  ClassValue
 >
 
-export const useTabsClasses = (
+export function useTabsClasses(
   ownerState: TabsOwnerState
-): UseTabsClassesReturn => {
+): UseTabsClassesReturn {
   const {
     fixed,
     classes,
@@ -110,15 +110,12 @@ export const useTabsClasses = (
       ],
       classes.scrollButtons
     ],
-    hideScrollbar: hideScrollbar
-      ? [tabsClasses.hideScrollbar, classes.hideScrollbar]
-      : [],
-    scrollableX: scrollableX
-      ? [tabsClasses.scrollableX, classes.scrollableX]
-      : [],
-    scrollableY: scrollableY
-      ? [tabsClasses.scrollableY, classes.scrollableY]
-      : []
+    hideScrollbar: hideScrollbar && [
+      tabsClasses.hideScrollbar,
+      classes.hideScrollbar
+    ],
+    scrollableX: scrollableX && [tabsClasses.scrollableX, classes.scrollableX],
+    scrollableY: scrollableY && [tabsClasses.scrollableY, classes.scrollableY]
   }
 }
 

@@ -168,6 +168,7 @@ function useIsFocusVisible(): UseIsFocusVisibleResult {
       isFocusVisibleRef.current = true
       return true
     }
+
     return false
   }
 

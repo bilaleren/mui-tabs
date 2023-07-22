@@ -1,13 +1,13 @@
 import * as React from 'react'
 import Tab from '../Tab'
-import { expect } from 'chai'
 import { spy } from 'sinon'
+import { expect } from 'chai'
 import tabsClasses from './tabsClasses'
-import { act } from '@testing-library/react'
-import { fireEvent } from '@testing-library/dom'
-import { createRenderer } from '../test/utils'
-import Tabs, { TabsActionRefAttributes } from './Tabs'
 import tabClasses from '../Tab/tabClasses'
+import { act } from '@testing-library/react'
+import { createRenderer } from '../test/utils'
+import { fireEvent } from '@testing-library/dom'
+import Tabs, { TabsActionRefAttributes } from './Tabs'
 
 function findScrollButton(
   container: HTMLElement,
@@ -20,12 +20,16 @@ function findScrollButton(
 
 function hasLeftScrollButton(container: HTMLElement): boolean {
   const button = findScrollButton(container, 'left')
-  return !!button && !button.classList.contains('tabs-scroll-buttons-disabled')
+  return !!(
+    button && !button.classList.contains('tabs-scroll-buttons-disabled')
+  )
 }
 
 function hasRightScrollButton(container: HTMLElement): boolean {
   const button = findScrollButton(container, 'right')
-  return !!button && !button.classList.contains('tabs-scroll-buttons-disabled')
+  return !!(
+    button && !button.classList.contains('tabs-scroll-buttons-disabled')
+  )
 }
 
 describe('<Tabs />', () => {
@@ -894,9 +898,7 @@ describe('<Tabs />', () => {
 
       forceUpdate()
 
-      let style: CSSStyleDeclaration
-
-      style = container.querySelector<HTMLElement>(
+      let style = container.querySelector<HTMLElement>(
         `.${tabsClasses.indicator}`
       )!.style
 

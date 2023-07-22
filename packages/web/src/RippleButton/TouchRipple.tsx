@@ -89,24 +89,24 @@ const TouchRipple = React.forwardRef<
         <Ripple
           key={nextKey.current}
           classes={{
-            ripple: clsx(classes.ripple, touchRippleClasses.ripple),
-            rippleVisible: clsx(
+            ripple: [classes.ripple, touchRippleClasses.ripple],
+            rippleVisible: [
               classes.rippleVisible,
               touchRippleClasses.rippleVisible
-            ),
-            ripplePulsate: clsx(
+            ],
+            ripplePulsate: [
               classes.ripplePulsate,
               touchRippleClasses.ripplePulsate
-            ),
-            child: clsx(classes.child, touchRippleClasses.child),
-            childLeaving: clsx(
+            ],
+            child: [classes.child, touchRippleClasses.child],
+            childLeaving: [
               classes.childLeaving,
               touchRippleClasses.childLeaving
-            ),
-            childPulsate: clsx(
+            ],
+            childPulsate: [
               classes.childPulsate,
               touchRippleClasses.childPulsate
-            )
+            ]
           }}
           timeout={RIPPLE_TIMEOUT}
           pulsate={pulsate}

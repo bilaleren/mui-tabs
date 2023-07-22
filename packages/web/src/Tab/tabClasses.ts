@@ -1,4 +1,4 @@
-import type { ClassArray } from 'clsx'
+import type { ClassValue } from 'clsx'
 import type { IconPosition } from '../types'
 import capitalize from '@mui-tabs/utils/src/capitalize'
 
@@ -13,17 +13,17 @@ export interface TabOwnerState {
 }
 
 export interface TabClasses {
-  root: string
-  labelIcon: string
-  fullWidth: string
-  selected: string
-  disabled: string
-  iconWrapper: string
-  flexColumn: string
-  iconPositionTop: string
-  iconPositionBottom: string
-  iconPositionStart: string
-  iconPositionEnd: string
+  root: ClassValue
+  labelIcon: ClassValue
+  fullWidth: ClassValue
+  selected: ClassValue
+  disabled: ClassValue
+  iconWrapper: ClassValue
+  flexColumn: ClassValue
+  iconPositionTop: ClassValue
+  iconPositionBottom: ClassValue
+  iconPositionStart: ClassValue
+  iconPositionEnd: ClassValue
 }
 
 const tabClasses: TabClasses = {
@@ -42,16 +42,17 @@ const tabClasses: TabClasses = {
 
 export type UseTabClassesReturn = Record<
   keyof Pick<TabClasses, 'root' | 'iconWrapper'>,
-  ClassArray
+  ClassValue
 >
 
-export const useTabClasses = (
-  ownerState: TabOwnerState
-): UseTabClassesReturn => {
+export function useTabClasses(ownerState: TabOwnerState): UseTabClassesReturn {
   const { icon, label, iconPosition, selected, disabled, fullWidth, classes } =
     ownerState
 
-  const positionSuffix = iconPosition ? capitalize(iconPosition) : undefined
+  const iconPositionKey =
+    icon && iconPosition
+      ? (`iconPosition${capitalize(iconPosition)}` as keyof TabClasses)
+      : undefined
 
   return {
     root: [
@@ -69,11 +70,10 @@ export const useTabClasses = (
     ],
     iconWrapper: [
       tabClasses.iconWrapper,
-      icon &&
-        positionSuffix && [
-          tabClasses[`iconPosition${positionSuffix}` as keyof TabClasses],
-          classes[`iconPosition${positionSuffix}` as keyof TabClasses]
-        ],
+      iconPositionKey && [
+        tabClasses[iconPositionKey],
+        classes[iconPositionKey]
+      ],
       classes.iconWrapper
     ]
   }

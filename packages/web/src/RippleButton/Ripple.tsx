@@ -33,9 +33,7 @@ const Ripple: React.FC<RippleProps> = (props: RippleProps) => {
     className,
     classes.ripple,
     classes.rippleVisible,
-    {
-      [classes.ripplePulsate]: pulsate
-    }
+    pulsate && classes.ripplePulsate
   )
 
   const rippleStyles = {
@@ -45,10 +43,11 @@ const Ripple: React.FC<RippleProps> = (props: RippleProps) => {
     left: -(rippleSize / 2) + rippleX
   }
 
-  const childClassName = clsx(classes.child, {
-    [classes.childLeaving]: leaving,
-    [classes.childPulsate]: pulsate
-  })
+  const childClassName = clsx(
+    classes.child,
+    leaving && classes.childLeaving,
+    pulsate && classes.childPulsate
+  )
 
   if (!inProp && !leaving) {
     setLeaving(true)
@@ -58,11 +57,8 @@ const Ripple: React.FC<RippleProps> = (props: RippleProps) => {
     if (!inProp && onExited != null) {
       // react-transition-group#onExited
       const timeoutId = setTimeout(onExited, timeout)
-      return () => {
-        clearTimeout(timeoutId)
-      }
+      return () => clearTimeout(timeoutId)
     }
-    return undefined
   }, [onExited, inProp, timeout])
 
   return (

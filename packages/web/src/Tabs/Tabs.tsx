@@ -5,8 +5,8 @@ import ScrollbarSize from './ScrollbarSize'
 import animate from '@mui-tabs/utils/src/animate'
 import debounce from '@mui-tabs/utils/src/debounce'
 import type { TabValue, ChangeHandler } from '../types'
-import ownerWindow from '@mui-tabs/utils/src/ownerWindow'
 import TabButton, { TabButtonProps } from '../TabButton'
+import ownerWindow from '@mui-tabs/utils/src/ownerWindow'
 import getDocumentDir from '@mui-tabs/utils/src/getDocumentDir'
 import isReactFragment from '@mui-tabs/utils/src/isReactFragment'
 import useEventCallback from '@mui-tabs/utils/src/useEventCallback'
@@ -16,10 +16,6 @@ import {
   detectScrollType,
   getNormalizedScrollLeft
 } from '@mui-tabs/utils/src/scrollLeft'
-
-type Maybe<T> = T | null
-
-const TabsScrollbarSize = ScrollbarSize
 
 export interface TabsActionRefAttributes {
   updateIndicator(): void
@@ -200,8 +196,8 @@ const Tabs: TabsWithForwardRef = React.forwardRef<HTMLDivElement, TabsProps>(
     })
 
     const valueToIndex = new Map<TabsProps['value'], number>()
-    const tabsRef = React.useRef<Maybe<HTMLDivElement>>(null)
-    const tabListRef = React.useRef<Maybe<HTMLDivElement>>(null)
+    const tabsRef = React.useRef<HTMLDivElement | null>(null)
+    const tabListRef = React.useRef<HTMLDivElement | null>(null)
 
     const isRtl = direction === 'rtl'
     const scrollable = variant === 'scrollable'
@@ -253,7 +249,7 @@ const Tabs: TabsWithForwardRef = React.forwardRef<HTMLDivElement, TabsProps>(
         }
       }
 
-      let tabMeta: Maybe<DOMRect> = null
+      let tabMeta: DOMRect | null = null
 
       if (tabsNode && value !== false && tabListRef.current) {
         const children = tabListRef.current.children
@@ -420,13 +416,13 @@ const Tabs: TabsWithForwardRef = React.forwardRef<HTMLDivElement, TabsProps>(
       return totalSize
     }
 
-    const handleStartScrollClick = () => {
+    const handleStartScrollClick = useEventCallback(() => {
       moveTabsScroll(-1 * getScrollSize())
-    }
+    })
 
-    const handleEndScrollClick = () => {
+    const handleEndScrollClick = useEventCallback(() => {
       moveTabsScroll(getScrollSize())
-    }
+    })
 
     const handleScrollbarSizeChange = React.useCallback(
       (scrollbarWidth: number) => {
@@ -445,7 +441,7 @@ const Tabs: TabsWithForwardRef = React.forwardRef<HTMLDivElement, TabsProps>(
         return
       }
 
-      let nextScrollStart: Maybe<number> = null
+      let nextScrollStart: number | null = null
 
       if (tabMeta[start] < tabsMeta[start]) {
         // left side of button is out of view
@@ -642,7 +638,7 @@ const Tabs: TabsWithForwardRef = React.forwardRef<HTMLDivElement, TabsProps>(
         )}
 
         {scrollable && (
-          <TabsScrollbarSize
+          <ScrollbarSize
             onChange={handleScrollbarSizeChange}
             className={clsx(
               classes.scrollableX,

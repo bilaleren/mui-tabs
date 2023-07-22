@@ -14,24 +14,29 @@ const noop = () => {}
 describe('<TouchRipple />', () => {
   const { clock, render } = createRenderer()
 
-  function renderTouchRipple(other?: TouchRippleProps) {
+  function createTouchRippleRenderer(props?: TouchRippleProps) {
     const touchRippleRef = React.createRef<TouchRippleRefAttributes>()
 
     const { container, unmount } = render(
       <TouchRipple
+        {...props}
         ref={touchRippleRef}
         classes={{
-          ripple: 'ripple',
-          rippleVisible: 'ripple-visible',
           child: 'child',
-          childLeaving: 'child-leaving'
+          ripple: 'ripple',
+          childLeaving: 'child-leaving',
+          rippleVisible: 'ripple-visible',
+          ...props?.classes
         }}
-        {...other}
       />
     )
 
     return {
       instance: touchRippleRef.current,
+      unmount,
+      queryRipple() {
+        return container.querySelector<HTMLElement>('.ripple')
+      },
       queryAllActiveRipples() {
         return container.querySelectorAll(
           '.ripple-visible .child:not(.child-leaving)'
@@ -39,17 +44,15 @@ describe('<TouchRipple />', () => {
       },
       queryAllStoppingRipples() {
         return container.querySelectorAll('.ripple-visible .child-leaving')
-      },
-      queryRipple() {
-        return container.querySelector<HTMLElement>('.ripple')
-      },
-      unmount
+      }
     }
   }
 
   describe('prop: center', () => {
     it('should compute the right ripple dimensions', () => {
-      const { instance, queryRipple } = renderTouchRipple({ center: true })
+      const { instance, queryRipple } = createTouchRippleRenderer({
+        center: true
+      })
 
       act(() => {
         instance!.start(
@@ -68,7 +71,7 @@ describe('<TouchRipple />', () => {
 
   it('should create individual ripples', () => {
     const { instance, queryAllActiveRipples, queryAllStoppingRipples } =
-      renderTouchRipple()
+      createTouchRippleRenderer()
 
     expect(queryAllActiveRipples()).to.have.lengthOf(0)
     expect(queryAllStoppingRipples()).to.have.lengthOf(0)
@@ -119,7 +122,7 @@ describe('<TouchRipple />', () => {
   describe('creating unique ripples', () => {
     it('should create a ripple', () => {
       const { instance, queryAllActiveRipples, queryAllStoppingRipples } =
-        renderTouchRipple()
+        createTouchRippleRenderer()
 
       act(() => {
         instance!.start(
@@ -138,7 +141,7 @@ describe('<TouchRipple />', () => {
 
     it('should ignore a mousedown event after a touchstart event', () => {
       const { instance, queryAllActiveRipples, queryAllStoppingRipples } =
-        renderTouchRipple()
+        createTouchRippleRenderer()
 
       act(() => {
         instance!.start({ type: 'touchstart' }, { callback: noop })
@@ -155,7 +158,7 @@ describe('<TouchRipple />', () => {
         queryAllActiveRipples,
         queryAllStoppingRipples,
         queryRipple
-      } = renderTouchRipple({
+      } = createTouchRippleRenderer({
         center: true
       })
       const clientX = 1
@@ -180,7 +183,7 @@ describe('<TouchRipple />', () => {
 
     it('should delay the display of the ripples', () => {
       const { instance, queryAllActiveRipples, queryAllStoppingRipples } =
-        renderTouchRipple()
+        createTouchRippleRenderer()
 
       expect(queryAllActiveRipples()).to.have.lengthOf(0)
       expect(queryAllStoppingRipples()).to.have.lengthOf(0)
@@ -212,7 +215,7 @@ describe('<TouchRipple />', () => {
 
     it('should trigger the ripple for short touch interactions', () => {
       const { instance, queryAllActiveRipples, queryAllStoppingRipples } =
-        renderTouchRipple()
+        createTouchRippleRenderer()
 
       expect(queryAllActiveRipples()).to.have.lengthOf(0)
       expect(queryAllStoppingRipples()).to.have.lengthOf(0)
@@ -247,7 +250,7 @@ describe('<TouchRipple />', () => {
 
     it('should interrupt the ripple schedule', () => {
       const { instance, queryAllActiveRipples, queryAllStoppingRipples } =
-        renderTouchRipple()
+        createTouchRippleRenderer()
 
       expect(queryAllActiveRipples()).to.have.lengthOf(0)
       expect(queryAllStoppingRipples()).to.have.lengthOf(0)
@@ -270,7 +273,7 @@ describe('<TouchRipple />', () => {
     })
 
     it('should not leak on multi-touch', function () {
-      const { instance, unmount } = renderTouchRipple()
+      const { instance, unmount } = createTouchRippleRenderer()
 
       instance!.start({ type: 'touchstart', touches: [{}] }, { callback: noop })
       instance!.start({ type: 'touchstart', touches: [{}] }, { callback: noop })

@@ -4,9 +4,9 @@ import TouchRipple, {
   TouchRippleRefAttributes
 } from './TouchRipple'
 import clsx from 'clsx'
+import TabButton, { TabButtonProps } from '../TabButton'
 import useForkRef from '@mui-tabs/utils/src/useForkRef'
 import useEventCallback from '@mui-tabs/utils/src/useEventCallback'
-import TabButton, { TabButtonProps } from '../TabButton'
 import useIsFocusVisible from '@mui-tabs/utils/src/useIsFocusVisible'
 
 export interface RippleButtonActionRefAttributes {

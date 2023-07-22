@@ -1,9 +1,12 @@
 # MUI Tabs
 
-[![License MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/bilaleren/mui-tabs/blob/master/LICENCE)
 [![NPM](https://img.shields.io/npm/v/mui-tabs.svg)](https://www.npmjs.com/package/mui-tabs)
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-[![npm downloads](https://img.shields.io/npm/dt/mui-tabs.svg)](#installation)
+![](https://badgen.net/npm/license/mui-tabs)
+![](https://badgen.net/packagephobia/install/mui-tabs)
+![](https://badgen.net/bundlephobia/min/mui-tabs)
+![](https://badgen.net/bundlephobia/minzip/mui-tabs)
+![](https://badgen.net/npm/dw/mui-tabs)
+![](https://badgen.net/npm/dm/mui-tabs)
 
 This package was developed based on the [Material UI Tabs](https://mui.com/components/tabs/#main-content) component. [See example](https://bilaleren.github.io/mui-tabs).
 
