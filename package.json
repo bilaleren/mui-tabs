@@ -37,7 +37,7 @@
     "fix": "eslint --fix \"packages/*/src/**/*.{ts,tsx}\"",
     "test:lint": "eslint \"packages/*/src/**/*.{ts,tsx}\"",
     "deploy": "bash deploy-gh-pages.sh",
-    "predeploy": "yarn build && cd packages/web/example && yarn run build:web-example",
+    "predeploy": "yarn build && bash prepare-package.sh && cd packages/web/example && yarn run build:web-example",
     "format": "prettier --write \"packages/*/src/*.{ts,tsx,js,scss}\" \"example/src/**/*.{ts,tsx,js,scss}\""
   },
   "peerDependencies": {
