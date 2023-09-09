@@ -34,7 +34,6 @@
     "postbuild": "node ./scripts/generatePackageJson.mjs",
     "test": "yarn workspaces run test",
     "build": "yarn workspaces run build",
-    "publish:package": "yarn build && bash release.sh",
     "fix": "eslint --fix \"packages/*/src/**/*.{ts,tsx}\"",
     "test:lint": "eslint \"packages/*/src/**/*.{ts,tsx}\"",
     "deploy": "bash deploy-gh-pages.sh",

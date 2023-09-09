@@ -15,9 +15,9 @@ const Icon: React.FC<React.SVGAttributes<SVGSVGElement>> = (props) => {
     <svg
       fill="currentColor"
       stroke="currentColor"
-      height="1em"
-      width="1em"
-      strokeWidth="0"
+      width={16}
+      height={16}
+      strokeWidth={1}
       {...other}
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
