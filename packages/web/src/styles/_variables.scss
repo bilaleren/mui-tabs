@@ -3,4 +3,5 @@ $indicator-size: 2px !default;
 $indicator-color: rgb(25, 118, 210) !default;
 $tab-disabled-color: rgba(0, 0, 0, 0.38) !default;
 $tab-selected-color: rgb(25, 118, 210) !default;
-$scroll-buttons-disabled-opacity: 0 !default;
+$scroll-buttons-default-opacity: 0.8 !default;
+$scroll-buttons-disabled-opacity: 0.2 !default;

@@ -81,10 +81,19 @@
 
   &-scroll-buttons {
     width: 40px;
+    opacity: $scroll-buttons-default-opacity;
     flex-shrink: 0;
-    opacity: 0.8;
-    font-size: 20px;
-    font-weight: 700;
+    user-select: none;
+
+    & > svg {
+      width: 1em;
+      height: 1em;
+      fill: currentColor;
+      display: inline-block;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+      transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    }
 
     &-disabled {
       opacity: $scroll-buttons-disabled-opacity;

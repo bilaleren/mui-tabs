@@ -12,16 +12,7 @@ const Icon: React.FC<React.SVGAttributes<SVGSVGElement>> = (props) => {
   const { children, ...other } = props
 
   return (
-    <svg
-      fill="currentColor"
-      stroke="currentColor"
-      width={16}
-      height={16}
-      strokeWidth={1}
-      {...other}
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg {...other} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       {children}
     </svg>
   )
@@ -29,13 +20,13 @@ const Icon: React.FC<React.SVGAttributes<SVGSVGElement>> = (props) => {
 
 const ChevronLeft: React.FC = () => (
   <Icon>
-    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+    <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" />
   </Icon>
 )
 
 const ChevronRight: React.FC = () => (
   <Icon>
-    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+    <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z" />
   </Icon>
 )
 
