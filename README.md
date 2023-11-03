@@ -31,13 +31,13 @@ This package was developed based on the [Material UI Tabs](https://mui.com/compo
 - If you want to use a [RippleButton](#ripple-effect-example), you need to install the **react-transition-group** package.
 
 ```bash
-yarn add mui-tabs clsx
+yarn add mui-tabs
 ```
 
 if you want to use the RippleButton
 
 ```bash
-yarn add mui-tabs clsx react-transition-group
+yarn add mui-tabs react-transition-group
 ```
 
 ## Examples

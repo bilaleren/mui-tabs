@@ -41,13 +41,22 @@
     "predeploy": "yarn build && bash prepare-package.sh && cd packages/web/example && yarn run build:web-example",
     "format": "prettier --write \"packages/*/src/*.{ts,tsx,js,scss}\" \"example/src/**/*.{ts,tsx,js,scss}\""
   },
+  "dependencies": {
+    "clsx": "^1.1.1",
+    "@babel/runtime": "^7.20.7"
+  },
   "peerDependencies": {
+    "clsx": ">=1.1.1",
     "@babel/runtime": ">=7.0.0",
     "react": ">=16.9.0",
-    "react-native": ">=0.70.6"
+    "react-native": ">=0.70.6",
+    "react-transition-group": ">=4.4.2"
   },
   "peerDependenciesMeta": {
     "react-native": {
+      "optional": true
+    },
+    "react-transition-group": {
       "optional": true
     }
   },
@@ -104,3 +113,4 @@
     "utils"
   ]
 }
+
