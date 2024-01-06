@@ -27,17 +27,8 @@ This package was developed based on the [Material UI Tabs](https://mui.com/compo
 
 ## Installation
 
-- If you want to use it for the web, you need to install the **clsx** package.
-- If you want to use a [RippleButton](#ripple-effect-example), you need to install the **react-transition-group** package.
-
 ```bash
 yarn add mui-tabs
-```
-
-if you want to use the RippleButton
-
-```bash
-yarn add mui-tabs react-transition-group
 ```
 
 ## Examples
@@ -48,8 +39,8 @@ yarn add mui-tabs react-transition-group
 import * as React from 'react'
 import { Tab, Tabs } from 'mui-tabs'
 
-import 'mui-tabs/dist/main.css'
-// or import 'mui-tabs/dist/scss/main.scss'
+import 'mui-tabs/styles/main.css'
+// or import 'mui-tabs/styles/scss/main.scss'
 
 const App = () => {
   const [value, setValue] = React.useState(1)
@@ -65,15 +56,23 @@ const App = () => {
 
 #### Ripple effect example
 
+You need to install the **react-transition-group** package.
+
+```bash
+yarn add react-transition-group
+```
+
+**Example**
+
 ```tsx
 import * as React from 'react'
 import { Tab, Tabs } from 'mui-tabs'
 import RippleButton from 'mui-tabs/RippleButton'
 
-import 'mui-tabs/dist/main.css'
-import 'mui-tabs/dist/ripple.css'
-// or import 'mui-tabs/dist/all.css'
-// or import 'mui-tabs/dist/scss/all.scss'
+import 'mui-tabs/styles/main.css'
+import 'mui-tabs/styles/ripple.css'
+// or import 'mui-tabs/styles/all.css'
+// or import 'mui-tabs/styles/scss/all.scss'
 
 const App = () => {
   const [value, setValue] = React.useState(1)

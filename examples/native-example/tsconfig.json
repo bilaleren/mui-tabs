@@ -1,0 +1,9 @@
+{
+  "extends": "@tsconfig/react-native/tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "mui-tabs/native": ["../../src/native"],
+      "mui-tabs/native/*": ["../../src/native/*"]
+    }
+  }
+}

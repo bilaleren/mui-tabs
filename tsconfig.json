@@ -1,5 +1,10 @@
 {
   "compilerOptions": {
+    "paths": {
+      "@utils/*": ["src/utils/*"],
+      "@assets/*": ["src/assets/*"],
+      "test-utils": ["utils/test-utils.ts"]
+    },
     "target": "esnext",
     "module": "esnext",
     "strict": true,
@@ -16,8 +21,10 @@
     "baseUrl": ".",
     "typeRoots": ["./node_modules/@types"],
     "incremental": false,
+    "emitDeclarationOnly": false,
     "allowSyntheticDefaultImports": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  "include": ["src", "app.d.ts"]
 }

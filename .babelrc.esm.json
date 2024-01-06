@@ -1,0 +1,27 @@
+{
+  "presets": [
+    [
+      "@babel/env",
+      {
+        "modules": false,
+        "browserslistEnv": "modern"
+      }
+    ],
+    "@babel/flow",
+    "@babel/react",
+    "@babel/typescript"
+  ],
+  "plugins": [
+    [
+      "module-resolver",
+      {
+        "root": ["."],
+        "alias": {
+          "@utils": "./src/utils/",
+          "@assets": "./assets/"
+        }
+      }
+    ],
+    "@babel/plugin-transform-runtime"
+  ]
+}

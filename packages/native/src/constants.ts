@@ -1,3 +1,0 @@
-export const DEFAULT_TAB_WIDTH = 90
-
-export const DEFAULT_SCROLL_BUTTON_WIDTH = 40

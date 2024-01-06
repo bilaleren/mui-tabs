@@ -1,5 +1,4 @@
-build/
-dist/
+lib/
+examples/
 node_modules/
 .snapshots/
-*.min.js

@@ -1,0 +1,121 @@
+.tabs {
+  &-root {
+    overflow: hidden;
+    min-height: 48px;
+    // Add iOS momentum scrolling for iOS < 13.0
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    background: $tabs-bg-color;
+  }
+
+  &-vertical {
+    flex-direction: column;
+  }
+
+  &-scroller {
+    position: relative;
+    display: inline-block;
+    flex: 1 1 auto;
+    white-space: nowrap;
+  }
+
+  &-fixed {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  &-centered {
+    justify-content: center;
+  }
+
+  &-hide-scrollbar {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &-scrollable-x {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  &-scrollable-y {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  &-flex-container {
+    display: flex;
+
+    &-vertical {
+      flex-direction: column;
+    }
+  }
+
+  &-indicator {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    height: $indicator-size;
+    background-color: $indicator-color;
+
+    &-vertical {
+      height: 100%;
+      width: $indicator-size;
+      right: 0;
+    }
+  }
+
+  &-scrollbar {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &-scroll-button {
+    width: 40px;
+    opacity: $scroll-buttons-default-opacity;
+    flex-shrink: 0;
+    user-select: none;
+
+    & > svg {
+      width: 1em;
+      height: 1em;
+      fill: currentColor;
+      display: inline-block;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+      transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    }
+
+    &-disabled {
+      opacity: $scroll-buttons-disabled-opacity;
+    }
+
+    &-vertical {
+      width: 100%;
+      height: 40px;
+
+      & > svg {
+        transform: rotate(90deg);
+      }
+
+      html[dir='rtl'] & > svg {
+        transform: rotate(-90deg);
+      }
+    }
+
+    @include mobile-media-query {
+      &-hide-mobile {
+        display: none !important;
+      }
+    }
+  }
+}
