@@ -1,5 +1,4 @@
 import * as React from 'react'
-import clsx from 'clsx'
 import Tab from '../../Tab'
 import tabsClasses from '../tabsClasses'
 import tabClasses from '../../Tab/tabClasses'
@@ -21,14 +20,14 @@ function findScrollButton(
 function hasLeftScrollButton(container: HTMLElement): boolean {
   const button = findScrollButton(container, 'left')
   return !!(
-    button && !button.classList.contains(clsx(tabScrollButtonClasses.disabled))
+    button && !button.classList.contains(tabScrollButtonClasses.disabled)
   )
 }
 
 function hasRightScrollButton(container: HTMLElement): boolean {
   const button = findScrollButton(container, 'right')
   return !!(
-    button && !button.classList.contains(clsx(tabScrollButtonClasses.disabled))
+    button && !button.classList.contains(tabScrollButtonClasses.disabled)
   )
 }
 
@@ -101,14 +100,12 @@ describe('<Tabs />', () => {
   describe('prop: centered', () => {
     it('should render with the centered class', () => {
       const { container } = render(
-        <Tabs value={0} centered>
+        <Tabs value={0} centered={true}>
           <Tab />
           <Tab />
         </Tabs>
       )
-      const selector = `.${clsx(tabsClasses.flexContainer)}.${clsx(
-        tabsClasses.centered
-      )}`
+      const selector = `.${tabsClasses.flexContainer}.${tabsClasses.centered}`
       expect(container.querySelector(selector)!.nodeName).to.equal('DIV')
     })
   })

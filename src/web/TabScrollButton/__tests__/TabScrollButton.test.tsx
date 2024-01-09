@@ -1,5 +1,4 @@
 import * as React from 'react'
-import clsx from 'clsx'
 import TabScrollButton from '../TabScrollButton'
 import { createRenderer } from 'test-utils'
 import { fireEvent } from '@testing-library/dom'
@@ -43,15 +42,15 @@ describe('<TabScrollButton />', () => {
 
       const button = container.querySelector('.tab-button')
 
-      expect(button).to.have.class(clsx(tabScrollButtonClasses.left))
-      expect(button).not.have.class(clsx(tabScrollButtonClasses.right))
+      expect(button).to.have.class(tabScrollButtonClasses.left)
+      expect(button).not.have.class(tabScrollButtonClasses.right)
 
       setProps({
         direction: 'right'
       })
 
-      expect(button).to.have.class(clsx(tabScrollButtonClasses.right))
-      expect(button).not.have.class(clsx(tabScrollButtonClasses.left))
+      expect(button).to.have.class(tabScrollButtonClasses.right)
+      expect(button).not.have.class(tabScrollButtonClasses.left)
     })
   })
 
@@ -63,13 +62,13 @@ describe('<TabScrollButton />', () => {
 
       const button = container.querySelector('.tab-button')
 
-      expect(button).to.have.class(clsx(tabScrollButtonClasses.vertical))
+      expect(button).to.have.class(tabScrollButtonClasses.vertical)
 
       setProps({
         orientation: 'horizontal'
       })
 
-      expect(button).not.have.class(clsx(tabScrollButtonClasses.vertical))
+      expect(button).not.have.class(tabScrollButtonClasses.vertical)
     })
   })
 
@@ -81,13 +80,13 @@ describe('<TabScrollButton />', () => {
 
       const button = container.querySelector('.tab-button')
 
-      expect(button).to.have.class(clsx(tabScrollButtonClasses.hideMobile))
+      expect(button).to.have.class(tabScrollButtonClasses.hideMobile)
 
       setProps({
         hideMobile: false
       })
 
-      expect(button).not.have.class(clsx(tabScrollButtonClasses.hideMobile))
+      expect(button).not.have.class(tabScrollButtonClasses.hideMobile)
     })
   })
 
@@ -99,7 +98,7 @@ describe('<TabScrollButton />', () => {
 
       const button = container.querySelector('.tab-button')
 
-      expect(button).to.have.class(clsx(tabScrollButtonClasses.disabled))
+      expect(button).to.have.class(tabScrollButtonClasses.disabled)
     })
   })
 })

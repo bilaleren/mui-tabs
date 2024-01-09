@@ -1,8 +1,10 @@
 import type { ClassValue } from 'clsx'
+import type { ClassesWithClassValue } from '../types'
+import tabScrollButtonClasses from '../TabScrollButton/tabScrollButtonClasses'
 
-interface TabsOwnerState {
+export interface TabsOwnerState {
   fixed: boolean
-  classes: Partial<TabsClasses>
+  classes: ClassesWithClassValue<TabsClasses>
   vertical: boolean
   scrollableX: boolean
   hideScrollbar: boolean
@@ -11,18 +13,19 @@ interface TabsOwnerState {
 }
 
 export interface TabsClasses {
-  root: ClassValue
-  fixed: ClassValue
-  centered: ClassValue
-  vertical: ClassValue
-  scroller: ClassValue
-  indicator: ClassValue
-  scrollableX: ClassValue
-  scrollableY: ClassValue
-  hideScrollbar: ClassValue
-  flexContainer: ClassValue
-  indicatorVertical: ClassValue
-  flexContainerVertical: ClassValue
+  readonly root: string
+  readonly fixed: string
+  readonly centered: string
+  readonly vertical: string
+  readonly scroller: string
+  readonly indicator: string
+  readonly scrollableX: string
+  readonly scrollableY: string
+  readonly hideScrollbar: string
+  readonly flexContainer: string
+  readonly scrollButtons: string
+  readonly indicatorVertical: string
+  readonly flexContainerVertical: string
 }
 
 const tabsClasses: TabsClasses = {
@@ -36,6 +39,7 @@ const tabsClasses: TabsClasses = {
   scrollableX: 'tabs-scrollable-x',
   scrollableY: 'tabs-scrollable-y',
   flexContainer: 'tabs-flex-container',
+  scrollButtons: tabScrollButtonClasses.button,
   indicatorVertical: 'tabs-indicator-vertical',
   flexContainerVertical: 'tabs-flex-container-vertical'
 }
@@ -49,6 +53,7 @@ export type UseTabsClassesReturn = Record<
     | 'indicator'
     | 'scrollableX'
     | 'scrollableY'
+    | 'scrollButtons'
     | 'hideScrollbar'
   >,
   ClassValue
@@ -95,6 +100,7 @@ export function useTabsClasses(
       classes.indicator,
       vertical && tabsClasses.indicatorVertical
     ],
+    scrollButtons: classes.scrollButtons,
     hideScrollbar: hideScrollbar && [
       tabsClasses.hideScrollbar,
       classes.hideScrollbar

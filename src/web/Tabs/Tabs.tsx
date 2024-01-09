@@ -8,7 +8,8 @@ import type {
   TabValue,
   TabsVariant,
   ChangeHandler,
-  TabsOrientation
+  TabsOrientation,
+  ClassesWithClassValue
 } from '../types'
 import TabButton, { TabButtonProps } from '../TabButton'
 import ownerWindow from '@utils/ownerWindow'
@@ -74,7 +75,7 @@ export interface TabsProps<Value extends TabValue = any> extends BaseTabsProps {
   /**
    * Override or extend the styles applied to the component.
    */
-  classes?: Partial<TabsClasses>
+  classes?: ClassesWithClassValue<TabsClasses>
 
   /**
    * The component orientation (layout flow direction).
@@ -465,6 +466,10 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
         {showScrollButtons && (
           <TabScrollButton
             {...scrollButtonsProps}
+            className={clsx(
+              classes.scrollButtons,
+              scrollButtonsProps.className
+            )}
             direction={isRtl ? 'right' : 'left'}
             hideMobile={!allowScrollButtonsMobile}
             orientation={orientation}
@@ -511,6 +516,10 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
         {showScrollButtons && (
           <TabScrollButton
             {...scrollButtonsProps}
+            className={clsx(
+              classes.scrollButtons,
+              scrollButtonsProps.className
+            )}
             direction={isRtl ? 'left' : 'right'}
             hideMobile={!allowScrollButtonsMobile}
             orientation={orientation}

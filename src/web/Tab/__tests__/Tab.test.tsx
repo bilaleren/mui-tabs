@@ -1,5 +1,4 @@
 import * as React from 'react'
-import clsx from 'clsx'
 import Tab from '../Tab'
 import tabClasses from '../tabClasses'
 import { createRenderer } from 'test-utils'
@@ -12,8 +11,8 @@ describe('<Tab />', () => {
       const { getByRole } = render(<Tab selected />)
 
       const tab = getByRole('tab')
-      expect(tab).to.have.class(clsx(tabClasses.root))
-      expect(tab).to.have.class(clsx(tabClasses.selected))
+      expect(tab).to.have.class(tabClasses.root)
+      expect(tab).to.have.class(tabClasses.selected)
       expect(tab).to.have.attribute('aria-selected', 'true')
     })
   })
@@ -23,8 +22,8 @@ describe('<Tab />', () => {
       const { getByRole } = render(<Tab disabled />)
 
       const tab = getByRole('tab')
-      expect(tab).to.have.class(clsx(tabClasses.root))
-      expect(tab).to.have.class(clsx(tabClasses.disabled))
+      expect(tab).to.have.class(tabClasses.root)
+      expect(tab).to.have.class(tabClasses.disabled)
     })
   })
 
@@ -59,7 +58,7 @@ describe('<Tab />', () => {
         <Tab icon={<div className="test-icon" />} label="foo" />
       )
       const wrapper = getByRole('tab').children[0]
-      expect(wrapper).to.have.class(clsx(tabClasses.iconWrapper))
+      expect(wrapper).to.have.class(tabClasses.iconWrapper)
       expect(wrapper).to.have.class('test-icon')
     })
   })
@@ -68,7 +67,7 @@ describe('<Tab />', () => {
     it('should have the fullWidth class', () => {
       const { getByRole } = render(<Tab fullWidth />)
 
-      expect(getByRole('tab')).to.have.class(clsx(tabClasses.fullWidth))
+      expect(getByRole('tab')).to.have.class(tabClasses.fullWidth)
     })
   })
 

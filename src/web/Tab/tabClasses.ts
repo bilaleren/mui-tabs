@@ -1,29 +1,29 @@
 import capitalize from '@utils/capitalize'
 import type { ClassValue } from 'clsx'
-import type { IconPosition } from '../types'
+import type { IconPosition, ClassesWithClassValue } from '../types'
 
-interface TabOwnerState {
+export interface TabOwnerState {
   icon: boolean
   label: boolean
   disabled: boolean
   selected: boolean
   fullWidth: boolean
-  classes: Partial<TabClasses>
+  classes: ClassesWithClassValue<TabClasses>
   iconPosition: IconPosition
 }
 
 export interface TabClasses {
-  root: ClassValue
-  labelIcon: ClassValue
-  fullWidth: ClassValue
-  selected: ClassValue
-  disabled: ClassValue
-  iconWrapper: ClassValue
-  flexColumn: ClassValue
-  iconPositionTop: ClassValue
-  iconPositionBottom: ClassValue
-  iconPositionStart: ClassValue
-  iconPositionEnd: ClassValue
+  readonly root: string
+  readonly labelIcon: string
+  readonly fullWidth: string
+  readonly selected: string
+  readonly disabled: string
+  readonly iconWrapper: string
+  readonly flexColumn: string
+  readonly iconPositionTop: string
+  readonly iconPositionBottom: string
+  readonly iconPositionStart: string
+  readonly iconPositionEnd: string
 }
 
 const tabClasses: TabClasses = {

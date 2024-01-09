@@ -5,9 +5,10 @@ import {
   useTabScrollButtonClasses,
   TabScrollButtonClasses
 } from './tabScrollButtonClasses'
+import type { ClassesWithClassValue } from '../types'
 
 export interface TabScrollButtonProps extends TabButtonProps {
-  classes?: Partial<TabScrollButtonClasses>
+  classes?: ClassesWithClassValue<TabScrollButtonClasses>
   hideMobile?: boolean
   direction: 'left' | 'right'
   orientation?: 'vertical' | 'horizontal'

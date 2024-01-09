@@ -1,19 +1,19 @@
-import type { ClassValue } from 'clsx'
+import type { ClassesWithClassValue } from '../types'
 
-interface TabScrollButtonOwnerState {
-  classes: Partial<TabScrollButtonClasses>
+export interface TabScrollButtonOwnerState {
+  classes: ClassesWithClassValue<TabScrollButtonClasses>
   vertical: boolean
   disabled: boolean
   hideMobile: boolean
 }
 
 export interface TabScrollButtonClasses {
-  button: ClassValue
-  left: ClassValue
-  right: ClassValue
-  vertical: ClassValue
-  disabled: ClassValue
-  hideMobile: ClassValue
+  readonly button: string
+  readonly left: string
+  readonly right: string
+  readonly vertical: string
+  readonly disabled: string
+  readonly hideMobile: string
 }
 
 const tabScrollButtonClasses: TabScrollButtonClasses = {
@@ -25,9 +25,13 @@ const tabScrollButtonClasses: TabScrollButtonClasses = {
   hideMobile: 'tabs-scroll-button-hide-mobile'
 }
 
+type UseTabScrollButtonClassesReturn = Required<
+  ClassesWithClassValue<TabScrollButtonClasses>
+>
+
 export const useTabScrollButtonClasses = (
   ownerState: TabScrollButtonOwnerState
-): TabScrollButtonClasses => {
+): UseTabScrollButtonClassesReturn => {
   const { classes, hideMobile, vertical, disabled } = ownerState
 
   return {

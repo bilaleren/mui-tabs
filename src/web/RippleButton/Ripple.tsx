@@ -1,10 +1,11 @@
 import * as React from 'react'
 import clsx from 'clsx'
+import type { ClassesWithClassValue } from '../types'
 import type { TouchRippleClasses } from './touchRippleClasses'
 
 export interface RippleProps {
   in?: boolean
-  classes: Omit<TouchRippleClasses, 'root'>
+  classes: Required<Omit<ClassesWithClassValue<TouchRippleClasses>, 'root'>>
   pulsate?: boolean
   rippleX?: number
   rippleY?: number

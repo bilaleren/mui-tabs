@@ -1,13 +1,11 @@
-import type { ClassValue } from 'clsx'
-
 export interface TouchRippleClasses {
-  root: ClassValue
-  child: ClassValue
-  ripple: ClassValue
-  rippleVisible: ClassValue
-  ripplePulsate: ClassValue
-  childLeaving: ClassValue
-  childPulsate: ClassValue
+  readonly root: string
+  readonly child: string
+  readonly ripple: string
+  readonly rippleVisible: string
+  readonly ripplePulsate: string
+  readonly childLeaving: string
+  readonly childPulsate: string
 }
 
 const touchRippleClasses: TouchRippleClasses = {

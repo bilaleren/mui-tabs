@@ -3,7 +3,12 @@ import clsx from 'clsx'
 import TabButton, { TabButtonProps } from '../TabButton'
 import { useTabClasses, TabClasses } from './tabClasses'
 import useLatestCallback from 'use-latest-callback'
-import type { TabValue, IconPosition, ChangeHandler } from '../types'
+import type {
+  TabValue,
+  IconPosition,
+  ChangeHandler,
+  ClassesWithClassValue
+} from '../types'
 
 type BaseButtonProps = Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -29,7 +34,7 @@ export interface TabProps extends BaseButtonProps {
   /**
    * Override or extend the styles applied to the component.
    */
-  classes?: Partial<TabClasses>
+  classes?: ClassesWithClassValue<TabClasses>
 
   /**
    * If `true`, the component is disabled.

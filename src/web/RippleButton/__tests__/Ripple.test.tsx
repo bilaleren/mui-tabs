@@ -1,5 +1,4 @@
 import * as React from 'react'
-import clsx from 'clsx'
 import Ripple from '../Ripple'
 import { createRenderer } from 'test-utils'
 import touchRippleClasses from '../touchRippleClasses'
@@ -18,7 +17,7 @@ describe('<Ripple />', () => {
       />
     )
     const ripple = container.querySelector('span')
-    expect(ripple).to.have.class(clsx(touchRippleClasses.ripple))
+    expect(ripple).to.have.class(touchRippleClasses.ripple)
     expect(ripple).not.to.have.class('fast')
   })
 
@@ -37,7 +36,7 @@ describe('<Ripple />', () => {
       setProps({ in: true })
 
       const ripple = container.querySelector('span')
-      expect(ripple).to.have.class(clsx(touchRippleClasses.rippleVisible))
+      expect(ripple).to.have.class(touchRippleClasses.rippleVisible)
     })
 
     it('should stop the ripple', () => {
@@ -55,7 +54,7 @@ describe('<Ripple />', () => {
       setProps({ in: false })
 
       const child = container.querySelector('span > span')
-      expect(child).to.have.class(clsx(touchRippleClasses.childLeaving))
+      expect(child).to.have.class(touchRippleClasses.childLeaving)
     })
   })
 
@@ -73,10 +72,10 @@ describe('<Ripple />', () => {
       )
 
       const ripple = container.querySelector('span')
-      expect(ripple).to.have.class(clsx(touchRippleClasses.ripple))
-      expect(ripple).to.have.class(clsx(touchRippleClasses.ripplePulsate))
+      expect(ripple).to.have.class(touchRippleClasses.ripple)
+      expect(ripple).to.have.class(touchRippleClasses.ripplePulsate)
       const child = container.querySelector('span > span')
-      expect(child).to.have.class(clsx(touchRippleClasses.childPulsate))
+      expect(child).to.have.class(touchRippleClasses.childPulsate)
     })
 
     it('should start the ripple', () => {
@@ -94,9 +93,9 @@ describe('<Ripple />', () => {
       setProps({ in: true })
 
       const ripple = container.querySelector('span')
-      expect(ripple).to.have.class(clsx(touchRippleClasses.rippleVisible))
+      expect(ripple).to.have.class(touchRippleClasses.rippleVisible)
       const child = container.querySelector('span > span')
-      expect(child).to.have.class(clsx(touchRippleClasses.childPulsate))
+      expect(child).to.have.class(touchRippleClasses.childPulsate)
     })
 
     it('should stop the ripple', () => {
@@ -114,7 +113,7 @@ describe('<Ripple />', () => {
       setProps({ in: true })
       setProps({ in: false })
       const child = container.querySelector('span > span')
-      expect(child).to.have.class(clsx(touchRippleClasses.childLeaving))
+      expect(child).to.have.class(touchRippleClasses.childLeaving)
     })
   })
 
