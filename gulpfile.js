@@ -73,7 +73,7 @@ gulp.task('build-web-example', shell.task('yarn build-web-example'))
 
 gulp.task(
   'deploy-gh-pages',
-  gulp.series('build-web-example', (done) => {
+  gulp.series('build-web-example', function deploy(done) {
     const GH_TOKEN = process.env.GH_TOKEN
     const GH_PAGES_BRANCH = process.env.GH_PAGES_BRANCH
 
@@ -93,14 +93,13 @@ gulp.task(
     const repo = `https://${GH_TOKEN}@github.com/${repoPath}`
     const basePath = path.resolve('./examples/web-example/dist')
 
-    ghPages.publish(
-      basePath,
-      {
+    ghPages
+      .publish(basePath, {
         repo,
         branch: GH_PAGES_BRANCH
-      },
-      done
-    )
+      })
+      .then(() => done())
+      .catch((error) => done(error))
   })
 )
 
