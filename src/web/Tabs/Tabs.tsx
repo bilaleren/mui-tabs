@@ -12,17 +12,17 @@ import type {
   ClassesWithClassValue
 } from '../types'
 import TabButton, { TabButtonProps } from '../TabButton'
+import animate from '@utils/animate'
 import ownerWindow from '@utils/ownerWindow'
-import useTabsController from './useTabsController'
 import getDocumentDir from '@utils/getDocumentDir'
 import isReactFragment from '@utils/isReactFragment'
 import TabScrollButton, { TabScrollButtonProps } from '../TabScrollButton'
 import { useTabsClasses, TabsClasses } from './tabsClasses'
-import { getNormalizedScrollLeft } from '@utils/scrollLeft'
+import { detectScrollType, getNormalizedScrollLeft } from '@utils/scrollLeft'
 
 export interface TabsRefAttributes {
-  updateIndicator(): void
-  updateScrollButtons(): void
+  updateIndicator: () => void
+  updateScrollButtons: () => void
 }
 
 type BaseTabsProps = Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'>
@@ -152,6 +152,8 @@ interface TabsComponent extends React.ForwardRefExoticComponent<TabsProps> {
   ): ReturnType<React.FC<TabsProps<Value>>>
 }
 
+let warnedOnceTabPresent = false
+
 const defaultIndicatorStyle: React.CSSProperties = {}
 
 const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
@@ -179,6 +181,10 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
       ...other
     } = props
 
+    const tabsRef = React.useRef<HTMLDivElement | null>(null)
+    const tabListRef = React.useRef<HTMLDivElement | null>(null)
+    const valueToIndexRef = React.useRef<Map<TabValue, number>>(new Map())
+
     const [mounted, setMounted] = React.useState(false)
 
     const [indicatorStyle, setIndicatorStyle] =
@@ -205,24 +211,6 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
     const clientSize = vertical ? 'clientHeight' : 'clientWidth'
     const size = vertical ? 'height' : 'width'
 
-    const {
-      tabsRef,
-      tabListRef,
-      valueToIndexRef,
-      getTabsMeta,
-      scrollSelectedIntoView,
-      moveTabsScrollToStart,
-      moveTabsScrollToEnd
-    } = useTabsController({
-      value,
-      isRtl,
-      start,
-      end,
-      vertical,
-      clientSize,
-      scrollStart
-    })
-
     const classes = useTabsClasses({
       classes: classesProp,
       vertical,
@@ -238,6 +226,182 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
       scrollable &&
       ((scrollButtons === 'auto' && scrollButtonsActive) ||
         scrollButtons === true)
+
+    const scroll = React.useCallback(
+      (scrollValue: number, animated = true) => {
+        const tabs = tabsRef.current
+
+        if (!tabs) {
+          return
+        }
+
+        if (animated) {
+          animate({
+            element: tabs,
+            to: scrollValue,
+            property: scrollStart,
+            duration: 300
+          })
+        } else {
+          tabs[scrollStart] = scrollValue
+        }
+      },
+      [scrollStart]
+    )
+
+    const getTabsMeta = React.useCallback(() => {
+      const tabsNode = tabsRef.current
+      const valueToIndex = valueToIndexRef.current
+
+      let tabsMeta = null
+
+      if (tabsNode) {
+        const rect = tabsNode.getBoundingClientRect()
+        // create a new object with ClientRect class props + scrollLeft
+        tabsMeta = {
+          clientWidth: tabsNode.clientWidth,
+          scrollLeft: tabsNode.scrollLeft,
+          scrollTop: tabsNode.scrollTop,
+          scrollLeftNormalized: getNormalizedScrollLeft(
+            tabsNode,
+            getDocumentDir()
+          ),
+          scrollWidth: tabsNode.scrollWidth,
+          top: rect.top,
+          bottom: rect.bottom,
+          left: rect.left,
+          right: rect.right
+        }
+      }
+
+      let tabMeta: DOMRect | null = null
+
+      if (tabsNode && value !== false && tabListRef.current) {
+        const children = tabListRef.current.children
+
+        if (children.length > 0) {
+          const tab = children[valueToIndex.get(value)!]
+
+          if (!tab && process.env.NODE_ENV !== 'production') {
+            console.error(
+              [
+                `The \`value\` provided to the Tabs component is invalid.`,
+                `None of the Tabs' children match with "${value}".`,
+                valueToIndex.keys
+                  ? `You can provide one of the following values: ${Array.from(
+                      valueToIndex.keys()
+                    ).join(', ')}.`
+                  : null
+              ].join('\n')
+            )
+          }
+
+          tabMeta = tab ? tab.getBoundingClientRect() : null
+
+          if (
+            process.env.NODE_ENV !== 'test' &&
+            process.env.NODE_ENV !== 'production' &&
+            !warnedOnceTabPresent &&
+            tabMeta &&
+            tabMeta.width === 0 &&
+            tabMeta.height === 0
+          ) {
+            tabsMeta = null
+
+            console.error(
+              [
+                'The `value` provided to the Tabs component is invalid.',
+                `The Tab with this \`value\` ("${value}") is not part of the document layout.`,
+                "Make sure the tab item is present in the document or that it's not `display: none`."
+              ].join('\n')
+            )
+
+            warnedOnceTabPresent = true
+          }
+        }
+      }
+
+      return { tabsMeta, tabMeta }
+    }, [value])
+
+    const moveTabsScroll = React.useCallback(
+      (delta: number) => {
+        const tabs = tabsRef.current
+
+        if (!tabs) {
+          return
+        }
+
+        let scrollValue = tabs[scrollStart]
+
+        if (vertical) {
+          scrollValue += delta
+        } else {
+          scrollValue += delta * (isRtl ? -1 : 1)
+          // Fix for Edge
+          scrollValue *= isRtl && detectScrollType() === 'reverse' ? -1 : 1
+        }
+
+        scroll(scrollValue)
+      },
+      [isRtl, scroll, vertical, scrollStart]
+    )
+
+    const getScrollSize = React.useCallback((): number => {
+      const tabs = tabsRef.current
+      const tabList = tabListRef.current
+
+      if (!tabs || !tabList) {
+        return 0
+      }
+
+      const containerSize = tabs[clientSize]
+      let totalSize = 0
+      const children = Array.from(tabList.children)
+
+      for (let i = 0; i < children.length; i += 1) {
+        const tab = children[i]
+
+        if (totalSize + tab[clientSize] > containerSize) {
+          break
+        }
+
+        totalSize += tab[clientSize]
+      }
+
+      return totalSize
+    }, [clientSize])
+
+    const scrollSelectedIntoView = useLatestCallback((animated: boolean) => {
+      const { tabsMeta, tabMeta } = getTabsMeta()
+
+      if (!tabMeta || !tabsMeta) {
+        return
+      }
+
+      let nextScrollStart: number | null = null
+
+      if (tabMeta[start] < tabsMeta[start]) {
+        // left side of button is out of view
+        nextScrollStart =
+          tabsMeta[scrollStart] + (tabMeta[start] - tabsMeta[start])
+      } else if (tabMeta[end] > tabsMeta[end]) {
+        // right side of button is out of view
+        nextScrollStart = tabsMeta[scrollStart] + (tabMeta[end] - tabsMeta[end])
+      }
+
+      if (nextScrollStart !== null) {
+        scroll(nextScrollStart, animated)
+      }
+    })
+
+    const moveTabsScrollToStart = useLatestCallback(() => {
+      moveTabsScroll(-1 * getScrollSize())
+    })
+
+    const moveTabsScrollToEnd = useLatestCallback(() => {
+      moveTabsScroll(getScrollSize())
+    })
 
     const updateIndicatorState = useLatestCallback(() => {
       const { tabsMeta, tabMeta } = getTabsMeta()
@@ -375,7 +539,6 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
           resizeObserver.disconnect()
         }
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateIndicatorState, updateScrollButtonState])
 
     const handleTabsScroll = React.useMemo(
@@ -423,9 +586,7 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
       />
     )
 
-    let childIndex = 0
-
-    const children = React.Children.map(childrenProp, (child) => {
+    const children = React.Children.map(childrenProp, (child, index) => {
       if (!React.isValidElement(child)) {
         return null
       }
@@ -440,14 +601,12 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
       }
 
       const props = child.props as Record<string, any>
-      const childValue = props.value === undefined ? childIndex : props.value
+      const childValue = props.value === undefined ? index : props.value
       const selected = childValue === value
 
-      valueToIndexRef.current.set(childValue, childIndex)
+      valueToIndexRef.current.set(childValue, index)
 
-      childIndex += 1
-
-      return React.cloneElement<TabProps>(child as React.ReactElement, {
+      return React.cloneElement(child as React.ReactElement<TabProps>, {
         ...tabProps,
         selected,
         onChange,
@@ -457,7 +616,7 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
         fullWidth: variant === 'fullWidth',
         selectionFollowsFocus,
         ButtonComponent: TabComponent,
-        ...(childIndex === 1 && !props.tabIndex ? { tabIndex: 0 } : {})
+        ...(index === 1 && !props.tabIndex ? { tabIndex: 0 } : {})
       })
     })
 

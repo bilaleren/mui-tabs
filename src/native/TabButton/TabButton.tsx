@@ -4,38 +4,37 @@ import {
   ViewStyle,
   StyleProp,
   ColorValue,
-  StyleSheet,
-  PressableProps
+  PressableProps,
+  GestureResponderEvent
 } from 'react-native'
 
-type ButtonProps = Omit<PressableProps, 'style' | 'children'>
+type ButtonProps = Pick<
+  PressableProps,
+  | 'onLayout'
+  | 'android_ripple'
+  | 'accessibilityRole'
+  | 'accessibilityLabel'
+  | 'accessibilityState'
+  | 'unstable_pressDelay'
+>
 
 export interface TabButtonProps extends ButtonProps {
   style?: StyleProp<ViewStyle>
+  disabled?: boolean
   children?: React.ReactNode
   rippleColor?: ColorValue | null
+  onPress?: ((event: GestureResponderEvent) => void) | undefined
+  onLongPress?: ((event: GestureResponderEvent) => void) | undefined
 }
 
-const TabButton: React.FC<TabButtonProps> = (props: TabButtonProps) => {
-  const { style, children, ...other } = props
+const TabButton: React.FC<TabButtonProps> = (props) => {
+  const { children, ...other } = props
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      {...other}
-      style={[styles.container, style]}
-    >
+    <Pressable accessibilityRole="button" {...other}>
       {children}
     </Pressable>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderTopColor: 'transparent'
-  }
-})
 
 export default TabButton

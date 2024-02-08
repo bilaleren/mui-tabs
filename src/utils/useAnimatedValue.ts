@@ -2,15 +2,11 @@ import * as React from 'react'
 import { Animated } from 'react-native'
 
 function useAnimatedValue(value: number): Animated.Value {
-  const ref = React.useRef(new Animated.Value(value))
+  const ref = React.useRef<Animated.Value>()
 
-  React.useEffect(() => {
-    return () => {
-      ref.current.stopAnimation()
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      ref.current.removeAllListeners()
-    }
-  }, [])
+  if (ref.current === undefined) {
+    ref.current = new Animated.Value(value)
+  }
 
   return ref.current
 }

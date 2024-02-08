@@ -1,18 +1,107 @@
-import type { Animated, GestureResponderEvent } from 'react-native'
+import type { Animated, ScrollViewProps } from 'react-native'
+import type { PagerViewProps } from 'react-native-pager-view'
 
 export type TabValue = string | number
 
-export type TabsVariant = 'scrollable' | 'standard' | 'fullWidth'
+export interface ChangeEvent<Value extends TabValue = TabValue> {
+  item: TabItem<Value>
+  defaultPrevented: boolean
+  preventDefault(): void
+}
 
-export type IconPosition = 'top' | 'start' | 'end' | 'bottom'
+export interface TabPressEvent<Value extends TabValue = TabValue> {
+  item: TabItem<Value>
+  defaultPrevented: boolean
+  preventDefault(): void
+}
 
-export type ChangeHandler<Value extends TabValue = any> = (
+export interface TabLongPressEvent<Value extends TabValue = TabValue> {
+  item: TabItem<Value>
+}
+
+export type OnChange<Value extends TabValue = TabValue> = (
   value: Value,
-  event: GestureResponderEvent
+  event: ChangeEvent<Value>
 ) => void
 
-export type IndicatorAnimationCallback = (
-  value: number,
-  animatedValue: Animated.Value,
-  type: 'width' | 'position'
-) => Animated.CompositeAnimation
+export type OnTabPress<Value extends TabValue = TabValue> = (
+  event: TabPressEvent<Value>
+) => void
+
+export type OnTabLongPress<Value extends TabValue = TabValue> = (
+  event: TabLongPressEvent<Value>
+) => void
+
+export interface Route {
+  /**
+   * You can provide your own route key.
+   */
+  key: string
+
+  /**
+   * The tab label.
+   */
+  label?: string
+
+  /**
+   * If `true`, the component is disabled.
+   */
+  disabled?: boolean
+}
+
+export interface TabItem<Value extends TabValue = TabValue> {
+  /**
+   * You can provide your own value.
+   */
+  value: Value
+
+  /**
+   * The tab label.
+   */
+  label?: string
+
+  /**
+   * If `true`, the component is disabled.
+   */
+  disabled?: boolean
+}
+
+export interface TabViewState<T extends Route> {
+  index: number
+  routes: T[]
+}
+
+export type Listener = (value: number) => void
+
+export interface EventEmitterProps {
+  addEnterListener: (listener: Listener) => () => void
+}
+
+export interface Layout {
+  width: number
+  height: number
+}
+
+export interface SceneRendererProps {
+  layout: Layout
+  jumpTo: (key: string, animated?: boolean) => void
+  position: Animated.AnimatedInterpolation<number>
+}
+
+export type PagerProps = Omit<
+  PagerViewProps,
+  | 'children'
+  | 'initialPage'
+  | 'overScrollMode'
+  | 'onPageScroll'
+  | 'onPageSelected'
+  | 'layoutDirection'
+  | 'keyboardDismissMode'
+  | 'onPageScrollStateChanged'
+> & {
+  keyboardDismissMode?: 'none' | 'on-drag' | 'auto'
+  animationEnabled?: boolean
+  onSwipeStart?: () => void
+  onSwipeEnd?: () => void
+  overScrollMode?: ScrollViewProps['overScrollMode']
+}

@@ -1,6 +1,11 @@
 # MUI Tabs For React Native
 
-MUI Tabs is now available with React Native. [See example](https://snack.expo.dev/@bilaleren/mui-tabs?platform=android).
+MUI Tabs is now available with React Native.
+
+### Previews
+
+- [iOS Preview](./previews/ios-preview.mp4)
+- [Android Preview](./previews/android-preview.mp4)
 
 ### Examples
 
@@ -8,16 +13,21 @@ MUI Tabs is now available with React Native. [See example](https://snack.expo.de
 
 ```tsx
 import * as React from 'react'
-import { Tab, Tabs } from 'mui-tabs/native'
+import { Tabs } from 'mui-tabs/native'
 
 const App = () => {
-  const [value, setValue] = React.useState(0)
+  const [value, setValue] = React.useState(1)
 
   return (
-    <Tabs value={value} onChange={(value) => setValue(value)}>
-      <Tab label="Tab 1" />
-      <Tab label="Tab 2" />
-    </Tabs>
+    <Tabs
+      tabs={[
+        { value: 1, label: 'Tab 1' },
+        { value: 2, label: 'Tab 2' },
+        { value: 3, label: 'Tab 3' }
+      ]}
+      value={value}
+      onChange={setValue}
+    />
   )
 }
 ```
@@ -26,38 +36,47 @@ const App = () => {
 
 ```tsx
 import * as React from 'react'
-import { Tab, Tabs } from 'mui-tabs/native'
+import { Tabs } from 'mui-tabs/native'
 import IonIcon from 'react-native-vector-icons/Ionicons'
 
 const App = () => {
-  const [value, setValue] = React.useState(0)
+  const [value, setValue] = React.useState(1)
 
   return (
     <Tabs
+      tabs={[
+        { value: 1 },
+        { value: 2 },
+        { value: 3 }
+      ]}
       value={value}
-      variant="scrollable"
-      onChange={onChange}
-    >
-      <Tab
-        icon={<IonIcon name="home-outline" size={24} />}
-        label="Top (Default)"
-      />
-      <Tab
-        icon={<IonIcon name="heart-outline" size={24} />}
-        label="Bottom"
-        iconPosition="bottom"
-      />
-      <Tab
-        icon={<IonIcon name="person-outline" size={24} />}
-        label="End"
-        iconPosition="end"
-      />
-      <Tab
-        icon={<IonIcon name="settings-outline" size={24} />}
-        label="Start"
-        iconPosition="start"
-      />
-    </Tabs>
+      onChange={setValue}
+      renderTabIcon={({ item, color, selected }) => {
+        return {
+          1: (
+            <IonIcon
+              size={24}
+              name={selected ? 'home' : 'home-outline'}
+              color={color}
+            />
+          ),
+          2: (
+            <IonIcon
+              name={selected ? 'heart' : 'heart-outline'}
+              size={24}
+              color={color}
+            />
+          ),
+          3: (
+            <IonIcon
+              name={selected ? 'person' : 'person-outline'}
+              size={24}
+              color={color}
+            />
+          )
+        }[item.value];
+      }}
+    />
   )
 }
 ```
@@ -74,22 +93,53 @@ yarn add color
 
 ```tsx
 import * as React from 'react'
-import { Tab, Tabs } from 'mui-tabs/native'
+import { Tabs } from 'mui-tabs/native'
 import RippleButton from 'mui-tabs/native/RippleButton'
 
 const App = () => {
-  const [value, setValue] = React.useState(0)
+  const [value, setValue] = React.useState(1)
 
   return (
     <Tabs
+      tabs={[
+        { value: 1, label: 'Tab 1' },
+        { value: 2, label: 'Tab 2' },
+        { value: 3, label: 'Tab 3' }
+      ]}
       value={value}
+      onChange={setValue}
       TabComponent={RippleButton}
-      ScrollButtonComponent={RippleButton}
-      onChange={(value) => setValue(value)}
-    >
-      <Tab label="Tab 1" />
-      <Tab label="Tab 2" />
-    </Tabs>
+    />
+  )
+}
+```
+
+#### Badge Example
+
+```tsx
+import * as React from 'react'
+import { Tabs } from 'mui-tabs/native'
+
+const App = () => {
+  const [value, setValue] = React.useState(1)
+
+  return (
+    <Tabs
+      tabs={[
+        { value: 1, label: 'Tab 1' },
+        { value: 2, label: 'Tab 2' },
+        { value: 3, label: 'Tab 3' }
+      ]}
+      value={value}
+      onChange={setValue}
+      renderTabBadge={({ item, color }) => {
+        return {
+          1: <Text style={{ color }}>1</Text>,
+          2: <Text style={{ color }}>2</Text>,
+          3: <Text style={{ color }}>3</Text>
+        }[item.value];
+      }}
+    />
   )
 }
 ```
@@ -98,47 +148,52 @@ const App = () => {
 
 ```tsx
 import * as React from 'react'
-import { Tab, Tabs } from 'mui-tabs/native'
+import { Tabs } from 'mui-tabs/native'
 
 const App = () => {
-  const [value, setValue] = React.useState(0)
+  const [value, setValue] = React.useState(1)
 
   return (
     <Tabs
+      tabs={[
+        { value: 1, label: 'Tab 1' },
+        { value: 2, label: 'Tab 2' },
+        { value: 3, label: 'Tab 3' },
+        { value: 4, label: 'Tab 4' },
+        { value: 5, label: 'Tab 5' },
+        { value: 6, label: 'Tab 6' },
+        { value: 7, label: 'Tab 7' },
+        { value: 8, label: 'Tab 8' },
+        { value: 9, label: 'Tab 9' },
+        { value: 10, label: 'Tab 10' }
+      ]}
       value={value}
-      variant="scrollable"
-      onChange={(value) => setValue(value)}
+      onChange={setValue}
+      scrollable={true}
       style={{
-        backgroundColor: '#f2f2f2',
-        borderRadius: 99
+        borderRadius: 99,
+        backgroundColor: '#f2f2f2'
       }}
-      tabProps={{
-        color: '#000000',
-        selectedColor: '#000000'
+      tabStyle={{
+        width: 'auto'
       }}
-      indicatorProps={{
-        color: '#ffffff',
-        size: '100%',
-        style: {
-          zIndex: -1,
-          borderRadius: 99
-        }
+      labelStyle={{
+        color: '#000000'
       }}
-      scrollButtons={true}
-      scrollViewContainerProps={{
-        style: {
-          paddingVertical: 5
-        }
+      indicatorStyle={{
+        height: '100%',
+        zIndex: -1,
+        borderRadius: 99,
+        backgroundColor: '#ffffff'
       }}
-    >
-      <Tab label="Tab 1" />
-      <Tab label="Tab 2" />
-      <Tab label="Tab 3" />
-      <Tab label="Tab 4" />
-      <Tab label="Tab 5" />
-      <Tab label="Tab 6" />
-      <Tab label="Tab 7" />
-    </Tabs>
+      contentContainerStyle={{
+        paddingHorizontal: 10
+      }}
+      indicatorContainerStyle={{
+        zIndex: 0,
+        marginVertical: 5
+      }}
+    />
   )
 }
 ```

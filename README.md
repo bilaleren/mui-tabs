@@ -24,6 +24,7 @@ This package was developed based on the [Material UI Tabs](https://mui.com/compo
 - [x] [Centered tabs](https://bilaleren.github.io/mui-tabs#centered-tabs)
 - [x] [Ripple effect supported](https://bilaleren.github.io/mui-tabs#ripple-effect)
 - [x] [React Native supported](./NATIVE_README.md)
+- [x] [React Native TabView supported](./NATIVE_TABVIEW_README.md)
 
 ## Installation
 

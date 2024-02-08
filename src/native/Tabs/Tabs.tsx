@@ -4,68 +4,44 @@ import {
   Easing,
   Animated,
   Dimensions,
-  ScrollView,
   StyleSheet,
-  ColorValue,
   ViewProps,
+  StyleProp,
+  ViewToken,
+  TextStyle,
+  ViewStyle,
+  DimensionValue,
   ScrollViewProps,
-  NativeScrollEvent,
   LayoutChangeEvent,
-  NativeSyntheticEvent
+  ListRenderItemInfo
 } from 'react-native'
-import type { TabProps } from '../Tab'
-import useTabsController from './useTabsController'
+import Tab, { RenderTabLabel, RenderTabIcon, RenderTabBadge } from '../Tab'
+import TabsIndicator, { TabsIndicatorProps } from '../TabsIndicator'
+import { dequal as isEqual } from 'dequal/lite'
 import useLatestCallback from 'use-latest-callback'
+import useAnimatedValue from '@utils/useAnimatedValue'
 import type { TabButtonProps } from '../TabButton'
-import isReactFragment from '@utils/isReactFragment'
-import TabScrollButton, { TabScrollButtonProps } from '../TabScrollButton'
 import type {
+  TabItem,
   TabValue,
-  TabsVariant,
-  ChangeHandler,
-  IndicatorAnimationCallback
+  OnChange,
+  OnTabPress,
+  ChangeEvent,
+  OnTabLongPress
 } from '../types'
 
-type BaseTabsProps = Omit<ViewProps, 'children'>
+export type RenderIndicator = (props: TabsIndicatorProps) => React.ReactNode
 
-export interface TabsRefAttributes {
-  updateIndicator: (animated?: boolean) => void
-  updateScrollButtons: () => void
-}
-
-export interface IndicatorProps extends ViewProps {
+export interface TabsProps<Value extends TabValue = TabValue> {
   /**
-   * The indicator determines its height.
-   * @default 2
+   * The tab items.
    */
-  size?: number | 'auto' | `${number}%`
+  tabs: TabItem<Value>[]
 
   /**
-   * The indicator determines its color.
-   * @default #1976D2
+   * Determines the style of the container.
    */
-  color?: ColorValue
-
-  /**
-   * The indicator determines its position.
-   * @default bottom
-   */
-  position?: 'top' | 'bottom'
-
-  /**
-   * The indicator determines its enabled.
-   * @default true
-   */
-  enabled?: boolean
-
-  /**
-   * Create a custom indicator animation.
-   */
-  animation?: IndicatorAnimationCallback
-}
-
-export interface TabsProps<Value extends TabValue = any> extends BaseTabsProps {
-  children: React.ReactElement<TabProps>[]
+  style?: ViewProps['style']
 
   /**
    * The value of the currently selected `Tab`.
@@ -73,68 +49,105 @@ export interface TabsProps<Value extends TabValue = any> extends BaseTabsProps {
   value?: Value
 
   /**
-   *  Determines additional display behavior of the tabs:
-   *
-   *  - `scrollable` will invoke scrolling properties and allow for horizontally
-   *  scrolling (or swiping) of the tab bar.
-   *  - `fullWidth` will make the tabs grow to use all the available space,
-   *  which should be used for small views, like on mobile.
-   *  - `standard` will render the default state.
-   * @default 'standard'
+   * When set to true allows the tab bar to scroll horizontally.
    */
-  variant?: TabsVariant
+  scrollable?: boolean
 
   /**
    * Callback fired when the value changes.
    */
-  onChange?: ChangeHandler<Value>
+  onChange?: OnChange<Value>
 
   /**
-   * Determine behavior of scroll buttons when tabs are set to scroll.
-   * @default false
+   * Determines the bounces of tab list.
    */
-  scrollButtons?: boolean
+  bounces?: ScrollViewProps['bounces']
+
+  /**
+   * Determines the overScrollMode of tab list.
+   */
+  overScrollMode?: ScrollViewProps['overScrollMode']
+
+  /**
+   * Determines the estimated tab width.
+   */
+  estimatedTabWidth?: number
 
   /**
    * The initial window size. It is used to determine the sizes and positions of the tabs and the indicator.
-   * @default Dimensions.get('screen').width
+   * @default Dimensions.get('window').width
    */
   initialLayoutWidth?: number
 
   /**
-   * Override the Tab props.
+   * Determines the opacity of disabled.
    */
-  tabProps?: Partial<
-    Omit<
-      TabProps,
-      'selected' | 'value' | 'ButtonComponent' | 'label' | 'onChange'
-    >
-  >
+  disabledOpacity?: number
 
   /**
-   * Override the Indicator props.
+   * Determines the tab gap.
    */
-  indicatorProps?: IndicatorProps
+  tabGap?: number
 
   /**
-   * Override the ScrollView props.
+   * Determines the style of the tab.
    */
-  scrollViewProps?: Partial<
-    Omit<
-      ScrollViewProps,
-      | 'horizontal'
-      | 'scrollsToTop'
-      | 'showsVerticalScrollIndicator'
-      | 'showsHorizontalScrollIndicator'
-    >
-  >
+  tabStyle?: StyleProp<ViewStyle>
 
   /**
-   * Override the TabScrollButton props.
+   * Determines the style of the tab label.
    */
-  scrollButtonProps?: Partial<
-    Omit<TabScrollButtonProps, 'type' | 'onPress' | 'ButtonComponent'>
-  >
+  labelStyle?: StyleProp<TextStyle>
+
+  /**
+   * Render the tab icon to display.
+   */
+  renderTabIcon?: RenderTabIcon<Value>
+
+  /**
+   * Render the tab label to display.
+   */
+  renderTabLabel?: RenderTabLabel<Value>
+
+  /**
+   * Render the tab badge to display.
+   */
+  renderTabBadge?: RenderTabBadge<Value>
+
+  /**
+   * Callback fired when the tab pressed.
+   */
+  onTabPress?: OnTabPress<Value>
+
+  /**
+   * Callback fired when the tab long pressed.
+   */
+  onTabLongPress?: OnTabLongPress<Value>
+
+  /**
+   * Current position interpolation value.
+   */
+  position?: Animated.AnimatedInterpolation<number>
+
+  /**
+   * Render the tabs indicator to display.
+   */
+  renderIndicator?: RenderIndicator
+
+  /**
+   * Determines the style of the indicator.
+   */
+  indicatorStyle?: StyleProp<ViewStyle>
+
+  /**
+   * The indicator determines its enabled.
+   */
+  indicatorEnabled?: boolean
+
+  /**
+   * Determines the style of the indicator container.
+   */
+  indicatorContainerStyle?: StyleProp<ViewStyle>
 
   /**
    * The component used to render the tabs.
@@ -142,303 +155,667 @@ export interface TabsProps<Value extends TabValue = any> extends BaseTabsProps {
   TabComponent?: React.ComponentType<TabButtonProps>
 
   /**
-   * The component used to render the scroll buttons.
+   * Determines the style of the `FlatList` content container.
    */
-  ScrollButtonComponent?: React.ComponentType<TabButtonProps>
-
-  /**
-   * Override the ScrollViewContainer props.
-   */
-  scrollViewContainerProps?: Partial<ViewProps>
+  contentContainerStyle?: StyleProp<ViewStyle>
 }
 
-interface TabsComponent extends React.ForwardRefExoticComponent<TabsProps> {
-  <Value extends TabValue = any>(
-    props: TabsProps<Value> & React.RefAttributes<TabsRefAttributes>
-  ): ReturnType<React.FC<TabsProps<Value>>>
+const Separator: React.FC<{ width: number }> = ({ width }) => (
+  <View style={{ width }} />
+)
+
+const MEASURE_PER_BATCH = 10
+
+const getTabsWidth = ({
+  tabs,
+  tabGap,
+  tabWidths,
+  layoutWidth,
+  scrollEnabled,
+  estimatedTabWidth,
+  flattenedTabWidth,
+  flattenedPaddingLeft,
+  flattenedPaddingRight
+}: {
+  tabs: TabItem[]
+  tabGap: number
+  tabWidths: Record<TabValue, number>
+  layoutWidth: number
+  scrollEnabled: boolean
+  estimatedTabWidth: number
+  flattenedTabWidth: DimensionValue | undefined
+  flattenedPaddingLeft: DimensionValue | undefined
+  flattenedPaddingRight: DimensionValue | undefined
+}) => {
+  const totalPadding = Math.max(
+    0,
+    convertPercentToSize(flattenedPaddingLeft, layoutWidth) +
+      convertPercentToSize(flattenedPaddingRight, layoutWidth)
+  )
+
+  return tabs.reduce<number>(
+    (total, _, index) =>
+      total +
+      (index > 0 ? tabGap ?? 0 : 0) +
+      getComputedTabWidth({
+        index,
+        tabs,
+        tabGap,
+        tabWidths,
+        layoutWidth,
+        scrollEnabled,
+        estimatedTabWidth,
+        flattenedWidth: flattenedTabWidth,
+        flattenedPaddingLeft,
+        flattenedPaddingRight
+      }),
+    totalPadding
+  )
 }
 
-const defaultIndicatorAnimation: IndicatorAnimationCallback = (
-  value,
-  animatedValue
-) => {
-  return Animated.timing(animatedValue, {
-    toValue: value,
-    delay: 0,
-    duration: 300,
-    easing: Easing.bezier(0.4, 0, 0.2, 1),
-    useNativeDriver: false
+const normalizeScrollValue = ({
+  tabs,
+  tabGap,
+  tabWidths,
+  scrollValue,
+  layoutWidth,
+  scrollEnabled,
+  estimatedTabWidth,
+  flattenedTabWidth,
+  flattenedPaddingLeft,
+  flattenedPaddingRight
+}: {
+  tabs: TabItem[]
+  tabGap: number
+  tabWidths: Record<TabValue, number>
+  scrollValue: number
+  layoutWidth: number
+  scrollEnabled: boolean
+  estimatedTabWidth: number
+  flattenedTabWidth: DimensionValue | undefined
+  flattenedPaddingLeft: DimensionValue | undefined
+  flattenedPaddingRight: DimensionValue | undefined
+}) => {
+  const tabsWidth = getTabsWidth({
+    tabs,
+    tabGap,
+    tabWidths,
+    layoutWidth,
+    scrollEnabled,
+    estimatedTabWidth,
+    flattenedTabWidth,
+    flattenedPaddingLeft,
+    flattenedPaddingRight
+  })
+
+  const maxDistance = getMaxScrollDistance(tabsWidth, layoutWidth)
+
+  return Math.max(Math.min(scrollValue, maxDistance), 0)
+}
+
+const getScrollAmount = ({
+  tabs,
+  tabGap,
+  tabIndex,
+  tabWidths,
+  layoutWidth,
+  scrollEnabled,
+  estimatedTabWidth,
+  flattenedTabWidth,
+  flattenedPaddingLeft,
+  flattenedPaddingRight
+}: {
+  tabGap: number
+  tabs: TabItem[]
+  tabIndex: number
+  tabWidths: Record<TabValue, number>
+  layoutWidth: number
+  scrollEnabled: boolean
+  estimatedTabWidth: number
+  flattenedTabWidth: DimensionValue | undefined
+  flattenedPaddingLeft: DimensionValue | undefined
+  flattenedPaddingRight: DimensionValue | undefined
+}) => {
+  const initialPadding = convertPercentToSize(flattenedPaddingLeft, layoutWidth)
+  const centerDistance = Array.from({ length: tabIndex + 1 }).reduce<number>(
+    (total, _, index) => {
+      const tabWidth = getComputedTabWidth({
+        index,
+        tabs,
+        tabGap,
+        tabWidths,
+        layoutWidth,
+        scrollEnabled,
+        estimatedTabWidth,
+        flattenedWidth: flattenedTabWidth,
+        flattenedPaddingLeft,
+        flattenedPaddingRight
+      })
+
+      return (
+        total +
+        (index > 0 ? tabGap ?? 0 : 0) +
+        (index === tabIndex ? tabWidth / 2 : tabWidth)
+      )
+    },
+    initialPadding
+  )
+  const scrollAmount = centerDistance - layoutWidth / 2
+
+  return normalizeScrollValue({
+    tabs,
+    tabGap,
+    tabWidths,
+    layoutWidth,
+    scrollEnabled,
+    scrollValue: scrollAmount,
+    estimatedTabWidth,
+    flattenedTabWidth,
+    flattenedPaddingLeft,
+    flattenedPaddingRight
   })
 }
 
-const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
-  (props, ref) => {
-    const {
-      style,
-      value,
-      variant = 'standard',
-      children: childrenProp,
-      onChange,
-      scrollButtons = false,
-      tabProps,
-      indicatorProps = {},
-      scrollViewProps = {},
-      scrollButtonProps,
-      scrollViewContainerProps = {},
-      TabComponent,
-      ScrollButtonComponent,
-      initialLayoutWidth = Dimensions.get('screen').width,
-      ...otherProps
-    } = props
-    const mountedRef = React.useRef<boolean>(false)
-    const [layoutWidth, setLayoutWidth] = React.useState(initialLayoutWidth)
-
-    const {
-      size: indicatorSize = 2,
-      style: indicatorStyle,
-      color: indicatorColor = '#1976D2',
-      enabled: indicatorEnabled = true,
-      position: indicatorPosition = 'bottom',
-      animation: indicatorAnimation = defaultIndicatorAnimation,
-      ...otherIndicatorProps
-    } = indicatorProps
-
-    const fullWidth = variant === 'fullWidth'
-    const scrollable = variant === 'scrollable'
-    const scrollButtonsEnabled = scrollable && scrollButtons
-    const childrenArray = React.Children.toArray(childrenProp).filter(
-      (child) => {
-        if (!React.isValidElement(child)) {
-          return false
-        }
-
-        if (isReactFragment(child)) {
-          if (__DEV__) {
-            console.error(
-              [
-                "The Tabs component doesn't accept a Fragment as a child.",
-                'Consider providing an array instead.'
-              ].join('\n')
-            )
-          }
-
-          return false
-        }
-
-        return true
-      }
-    ) as React.ReactElement<TabProps>[]
-
-    const {
-      tabsCount,
-      scrollToSelectedTab,
-      updateIndicatorState,
-      updateMemoizedTabValues,
-      updateScrollButtonsState,
-      moveTabsScrollToStart,
-      moveTabsScrollToEnd,
-      scrollViewRef,
-      scrollOffsetRef,
-      valueToSizeRef,
-      valueToIndexRef,
-      startScrollButtonRef,
-      endScrollButtonRef,
-      indicatorWidthValue,
-      indicatorPositionValue
-    } = useTabsController({
-      value,
-      tabs: childrenArray,
-      scrollable,
-      layoutWidth,
-      indicatorEnabled,
-      indicatorAnimation
-    })
-
-    const handleScroll = useLatestCallback(
-      (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const {
-          nativeEvent: { contentOffset }
-        } = event
-
-        scrollOffsetRef.current = contentOffset.x
-
-        updateScrollButtonsState()
-
-        scrollViewProps.onScroll?.(event)
-      }
-    )
-
-    const handleLayout = useLatestCallback((event: LayoutChangeEvent) => {
-      const {
-        nativeEvent: { layout }
-      } = event
-
-      if (layout.width !== layoutWidth) {
-        setLayoutWidth(layout.width)
-      }
-
-      scrollViewContainerProps.onLayout?.(event)
-    })
-
-    const handleContentSizeChange = useLatestCallback(
-      (width: number, height: number) => {
-        updateMemoizedTabValues()
-        scrollToSelectedTab(false)
-
-        if (scrollButtonsEnabled) {
-          updateScrollButtonsState(width)
-        }
-
-        scrollViewProps.onContentSizeChange?.(width, height)
-      }
-    )
-
-    React.useEffect(() => {
-      updateIndicatorState(mountedRef.current)
-      scrollToSelectedTab(mountedRef.current)
-    }, [value, indicatorEnabled, scrollToSelectedTab, updateIndicatorState])
-
-    React.useEffect(() => {
-      if (!mountedRef.current && scrollButtonsEnabled) {
-        updateScrollButtonsState()
-      }
-    }, [scrollButtonsEnabled, updateScrollButtonsState])
-
-    React.useEffect(() => {
-      mountedRef.current = true
-    }, [])
-
-    React.useImperativeHandle(
-      ref,
-      () => ({
-        updateIndicator: updateIndicatorState,
-        updateScrollButtons: updateScrollButtonsState
-      }),
-      [updateIndicatorState, updateScrollButtonsState]
-    )
-
-    const children = childrenArray.map((child, index) => {
-      const props: TabProps = {
-        ...tabProps,
-        ...child.props
-      }
-      const childValue = props.value === undefined ? index : props.value
-      const selected = value === childValue
-      const tabWidth = layoutWidth / tabsCount
-
-      valueToIndexRef.current.set(childValue, index)
-
-      if (fullWidth) {
-        valueToSizeRef.current.set(childValue, tabWidth)
-      }
-
-      return React.cloneElement(child, {
-        ...props,
-        value: childValue,
-        selected,
-        onChange,
-        ...(fullWidth && {
-          style: [props.style, { width: tabWidth }]
-        }),
-        ButtonComponent: TabComponent,
-        onLayout(event) {
-          const {
-            nativeEvent: { layout }
-          } = event
-
-          if (!fullWidth) {
-            valueToSizeRef.current.set(childValue, layout.width)
-          }
-
-          if (selected) {
-            updateIndicatorState(false)
-            scrollToSelectedTab(false)
-          }
-
-          props.onLayout?.(event)
-        }
-      } as TabProps)
-    })
-
-    return (
-      <View {...otherProps} style={[styles.container, style]}>
-        {scrollButtonsEnabled && (
-          <TabScrollButton
-            {...scrollButtonProps}
-            ref={startScrollButtonRef}
-            type="start"
-            onPress={moveTabsScrollToStart}
-            ButtonComponent={ScrollButtonComponent}
-          />
-        )}
-
-        <View
-          {...scrollViewContainerProps}
-          style={[styles.scrollViewContainer, scrollViewContainerProps.style]}
-          onLayout={handleLayout}
-        >
-          <ScrollView
-            accessibilityRole="tablist"
-            scrollEventThrottle={16}
-            automaticallyAdjustContentInsets={false}
-            automaticallyAdjustsScrollIndicatorInsets={false}
-            {...scrollViewProps}
-            ref={scrollViewRef}
-            onScroll={handleScroll}
-            horizontal={true}
-            scrollsToTop={false}
-            scrollEnabled={scrollable}
-            onContentSizeChange={handleContentSizeChange}
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-          >
-            {children}
-            {indicatorEnabled && (
-              <Animated.View
-                accessibilityRole="none"
-                importantForAccessibility="no"
-                {...otherIndicatorProps}
-                style={[
-                  {
-                    position: 'absolute',
-                    [indicatorPosition]: 0,
-                    left: indicatorPositionValue,
-                    width: indicatorWidthValue,
-                    height: indicatorSize,
-                    backgroundColor: indicatorColor
-                  },
-                  indicatorStyle
-                ]}
-              />
-            )}
-          </ScrollView>
-        </View>
-
-        {scrollButtonsEnabled && (
-          <TabScrollButton
-            {...scrollButtonProps}
-            ref={endScrollButtonRef}
-            type="end"
-            onPress={moveTabsScrollToEnd}
-            ButtonComponent={ScrollButtonComponent}
-          />
-        )}
-      </View>
-    )
+const getComputedTabWidth = ({
+  index,
+  tabs,
+  tabGap,
+  tabWidths,
+  layoutWidth,
+  scrollEnabled,
+  estimatedTabWidth,
+  flattenedWidth,
+  flattenedPaddingLeft,
+  flattenedPaddingRight
+}: {
+  index: number
+  tabs: TabItem[]
+  tabGap: number
+  tabWidths: Record<TabValue, number>
+  layoutWidth: number
+  scrollEnabled: boolean
+  estimatedTabWidth: number
+  flattenedWidth: DimensionValue | undefined
+  flattenedPaddingLeft: DimensionValue | undefined
+  flattenedPaddingRight: DimensionValue | undefined
+}): number => {
+  if (flattenedWidth === 'auto') {
+    return tabWidths[tabs[index]?.value] ?? estimatedTabWidth
+  } else if (flattenedWidth != null) {
+    return convertPercentToSize(flattenedWidth, layoutWidth)
+  } else if (scrollEnabled) {
+    return (layoutWidth / 5) * 2
   }
+
+  const totalGapWidth = (tabGap ?? 0) * Math.max(0, tabs.length - 1)
+  const totalPadding =
+    convertPercentToSize(flattenedPaddingLeft, layoutWidth) +
+    convertPercentToSize(flattenedPaddingRight, layoutWidth)
+
+  return (layoutWidth - totalGapWidth - totalPadding) / tabs.length
+}
+
+const getMaxScrollDistance = (tabsWidth: number, layoutWidth: number): number =>
+  tabsWidth - layoutWidth
+
+const isMeasuredTabWidths = (
+  tabs: TabItem[],
+  tabWidths: Record<TabValue, number>
+): boolean => {
+  return tabs.every((t) => typeof tabWidths[t.value] === 'number')
+}
+
+const convertPercentToSize = (
+  value: DimensionValue | undefined,
+  layoutWidth: number
+): number => {
+  switch (typeof value) {
+    case 'number':
+      return value
+    case 'string':
+      if (value.endsWith('%')) {
+        const width = parseFloat(value)
+        if (Number.isFinite(width)) {
+          return layoutWidth * (width / 100)
+        }
+      }
+  }
+
+  return 0
+}
+
+const getFlattenedTabWidth = (style: StyleProp<ViewStyle>) => {
+  const tabStyle = StyleSheet.flatten(style)
+  return tabStyle?.width
+}
+
+const getFlattenedPaddingLeft = (style: StyleProp<ViewStyle>) => {
+  const flattenStyle = StyleSheet.flatten(style)
+
+  return flattenStyle
+    ? flattenStyle.paddingLeft || flattenStyle.paddingHorizontal || 0
+    : 0
+}
+
+const getFlattenedPaddingRight = (style: StyleProp<ViewStyle>) => {
+  const flattenStyle = StyleSheet.flatten(style)
+
+  return flattenStyle
+    ? flattenStyle.paddingRight || flattenStyle.paddingHorizontal || 0
+    : 0
+}
+
+const defaultIndicator: RenderIndicator = (props) => (
+  <TabsIndicator {...props} />
 )
 
+const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
+  const {
+    tabs,
+    style,
+    value,
+    tabGap = 0,
+    scrollable = false,
+    onChange,
+    onTabPress,
+    onTabLongPress,
+    bounces,
+    overScrollMode,
+    renderTabIcon,
+    renderTabLabel,
+    renderTabBadge,
+    tabStyle,
+    labelStyle,
+    position: positionProp,
+    renderIndicator = defaultIndicator,
+    indicatorStyle,
+    indicatorEnabled = true,
+    indicatorContainerStyle,
+    TabComponent,
+    contentContainerStyle,
+    disabledOpacity,
+    estimatedTabWidth = 0,
+    initialLayoutWidth = Dimensions.get('window').width
+  } = props
+
+  const tabIndex = tabs.findIndex((tab) => value === tab.value)
+  const scrollEnabled = scrollable
+  const flattenedTabWidth = getFlattenedTabWidth(tabStyle)
+  const isDynamicWidth = flattenedTabWidth === 'auto'
+  const flattenedPaddingRight = getFlattenedPaddingRight(contentContainerStyle)
+  const flattenedPaddingLeft = getFlattenedPaddingLeft(contentContainerStyle)
+
+  const position = useAnimatedValue(0)
+  const scrollAmount = useAnimatedValue(0)
+  const mountedRef = React.useRef<boolean>(false)
+  const flatListRef = React.useRef<Animated.FlatList>(null)
+  const [layoutWidth, setLayoutWidth] = React.useState(initialLayoutWidth)
+  const [tabWidths, setTabWidths] = React.useState<Record<TabValue, number>>({})
+  const measuredTabWidths = React.useRef<Record<TabValue, number>>({})
+
+  const hasProvidedPosition = positionProp !== undefined
+
+  const hasMeasuredTabWidths =
+    tabIndex > -1 &&
+    layoutWidth > 0 &&
+    isMeasuredTabWidths(tabs.slice(0, tabIndex), tabWidths)
+
+  const tabsWidth = getTabsWidth({
+    tabs,
+    tabGap,
+    tabWidths,
+    layoutWidth,
+    scrollEnabled,
+    estimatedTabWidth,
+    flattenedTabWidth,
+    flattenedPaddingLeft,
+    flattenedPaddingRight
+  })
+
+  const scrollOffset =
+    tabIndex > -1
+      ? getScrollAmount({
+          tabs,
+          tabGap,
+          tabWidths,
+          tabIndex,
+          layoutWidth,
+          scrollEnabled,
+          estimatedTabWidth,
+          flattenedTabWidth,
+          flattenedPaddingLeft,
+          flattenedPaddingRight
+        })
+      : null
+
+  if (__DEV__ && tabIndex === -1) {
+    const values = tabs.map((tab) => tab.value).join(', ')
+
+    console.warn(
+      '[mui-tabs]',
+      [
+        'The `value` provided to the Tabs component is invalid.',
+        `None of the Tabs match with "${value}" value.`,
+        `You can provide one of the following values: ${values}.`
+      ].join('\n')
+    )
+  }
+
+  React.useEffect(() => {
+    if (tabIndex === -1 || !indicatorEnabled || hasProvidedPosition) {
+      return
+    }
+
+    if (mountedRef.current) {
+      Animated.timing(position, {
+        toValue: tabIndex,
+        duration: 300,
+        easing: Easing.bezier(0.4, 0, 0.2, 1),
+        useNativeDriver: false
+      }).start()
+    } else {
+      position.setValue(tabIndex)
+    }
+  }, [position, tabIndex, hasProvidedPosition, indicatorEnabled])
+
+  React.useEffect(() => {
+    if (!mountedRef.current) {
+      return
+    }
+
+    if (isDynamicWidth && !hasMeasuredTabWidths) {
+      return
+    }
+
+    const flatList = flatListRef.current
+
+    if (flatList && scrollEnabled && scrollOffset !== null) {
+      flatList.scrollToOffset({
+        offset: scrollOffset,
+        animated: true
+      })
+    }
+  }, [scrollEnabled, scrollOffset, isDynamicWidth, hasMeasuredTabWidths])
+
+  React.useEffect(() => {
+    mountedRef.current = true
+  }, [])
+
+  const keyExtractor = React.useCallback(
+    (item: TabItem<Value>) => item.value.toString(),
+    []
+  )
+
+  const updateTabWidths = React.useCallback(() => {
+    setTabWidths((prevState) => {
+      if (isEqual(prevState, measuredTabWidths.current)) {
+        return prevState
+      }
+
+      return { ...measuredTabWidths.current }
+    })
+  }, [])
+
+  const handleScroll = React.useMemo(
+    () =>
+      Animated.event(
+        [
+          {
+            nativeEvent: {
+              contentOffset: { x: scrollAmount }
+            }
+          }
+        ],
+        { useNativeDriver: true }
+      ),
+    [scrollAmount]
+  )
+
+  const handleLayout = useLatestCallback((event: LayoutChangeEvent) => {
+    const {
+      nativeEvent: { layout }
+    } = event
+
+    setLayoutWidth((prevLayoutWidth) => {
+      if (layout.width === prevLayoutWidth) {
+        return prevLayoutWidth
+      }
+
+      return layout.width
+    })
+  })
+
+  const handleViewableItemsChanged = useLatestCallback(
+    ({ changed }: { changed: ViewToken[] }) => {
+      if (tabs.length <= MEASURE_PER_BATCH) {
+        return
+      }
+
+      const item = changed[changed.length - 1]
+      const index = item?.index || 0
+
+      if (
+        item?.isViewable &&
+        (index % 10 === 0 || index === tabIndex || index === tabs.length - 1)
+      ) {
+        updateTabWidths()
+      }
+    }
+  )
+
+  const renderItem = React.useCallback(
+    ({ item, index }: ListRenderItemInfo<TabItem<Value>>) => {
+      if (item.value == null) {
+        throw new TypeError(`[mui-tabs] Tab [${index}] value not provided.`)
+      }
+
+      const { value: tabItemValue, disabled } = item
+      const selected = value === tabItemValue
+
+      return (
+        <React.Fragment>
+          {tabGap > 0 && index > 0 ? <Separator width={tabGap} /> : null}
+          <Tab
+            item={item}
+            tabWidth={
+              !isDynamicWidth
+                ? getComputedTabWidth({
+                    index,
+                    tabs,
+                    tabGap,
+                    tabWidths,
+                    layoutWidth,
+                    scrollEnabled,
+                    estimatedTabWidth,
+                    flattenedWidth: flattenedTabWidth,
+                    flattenedPaddingLeft,
+                    flattenedPaddingRight
+                  })
+                : undefined
+            }
+            style={tabStyle}
+            selected={selected}
+            disabled={disabled}
+            labelStyle={labelStyle}
+            disabledOpacity={disabledOpacity}
+            renderIcon={renderTabIcon}
+            renderLabel={renderTabLabel}
+            renderBadge={renderTabBadge}
+            onPress={() => {
+              const event: ChangeEvent<Value> = {
+                item,
+                defaultPrevented: false,
+                preventDefault() {
+                  event.defaultPrevented = true
+                }
+              }
+
+              onTabPress?.(event)
+
+              if (!selected && !event.defaultPrevented) {
+                onChange?.(tabItemValue, event)
+              }
+            }}
+            onLongPress={
+              onTabLongPress ? () => onTabLongPress({ item }) : undefined
+            }
+            onLayout={
+              isDynamicWidth
+                ? (event) => {
+                    const {
+                      nativeEvent: { layout }
+                    } = event
+
+                    measuredTabWidths.current[tabItemValue] = layout.width
+
+                    if (
+                      tabs.length > MEASURE_PER_BATCH &&
+                      index === MEASURE_PER_BATCH &&
+                      isMeasuredTabWidths(
+                        tabs.slice(0, MEASURE_PER_BATCH),
+                        measuredTabWidths.current
+                      )
+                    ) {
+                      updateTabWidths()
+                    } else if (
+                      isMeasuredTabWidths(tabs, measuredTabWidths.current)
+                    ) {
+                      updateTabWidths()
+                    }
+                  }
+                : undefined
+            }
+            ButtonComponent={TabComponent}
+          />
+        </React.Fragment>
+      )
+    },
+    [
+      value,
+      tabGap,
+      isDynamicWidth,
+      tabs,
+      tabWidths,
+      layoutWidth,
+      scrollEnabled,
+      estimatedTabWidth,
+      flattenedTabWidth,
+      flattenedPaddingLeft,
+      flattenedPaddingRight,
+      tabStyle,
+      labelStyle,
+      disabledOpacity,
+      renderTabIcon,
+      renderTabLabel,
+      renderTabBadge,
+      onTabLongPress,
+      TabComponent,
+      onTabPress,
+      onChange,
+      updateTabWidths
+    ]
+  )
+
+  const memoizedContentContainerStyle = React.useMemo(
+    () => [
+      styles.contentContainer,
+      scrollEnabled ? { width: tabsWidth } : null,
+      contentContainerStyle
+    ],
+    [tabsWidth, scrollEnabled, contentContainerStyle]
+  )
+
+  return (
+    <View
+      style={[styles.container, scrollEnabled ? styles.scroll : null, style]}
+      onLayout={handleLayout}
+    >
+      {indicatorEnabled && (
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFill,
+            scrollEnabled
+              ? {
+                  transform: [
+                    {
+                      translateX: Animated.multiply(scrollAmount, -1)
+                    }
+                  ]
+                }
+              : null,
+            scrollEnabled ? { width: tabsWidth } : null,
+            indicatorContainerStyle
+          ]}
+          pointerEvents="none"
+        >
+          {renderIndicator({
+            tabs,
+            tabGap,
+            position: positionProp || position,
+            style: [
+              indicatorStyle,
+              {
+                left: flattenedPaddingLeft,
+                right: flattenedPaddingRight
+              }
+            ],
+            getTabWidth: (index) =>
+              getComputedTabWidth({
+                index,
+                tabs,
+                tabGap,
+                tabWidths,
+                layoutWidth,
+                scrollEnabled,
+                estimatedTabWidth,
+                flattenedWidth: flattenedTabWidth,
+                flattenedPaddingLeft,
+                flattenedPaddingRight
+              })
+          })}
+        </Animated.View>
+      )}
+
+      <View style={!scrollEnabled ? styles.scroll : null}>
+        <Animated.FlatList
+          ref={flatListRef}
+          data={tabs as Animated.WithAnimatedValue<TabItem<Value>>[]}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          bounces={bounces}
+          horizontal={true}
+          scrollsToTop={false}
+          scrollEnabled={scrollEnabled}
+          overScrollMode={overScrollMode}
+          accessibilityRole="tablist"
+          keyboardShouldPersistTaps="handled"
+          scrollEventThrottle={16}
+          initialNumToRender={MEASURE_PER_BATCH}
+          onScroll={scrollEnabled ? handleScroll : undefined}
+          contentContainerStyle={memoizedContentContainerStyle}
+          onViewableItemsChanged={handleViewableItemsChanged}
+          alwaysBounceHorizontal={false}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          automaticallyAdjustContentInsets={false}
+          automaticallyAdjustsScrollIndicatorInsets={false}
+        />
+      </View>
+    </View>
+  )
+}
+
 const styles = StyleSheet.create({
-  container: {
-    minHeight: 48,
-    maxHeight: 80,
-    overflow: 'hidden',
-    flexDirection: 'row',
-    justifyContent: 'space-between'
+  scroll: {
+    overflow: 'scroll'
   },
-  scrollViewContainer: {
-    flex: 1,
-    overflow: 'hidden'
+  container: {
+    zIndex: 1
+  },
+  contentContainer: {
+    flexGrow: 1,
+    flexWrap: 'nowrap',
+    flexDirection: 'row'
   }
 })
 

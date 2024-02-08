@@ -6,7 +6,7 @@ import TabButton, { TabButtonProps } from '../TabButton'
 const ANDROID_VERSION_PIE = 28
 const ANDROID_VERSION_LOLLIPOP = 21
 
-function getRippleColor(rippleColor: ColorValue): string {
+const getRippleColor = (rippleColor: ColorValue): string => {
   return color(rippleColor).alpha(0.2).rgb().string()
 }
 
@@ -18,8 +18,15 @@ export interface RippleButtonProps extends TabButtonProps {
   borderless?: boolean
 }
 
-const RippleButton: RippleButtonComponent = (props: RippleButtonProps) => {
-  const { children, style, rippleColor, borderless = false, ...other } = props
+const RippleButton: RippleButtonComponent = (props) => {
+  const {
+    children,
+    style,
+    rippleColor,
+    borderless = false,
+    android_ripple: androidRipple,
+    ...other
+  } = props
 
   if (rippleColor && RippleButton.supported) {
     const useForeground =
@@ -30,11 +37,12 @@ const RippleButton: RippleButtonComponent = (props: RippleButtonProps) => {
     return (
       <TabButton
         {...other}
-        style={[borderless && styles.overflowHidden, style]}
+        style={[borderless ? styles.overflowHidden : null, style]}
         android_ripple={{
           color: getRippleColor(rippleColor),
           borderless,
-          foreground: useForeground
+          foreground: useForeground,
+          ...androidRipple
         }}
       >
         {children}
@@ -43,7 +51,10 @@ const RippleButton: RippleButtonComponent = (props: RippleButtonProps) => {
   }
 
   return (
-    <TabButton {...other} style={[borderless && styles.overflowHidden, style]}>
+    <TabButton
+      {...other}
+      style={[borderless ? styles.overflowHidden : null, style]}
+    >
       {children}
     </TabButton>
   )

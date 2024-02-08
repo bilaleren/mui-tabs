@@ -3,70 +3,75 @@ import {
   Text,
   View,
   StyleSheet,
-  TextProps,
   StyleProp,
   TextStyle,
-  ViewStyle,
-  ColorValue,
-  GestureResponderEvent
+  ColorValue
 } from 'react-native'
 import TabButton, { TabButtonProps } from '../TabButton'
-import useLatestCallback from 'use-latest-callback'
-import type { TabValue, IconPosition, ChangeHandler } from '../types'
+import type { TabItem, TabValue } from '../types'
 
-function iconPositionToFlexDirection(position: IconPosition) {
-  switch (position) {
-    default:
-    case 'top':
-      return 'column'
-    case 'bottom':
-      return 'column-reverse'
-    case 'start':
-      return 'row'
-    case 'end':
-      return 'row-reverse'
-  }
+type BaseTabProps = Omit<TabButtonProps, 'disabled' | 'rippleColor'>
+
+export interface RenderTabIconProps<Value extends TabValue = TabValue> {
+  item: TabItem<Value>
+  color: ColorValue
+  selected: boolean
+  disabled: boolean
 }
 
-type BaseTabProps = Omit<TabButtonProps, 'rippleColor'>
+export interface RenderTabLabelProps<Value extends TabValue = TabValue> {
+  item: TabItem<Value>
+  color: ColorValue
+  style: StyleProp<TextStyle>
+  selected: boolean
+  disabled: boolean
+}
 
-export interface TabProps extends BaseTabProps {
+export interface RenderTabBadgeProps<Value extends TabValue = TabValue> {
+  item: TabItem<Value>
+  color: ColorValue
+  selected: boolean
+  disabled: boolean
+}
+
+export type RenderTabIcon<Value extends TabValue = TabValue> = (
+  props: RenderTabIconProps<Value>
+) => React.ReactNode
+
+export type RenderTabLabel<Value extends TabValue = TabValue> = (
+  props: RenderTabLabelProps<Value>
+) => React.ReactNode
+
+export type RenderTabBadge<Value extends TabValue = TabValue> = (
+  props: RenderTabBadgeProps<Value>
+) => React.ReactNode
+
+export interface TabProps<Value extends TabValue = TabValue>
+  extends BaseTabProps {
   /**
-   * The label element.
+   * The tab item.
    */
-  label?: React.ReactNode
+  item: TabItem<Value>
 
   /**
-   * You can provide your own value. Otherwise, we fallback to the child position index.
+   * Determines the tab width.
    */
-  value?: TabValue
+  tabWidth?: number
 
   /**
-   * The color of the label.
-   * @default #000000
+   * Render the tab icon to display.
    */
-  color?: ColorValue
+  renderIcon?: RenderTabIcon<Value>
 
   /**
-   * The icon to display.
+   * Render the tab label to display.
    */
-  icon?: React.ReactElement<TextProps>
+  renderLabel?: RenderTabLabel<Value>
 
   /**
-   * Indicates whether the tab is selected.
-   * @default false
+   * Render the tab badge to display.
    */
-  selected?: boolean
-
-  /**
-   * The content used to after the tab label.
-   */
-  afterLabel?: React.ReactNode
-
-  /**
-   * The content used to before the tab label.
-   */
-  beforeLabel?: React.ReactNode
+  renderBadge?: RenderTabBadge<Value>
 
   /**
    * If `true`, the component is disabled.
@@ -75,10 +80,10 @@ export interface TabProps extends BaseTabProps {
   disabled?: boolean
 
   /**
-   * The position of the icon relative to the label.
-   * @default 'top'
+   * Indicates whether the tab is selected.
+   * @default false
    */
-  iconPosition?: IconPosition
+  selected?: boolean
 
   /**
    * The opacity of the disabled tab.
@@ -87,40 +92,9 @@ export interface TabProps extends BaseTabProps {
   disabledOpacity?: number
 
   /**
-   * The color of the selected label.
-   * @default #1976D2
-   */
-  selectedColor?: ColorValue
-
-  /**
-   * Callback fired when the value changes.
-   */
-  onChange?: ChangeHandler
-
-  /**
-   * Override the selected tab style.
-   */
-  selectedStyle?: StyleProp<ViewStyle>
-
-  /**
-   * Override the disabled tab style.
-   */
-  disabledStyle?: StyleProp<ViewStyle>
-
-  /**
-   * Override the label style.
+   * Determines the style of the label.
    */
   labelStyle?: StyleProp<TextStyle>
-
-  /**
-   * Override the selected label style.
-   */
-  selectedLabelStyle?: StyleProp<TextStyle>
-
-  /**
-   * Override the disabled label style.
-   */
-  disabledLabelStyle?: StyleProp<TextStyle>
 
   /**
    * The component used to render the tab.
@@ -128,125 +102,120 @@ export interface TabProps extends BaseTabProps {
   ButtonComponent?: React.ComponentType<TabButtonProps>
 }
 
-const Tab: React.FC<TabProps> = (props: TabProps) => {
+const SELECTED_LABEL_COLOR = '#1976D2'
+const UNSELECTED_LABEL_COLOR = '#000000'
+
+const renderTabLabel: RenderTabLabel = ({ item, style }) => {
+  if (item.label == null) {
+    return null
+  }
+
+  return <Text style={style}>{item.label}</Text>
+}
+
+const Tab = <Value extends TabValue>(props: TabProps<Value>) => {
   const {
-    value,
-    style: tabStyleProp,
-    selectedStyle: selectedStyleProp,
-    disabledStyle: disabledStyleProp,
-    icon: iconProp,
-    label: labelProp,
-    color: colorProp = '#000000',
-    selectedColor = '#1976D2',
+    item,
+    style: tabStyle,
+    renderIcon,
+    renderLabel = renderTabLabel,
+    renderBadge,
+    tabWidth,
     disabledOpacity = 0.2,
-    iconPosition = 'top',
-    onPress,
-    onChange,
-    afterLabel,
-    beforeLabel,
     selected = false,
     disabled = false,
     labelStyle: labelStyleProp,
-    selectedLabelStyle: selectedLabelStyleProp,
-    disabledLabelStyle: disabledLabelStyleProp,
     ButtonComponent = TabButton,
     ...other
   } = props
 
-  const color = selected ? selectedColor : colorProp
-  const hasIcon = !!iconProp
+  const labelStyle = StyleSheet.flatten(labelStyleProp)
 
-  const icon =
-    hasIcon && React.isValidElement(iconProp)
-      ? React.cloneElement(iconProp, {
-          ...iconProp.props,
-          style: [{ color }, iconProp.props.style]
+  const labelColor =
+    labelStyle?.color ||
+    (selected ? SELECTED_LABEL_COLOR : UNSELECTED_LABEL_COLOR)
+
+  const icon = renderIcon
+    ? renderIcon({
+        item,
+        color: labelColor,
+        selected,
+        disabled
+      })
+    : null
+
+  const label =
+    item.label != null
+      ? renderLabel({
+          item,
+          color: labelColor,
+          style: [styles.label, { color: labelColor }, labelStyle],
+          selected,
+          disabled
         })
-      : iconProp
+      : null
 
-  const tabStyle =
-    selected && selectedStyleProp
-      ? selectedStyleProp
-      : disabled && disabledStyleProp
-      ? disabledStyleProp
-      : tabStyleProp
-
-  const labelStyle =
-    selected && selectedLabelStyleProp
-      ? selectedLabelStyleProp
-      : disabled && disabledLabelStyleProp
-      ? disabledLabelStyleProp
-      : labelStyleProp
-
-  const handlePress = useLatestCallback((event: GestureResponderEvent) => {
-    if (!selected && !disabled) {
-      onChange?.(value as any, event)
-    }
-
-    onPress?.(event)
-  })
+  const badge = renderBadge
+    ? renderBadge({
+        item,
+        color: labelColor,
+        selected,
+        disabled
+      })
+    : null
 
   return (
     <ButtonComponent
+      unstable_pressDelay={0}
       {...other}
       disabled={disabled}
-      onPress={handlePress}
       accessibilityRole="tab"
       accessibilityState={{ disabled, selected }}
       style={[
-        styles.container,
-        disabled && { opacity: disabledOpacity },
-        tabStyle
+        styles.pressable,
+        disabled ? { opacity: disabledOpacity } : null,
+        tabWidth != null ? { width: tabWidth } : null
       ]}
-      rippleColor={color}
+      rippleColor={labelColor}
     >
-      {beforeLabel}
       <View
         style={[
-          styles.labelContainer,
-          hasIcon && styles.labelContainerWithIcon,
-          hasIcon && {
-            flexDirection: iconPositionToFlexDirection(iconPosition)
-          }
+          styles.item,
+          tabStyle,
+          // remove tab width prop from tabStyle
+          tabWidth != null ? { width: undefined } : null
         ]}
+        pointerEvents="none"
       >
-        {icon}
-        {typeof labelProp === 'string' ? (
-          <Text
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            style={[styles.label, { color }, labelStyle]}
-          >
-            {labelProp}
-          </Text>
-        ) : (
-          labelProp
-        )}
+        {icon != null ? <View>{icon}</View> : null}
+        {label != null ? <View>{label}</View> : null}
+        {badge != null ? <View style={styles.badge}>{badge}</View> : null}
       </View>
-      {afterLabel}
     </ButtonComponent>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
+  pressable: {
+    backgroundColor: 'transparent'
+  },
+  item: {
     flex: 1,
-    flexShrink: 0,
-    paddingVertical: 12
-  },
-  label: {
-    textAlign: 'center',
-    fontSize: 14,
-    fontWeight: '500',
-    letterSpacing: 0.46
-  },
-  labelContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 48,
+    maxHeight: 80,
+    paddingVertical: 10,
     paddingHorizontal: 17
   },
-  labelContainerWithIcon: {
-    gap: 3
+  label: {
+    fontSize: 14,
+    fontWeight: '500'
+  },
+  badge: {
+    position: 'absolute',
+    top: 0,
+    right: 0
   }
 })
 

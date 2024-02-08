@@ -5,7 +5,7 @@ function easeInOutSin(time: number): number {
 interface AnimateOptions {
   to: number
   element: Element
-  property: keyof Element
+  property: 'scrollTop' | 'scrollLeft'
   ease?: (time: number) => number
   duration?: number
   callback?: (value: Error | null) => void
@@ -42,18 +42,15 @@ function animate(options: AnimateOptions): () => void {
 
     const time = Math.min(1, (timestamp - start) / duration)
 
-    // @ts-ignore
     element[property] = ease(time) * (to - from) + from
 
     if (time >= 1) {
-      // eslint-disable-next-line no-undef
       requestAnimationFrame(() => {
         callback(null)
       })
       return
     }
 
-    // eslint-disable-next-line no-undef
     requestAnimationFrame(step)
   }
 
@@ -62,7 +59,6 @@ function animate(options: AnimateOptions): () => void {
     return cancel
   }
 
-  // eslint-disable-next-line no-undef
   requestAnimationFrame(step)
 
   return cancel

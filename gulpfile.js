@@ -6,7 +6,7 @@ const through = require('through2')
 const postcss = require('postcss')
 const autoprefixer = require('autoprefixer')
 const shell = require('gulp-shell')
-const packageJson = require('./package.json')
+const pkg = require('./package.json')
 
 require('dotenv/config')
 
@@ -63,8 +63,12 @@ function babel(config) {
     outDir,
     '--ignore',
     `"${ignore.join('","')}"`,
-    watch ? '--watch' : ''
-  ].filter(Boolean)
+    '--no-comments'
+  ]
+
+  if (watch) {
+    args.push('--watch')
+  }
 
   return `babel ${args.join(' ')}`
 }
@@ -89,7 +93,7 @@ gulp.task(
       )
     }
 
-    const repoPath = packageJson.repository.split('/').slice(-2).join('/')
+    const repoPath = pkg.repository.split('/').slice(-2).join('/')
     const repo = `https://${GH_TOKEN}@github.com/${repoPath}`
     const basePath = path.resolve('./examples/web-example/dist')
 
@@ -159,10 +163,6 @@ gulp.task('copy-styles', () => {
   return gulp.src('./src/styles/*').pipe(gulp.dest('./lib/styles/scss'))
 })
 
-gulp.task('copy-native-assets', () => {
-  return gulp.src('./src/assets/*').pipe(gulp.dest('./lib/assets'))
-})
-
 gulp.task(
   'build',
   gulp.series(
@@ -170,7 +170,6 @@ gulp.task(
     'build-cjs',
     'build-types',
     'build-styles',
-    'copy-styles',
-    'copy-native-assets'
+    'copy-styles'
   )
 )
