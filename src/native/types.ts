@@ -1,7 +1,50 @@
-import type { Animated, ScrollViewProps } from 'react-native'
+import * as React from 'react'
+import {
+  Animated,
+  StyleProp,
+  TextStyle,
+  ColorValue,
+  ScrollViewProps
+} from 'react-native'
 import type { PagerViewProps } from 'react-native-pager-view'
+import type { TabBarProps } from './TabView'
+import type { TabsIndicatorProps } from './TabsIndicator'
 
 export type TabValue = string | number
+
+export interface RenderTabIconProps<Value extends TabValue = TabValue> {
+  item: TabItem<Value>
+  color: ColorValue
+  selected: boolean
+  disabled: boolean
+}
+
+export interface RenderTabLabelProps<Value extends TabValue = TabValue> {
+  item: TabItem<Value>
+  color: ColorValue
+  style: StyleProp<TextStyle>
+  selected: boolean
+  disabled: boolean
+}
+
+export interface RenderTabBadgeProps<Value extends TabValue = TabValue> {
+  item: TabItem<Value>
+  color: ColorValue
+  selected: boolean
+  disabled: boolean
+}
+
+export type RenderTabIcon<Value extends TabValue = TabValue> = (
+  props: RenderTabIconProps<Value>
+) => React.ReactNode
+
+export type RenderTabLabel<Value extends TabValue = TabValue> = (
+  props: RenderTabLabelProps<Value>
+) => React.ReactNode
+
+export type RenderTabBadge<Value extends TabValue = TabValue> = (
+  props: RenderTabBadgeProps<Value>
+) => React.ReactNode
 
 export interface ChangeEvent<Value extends TabValue = TabValue> {
   item: TabItem<Value>
@@ -31,6 +74,12 @@ export type OnTabPress<Value extends TabValue = TabValue> = (
 export type OnTabLongPress<Value extends TabValue = TabValue> = (
   event: TabLongPressEvent<Value>
 ) => void
+
+export type RenderTabBar = {
+  <T extends Route>(props: TabBarProps<T>): React.ReactNode
+}
+
+export type RenderTabsIndicator = (props: TabsIndicatorProps) => React.ReactNode
 
 export interface Route {
   /**

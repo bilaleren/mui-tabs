@@ -6,11 +6,11 @@ import type { TabButtonProps } from '../TabButton'
 export type PlatformPressableProps = TabButtonProps
 
 const PlatformPressable: React.FC<PlatformPressableProps> = (props) => {
-  const { children, style, rippleColor, ...other } = props
+  const { children, style, pressColor, pressOpacity = 0.3, ...other } = props
 
   if (RippleButton.supported) {
     return (
-      <RippleButton {...other} style={style} rippleColor={rippleColor}>
+      <RippleButton {...other} style={style} pressColor={pressColor}>
         {children}
       </RippleButton>
     )
@@ -19,7 +19,10 @@ const PlatformPressable: React.FC<PlatformPressableProps> = (props) => {
   return (
     <Pressable
       {...other}
-      style={({ pressed }) => [pressed ? { opacity: 0.3 } : null, style]}
+      style={({ pressed }) => [
+        pressed ? { opacity: pressOpacity } : null,
+        style
+      ]}
     >
       {children}
     </Pressable>

@@ -14,13 +14,10 @@ import type {
   Route,
   Layout,
   PagerProps,
+  RenderTabBar,
   TabViewState,
   SceneRendererProps
 } from '../types'
-
-type RenderTabBar = {
-  <T extends Route>(props: TabBarProps<T>): React.ReactNode
-}
 
 export type TabViewProps<T extends Route> = PagerProps & {
   state: TabViewState<T>

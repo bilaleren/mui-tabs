@@ -1,14 +1,9 @@
 import * as React from 'react'
-import { Platform, StyleSheet, ColorValue } from 'react-native'
-import color from 'color'
+import { Platform, StyleSheet } from 'react-native'
 import TabButton, { TabButtonProps } from '../TabButton'
 
 const ANDROID_VERSION_PIE = 28
 const ANDROID_VERSION_LOLLIPOP = 21
-
-const getRippleColor = (rippleColor: ColorValue): string => {
-  return color(rippleColor).alpha(0.2).rgb().string()
-}
 
 type RippleButtonComponent = React.FC<RippleButtonProps> & {
   supported: boolean
@@ -22,13 +17,13 @@ const RippleButton: RippleButtonComponent = (props) => {
   const {
     children,
     style,
-    rippleColor,
     borderless = false,
+    pressColor = 'rgba(0, 0, 0, .32)',
     android_ripple: androidRipple,
     ...other
   } = props
 
-  if (rippleColor && RippleButton.supported) {
+  if (pressColor && RippleButton.supported) {
     const useForeground =
       Platform.OS === 'android' &&
       Platform.Version >= ANDROID_VERSION_PIE &&
@@ -39,7 +34,7 @@ const RippleButton: RippleButtonComponent = (props) => {
         {...other}
         style={[borderless ? styles.overflowHidden : null, style]}
         android_ripple={{
-          color: getRippleColor(rippleColor),
+          color: pressColor,
           borderless,
           foreground: useForeground,
           ...androidRipple

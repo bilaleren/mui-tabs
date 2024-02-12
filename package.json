@@ -1,6 +1,6 @@
 {
   "name": "mui-tabs",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Material UI tabs for React and React Native projects.",
   "author": "Bilal Eren",
   "license": "MIT",
@@ -10,13 +10,13 @@
   "homepage": "https://bilaleren.github.io/mui-tabs",
   "repository": "https://github.com/bilaleren/mui-tabs.git",
   "scripts": {
-    "prebuild": "rm -rf lib",
+    "prebuild": "rm -rf lib && yarn lint && yarn typecheck && yarn test",
     "web-example": "yarn --cwd examples/web-example",
     "native-example": "yarn --cwd examples/native-example",
     "start-web-example": "yarn web-example dev",
     "build-web-example": "yarn web-example build",
     "native-example-android": "yarn native-example android",
-    "test": "NODE_ENV=test mocha --config mocha.config.js",
+    "test": "NODE_ENV=test mocha --dry-run --config mocha.config.js",
     "build": "NODE_ENV=production gulp build",
     "fix": "eslint --fix \"./src/**/*.{ts,tsx}\"",
     "lint": "eslint \"./src/**/*.{ts,tsx}\"",
@@ -41,13 +41,13 @@
       "types": "./lib/types/native/index.d.ts",
       "import": "./lib/esm/native/index.js",
       "require": "./lib/cjs/native/index.js",
-      "default": "./lib/cjs/native/index.js"
+      "react-native": "./lib/esm/native/index.js"
     },
     "./native/TabView": {
       "types": "./lib/types/native/TabView/index.d.ts",
       "import": "./lib/esm/native/TabView/index.js",
       "require": "./lib/cjs/native/TabView/index.js",
-      "default": "./lib/cjs/native/TabView/index.js"
+      "react-native": "./lib/esm/native/TabView/index.js"
     },
     "./Tab/tabClasses": {
       "types": "./lib/types/web/Tab/tabClasses.d.ts",
@@ -77,13 +77,13 @@
       "types": "./lib/types/native/RippleButton/index.d.ts",
       "import": "./lib/esm/native/RippleButton/index.js",
       "require": "./lib/cjs/native/RippleButton/index.js",
-      "default": "./lib/cjs/native/RippleButton/index.js"
+      "react-native": "./lib/esm/native/RippleButton/index.js"
     },
     "./native/PlatformPressable": {
       "types": "./lib/types/native/PlatformPressable/index.d.ts",
       "import": "./lib/esm/native/PlatformPressable/index.js",
       "require": "./lib/cjs/native/PlatformPressable/index.js",
-      "default": "./lib/cjs/native/PlatformPressable/index.js"
+      "react-native": "./lib/esm/native/PlatformPressable/index.js"
     },
     "./RippleButton/touchRippleClasses": {
       "types": "./lib/types/web/RippleButton/touchRippleClasses.d.ts",
@@ -117,7 +117,6 @@
   "peerDependencies": {
     "@babel/runtime": "*",
     "clsx": "*",
-    "color": "*",
     "react": "18.x",
     "react-native": "*",
     "react-native-pager-view": "*",
@@ -129,9 +128,6 @@
     },
     "react": {
       "optional": false
-    },
-    "color": {
-      "optional": true
     },
     "react-native": {
       "optional": true
@@ -157,7 +153,6 @@
     "@testing-library/react": "^14.1.2",
     "@types/chai": "^4.3.11",
     "@types/chai-dom": "^1.11.3",
-    "@types/color": "^3.0.6",
     "@types/gulp": "^4.0.17",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.10.6",
@@ -172,7 +167,6 @@
     "chai": "^5.0.0",
     "chai-dom": "^1.12.0",
     "clsx": "^2.1.0",
-    "color": "^4.2.3",
     "dotenv": "^16.3.1",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.7.0",

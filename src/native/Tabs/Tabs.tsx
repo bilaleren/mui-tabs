@@ -10,13 +10,14 @@ import {
   ViewToken,
   TextStyle,
   ViewStyle,
+  ColorValue,
   DimensionValue,
   ScrollViewProps,
   LayoutChangeEvent,
   ListRenderItemInfo
 } from 'react-native'
-import Tab, { RenderTabLabel, RenderTabIcon, RenderTabBadge } from '../Tab'
-import TabsIndicator, { TabsIndicatorProps } from '../TabsIndicator'
+import Tab from '../Tab'
+import TabsIndicator from '../TabsIndicator'
 import { dequal as isEqual } from 'dequal/lite'
 import useLatestCallback from 'use-latest-callback'
 import useAnimatedValue from '@utils/useAnimatedValue'
@@ -27,10 +28,12 @@ import type {
   OnChange,
   OnTabPress,
   ChangeEvent,
-  OnTabLongPress
+  RenderTabLabel,
+  RenderTabIcon,
+  RenderTabBadge,
+  OnTabLongPress,
+  RenderTabsIndicator
 } from '../types'
-
-export type RenderIndicator = (props: TabsIndicatorProps) => React.ReactNode
 
 export interface TabsProps<Value extends TabValue = TabValue> {
   /**
@@ -78,6 +81,16 @@ export interface TabsProps<Value extends TabValue = TabValue> {
    * @default Dimensions.get('window').width
    */
   initialLayoutWidth?: number
+
+  /**
+   * Background color to be applied when the tab is pressed.
+   */
+  pressColor?: ColorValue
+
+  /**
+   * Opacity to be applied when the tab is pressed.
+   */
+  pressOpacity?: number
 
   /**
    * Determines the opacity of disabled.
@@ -132,7 +145,7 @@ export interface TabsProps<Value extends TabValue = TabValue> {
   /**
    * Render the tabs indicator to display.
    */
-  renderIndicator?: RenderIndicator
+  renderIndicator?: RenderTabsIndicator
 
   /**
    * Determines the style of the indicator.
@@ -405,7 +418,7 @@ const getFlattenedPaddingRight = (style: StyleProp<ViewStyle>) => {
     : 0
 }
 
-const defaultIndicator: RenderIndicator = (props) => (
+const defaultIndicator: RenderTabsIndicator = (props) => (
   <TabsIndicator {...props} />
 )
 
@@ -433,6 +446,8 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     indicatorContainerStyle,
     TabComponent,
     contentContainerStyle,
+    pressColor,
+    pressOpacity,
     disabledOpacity,
     estimatedTabWidth = 0,
     initialLayoutWidth = Dimensions.get('window').width
@@ -637,6 +652,8 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
             selected={selected}
             disabled={disabled}
             labelStyle={labelStyle}
+            pressColor={pressColor}
+            pressOpacity={pressOpacity}
             disabledOpacity={disabledOpacity}
             renderIcon={renderTabIcon}
             renderLabel={renderTabLabel}
@@ -704,6 +721,8 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
       flattenedPaddingRight,
       tabStyle,
       labelStyle,
+      pressColor,
+      pressOpacity,
       disabledOpacity,
       renderTabIcon,
       renderTabLabel,

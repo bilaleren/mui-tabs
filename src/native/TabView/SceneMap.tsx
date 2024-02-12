@@ -1,7 +1,7 @@
 import * as React from 'react'
 import type { Route, SceneRendererProps } from '../types'
 
-type SceneProps = {
+export type SceneProps = {
   route: Route
 } & Omit<SceneRendererProps, 'layout'>
 

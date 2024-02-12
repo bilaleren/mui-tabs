@@ -5,3 +5,4 @@ export { default as TabBar } from './TabBar'
 export type { TabBarProps } from './TabBar'
 
 export { default as SceneMap } from './SceneMap'
+export type { SceneProps } from './SceneMap'

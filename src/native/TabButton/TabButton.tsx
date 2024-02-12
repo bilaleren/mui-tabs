@@ -22,7 +22,8 @@ export interface TabButtonProps extends ButtonProps {
   style?: StyleProp<ViewStyle>
   disabled?: boolean
   children?: React.ReactNode
-  rippleColor?: ColorValue | null
+  pressColor?: ColorValue
+  pressOpacity?: number
   onPress?: ((event: GestureResponderEvent) => void) | undefined
   onLongPress?: ((event: GestureResponderEvent) => void) | undefined
 }

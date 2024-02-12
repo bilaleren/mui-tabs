@@ -17,8 +17,7 @@
       {
         "root": ["."],
         "alias": {
-          "@utils": "./src/utils/",
-          "@assets": "./assets/"
+          "@utils": "./src/utils/"
         }
       }
     ],

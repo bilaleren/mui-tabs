@@ -83,13 +83,7 @@ const App = () => {
 
 #### Ripple Button example (only android)
 
-You need to install the **color** package.
-
-```bash
-yarn add color
-```
-
-**Example**
+You can give a special wave effect color using the `pressColor` prop.
 
 ```tsx
 import * as React from 'react'

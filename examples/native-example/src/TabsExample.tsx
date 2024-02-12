@@ -184,13 +184,9 @@ const TabsExample = () => (
           tabs={generateTabs(3)}
           value={value}
           onChange={onChange}
-          renderTabBadge={({ item, color }) => {
-            return {
-              1: <Text style={{ color }}>1</Text>,
-              2: <Text style={{ color }}>2</Text>,
-              3: <Text style={{ color }}>3</Text>
-            }[item.value];
-          }}
+          renderTabBadge={({ item, color }) => (
+            <Text style={{ color }}>{item.value}</Text>
+          )}
           initialLayoutWidth={initialLayoutWidth}
         />
       )}
@@ -230,13 +226,9 @@ const TabsExample = () => (
               )
             }[item.value];
           }}
-          renderTabBadge={({ item, color }) => {
-            return {
-              1: <Text style={{ color }}>1</Text>,
-              2: <Text style={{ color }}>2</Text>,
-              3: <Text style={{ color }}>3</Text>
-            }[item.value];
-          }}
+          renderTabBadge={({ item, color }) => (
+            <Text style={{ color }}>{item.value}</Text>
+          )}
           initialLayoutWidth={initialLayoutWidth}
         />
       )}
@@ -276,13 +268,9 @@ const TabsExample = () => (
               )
             }[item.value];
           }}
-          renderTabBadge={({ item, color }) => {
-            return {
-              1: <Text style={{ color }}>1</Text>,
-              2: <Text style={{ color }}>2</Text>,
-              3: <Text style={{ color }}>3</Text>
-            }[item.value];
-          }}
+          renderTabBadge={({ item, color }) => (
+            <Text style={{ color }}>{item.value}</Text>
+          )}
           initialLayoutWidth={initialLayoutWidth}
         />
       )}
@@ -323,6 +311,7 @@ const TabsExample = () => (
             height: 3,
             backgroundColor: 'rgba(255, 255, 255, 0.5)'
           }}
+          pressColor="rgba(255, 255, 255, .32)"
           TabComponent={RippleButton}
           initialLayoutWidth={initialLayoutWidth}
         />

@@ -2,49 +2,24 @@ import * as React from 'react'
 import {
   Text,
   View,
-  StyleSheet,
   StyleProp,
   TextStyle,
+  StyleSheet,
   ColorValue
 } from 'react-native'
 import TabButton, { TabButtonProps } from '../TabButton'
-import type { TabItem, TabValue } from '../types'
+import type {
+  TabItem,
+  TabValue,
+  RenderTabIcon,
+  RenderTabBadge,
+  RenderTabLabel
+} from '../types'
 
-type BaseTabProps = Omit<TabButtonProps, 'disabled' | 'rippleColor'>
-
-export interface RenderTabIconProps<Value extends TabValue = TabValue> {
-  item: TabItem<Value>
-  color: ColorValue
-  selected: boolean
-  disabled: boolean
-}
-
-export interface RenderTabLabelProps<Value extends TabValue = TabValue> {
-  item: TabItem<Value>
-  color: ColorValue
-  style: StyleProp<TextStyle>
-  selected: boolean
-  disabled: boolean
-}
-
-export interface RenderTabBadgeProps<Value extends TabValue = TabValue> {
-  item: TabItem<Value>
-  color: ColorValue
-  selected: boolean
-  disabled: boolean
-}
-
-export type RenderTabIcon<Value extends TabValue = TabValue> = (
-  props: RenderTabIconProps<Value>
-) => React.ReactNode
-
-export type RenderTabLabel<Value extends TabValue = TabValue> = (
-  props: RenderTabLabelProps<Value>
-) => React.ReactNode
-
-export type RenderTabBadge<Value extends TabValue = TabValue> = (
-  props: RenderTabBadgeProps<Value>
-) => React.ReactNode
+type BaseTabProps = Omit<
+  TabButtonProps,
+  'disabled' | 'pressColor' | 'pressOpacity'
+>
 
 export interface TabProps<Value extends TabValue = TabValue>
   extends BaseTabProps {
@@ -57,6 +32,16 @@ export interface TabProps<Value extends TabValue = TabValue>
    * Determines the tab width.
    */
   tabWidth?: number
+
+  /**
+   * Background color to be applied when the tab is pressed.
+   */
+  pressColor?: ColorValue
+
+  /**
+   * Opacity to be applied when the tab is pressed.
+   */
+  pressOpacity?: number
 
   /**
    * Render the tab icon to display.
@@ -75,19 +60,16 @@ export interface TabProps<Value extends TabValue = TabValue>
 
   /**
    * If `true`, the component is disabled.
-   * @default false
    */
   disabled?: boolean
 
   /**
    * Indicates whether the tab is selected.
-   * @default false
    */
   selected?: boolean
 
   /**
    * The opacity of the disabled tab.
-   * @default 0.2
    */
   disabledOpacity?: number
 
@@ -102,8 +84,9 @@ export interface TabProps<Value extends TabValue = TabValue>
   ButtonComponent?: React.ComponentType<TabButtonProps>
 }
 
+const LABEL_COLOR = '#000000'
+
 const SELECTED_LABEL_COLOR = '#1976D2'
-const UNSELECTED_LABEL_COLOR = '#000000'
 
 const renderTabLabel: RenderTabLabel = ({ item, style }) => {
   if (item.label == null) {
@@ -121,9 +104,9 @@ const Tab = <Value extends TabValue>(props: TabProps<Value>) => {
     renderLabel = renderTabLabel,
     renderBadge,
     tabWidth,
-    disabledOpacity = 0.2,
     selected = false,
     disabled = false,
+    disabledOpacity = 0.2,
     labelStyle: labelStyleProp,
     ButtonComponent = TabButton,
     ...other
@@ -132,8 +115,7 @@ const Tab = <Value extends TabValue>(props: TabProps<Value>) => {
   const labelStyle = StyleSheet.flatten(labelStyleProp)
 
   const labelColor =
-    labelStyle?.color ||
-    (selected ? SELECTED_LABEL_COLOR : UNSELECTED_LABEL_COLOR)
+    labelStyle?.color || (selected ? SELECTED_LABEL_COLOR : LABEL_COLOR)
 
   const icon = renderIcon
     ? renderIcon({
@@ -176,7 +158,6 @@ const Tab = <Value extends TabValue>(props: TabProps<Value>) => {
         disabled ? { opacity: disabledOpacity } : null,
         tabWidth != null ? { width: tabWidth } : null
       ]}
-      rippleColor={labelColor}
     >
       <View
         style={[
