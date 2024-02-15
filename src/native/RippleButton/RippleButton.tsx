@@ -17,13 +17,13 @@ const RippleButton: RippleButtonComponent = (props) => {
   const {
     children,
     style,
-    borderless = false,
+    borderless,
     pressColor = 'rgba(0, 0, 0, .32)',
     android_ripple: androidRipple,
     ...other
   } = props
 
-  if (pressColor && RippleButton.supported) {
+  if (RippleButton.supported) {
     const useForeground =
       Platform.OS === 'android' &&
       Platform.Version >= ANDROID_VERSION_PIE &&

@@ -4,19 +4,10 @@ import {
   ViewStyle,
   StyleProp,
   ColorValue,
-  PressableProps,
-  GestureResponderEvent
+  PressableProps
 } from 'react-native'
 
-type ButtonProps = Pick<
-  PressableProps,
-  | 'onLayout'
-  | 'android_ripple'
-  | 'accessibilityRole'
-  | 'accessibilityLabel'
-  | 'accessibilityState'
-  | 'unstable_pressDelay'
->
+type ButtonProps = Omit<PressableProps, 'style' | 'children' | 'disabled'>
 
 export interface TabButtonProps extends ButtonProps {
   style?: StyleProp<ViewStyle>
@@ -24,8 +15,6 @@ export interface TabButtonProps extends ButtonProps {
   children?: React.ReactNode
   pressColor?: ColorValue
   pressOpacity?: number
-  onPress?: ((event: GestureResponderEvent) => void) | undefined
-  onLongPress?: ((event: GestureResponderEvent) => void) | undefined
 }
 
 const TabButton: React.FC<TabButtonProps> = (props) => {
