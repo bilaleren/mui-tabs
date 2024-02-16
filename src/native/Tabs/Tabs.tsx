@@ -5,7 +5,6 @@ import {
   Animated,
   Dimensions,
   StyleSheet,
-  ViewProps,
   StyleProp,
   ViewToken,
   TextStyle,
@@ -44,7 +43,7 @@ export interface TabsProps<Value extends TabValue = TabValue> {
   /**
    * Determines the style of the container.
    */
-  style?: ViewProps['style']
+  style?: StyleProp<ViewStyle>
 
   /**
    * The value of the currently selected `Tab`.
@@ -53,6 +52,7 @@ export interface TabsProps<Value extends TabValue = TabValue> {
 
   /**
    * When set to true allows the tab bar to scroll horizontally.
+   * @default false
    */
   scrollable?: boolean
 
@@ -73,6 +73,7 @@ export interface TabsProps<Value extends TabValue = TabValue> {
 
   /**
    * Determines the estimated tab width.
+   * @default 0
    */
   estimatedTabWidth?: number
 
@@ -99,6 +100,7 @@ export interface TabsProps<Value extends TabValue = TabValue> {
 
   /**
    * Determines the tab gap.
+   * @default 0
    */
   tabGap?: number
 
@@ -143,6 +145,12 @@ export interface TabsProps<Value extends TabValue = TabValue> {
   position?: Animated.AnimatedInterpolation<number>
 
   /**
+   * When `true`, uses the local driver for the scroll event.
+   * @default true
+   */
+  useScrollNativeDriver?: boolean
+
+  /**
    * Render the tabs indicator to display.
    */
   renderIndicator?: RenderTabsIndicator
@@ -154,6 +162,7 @@ export interface TabsProps<Value extends TabValue = TabValue> {
 
   /**
    * The indicator determines its enabled.
+   * @default true
    */
   indicatorEnabled?: boolean
 
@@ -440,6 +449,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     tabStyle,
     labelStyle,
     position: positionProp,
+    useScrollNativeDriver = true,
     renderIndicator = defaultIndicator,
     indicatorStyle,
     indicatorEnabled = true,
@@ -581,9 +591,9 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
             }
           }
         ],
-        { useNativeDriver: true }
+        { useNativeDriver: useScrollNativeDriver }
       ),
-    [scrollAmount]
+    [scrollAmount, useScrollNativeDriver]
   )
 
   const handleLayout = useLatestCallback((event: LayoutChangeEvent) => {
