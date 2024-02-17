@@ -148,7 +148,13 @@ export interface TabsProps<Value extends TabValue = TabValue> {
    * When `true`, uses the local driver for the scroll event.
    * @default true
    */
-  useScrollNativeDriver?: boolean
+  useNativeScrollDriver?: boolean
+
+  /**
+   * When true, the scroll is animated.
+   * @default true
+   */
+  scrollAnimationEnabled?: boolean
 
   /**
    * Render the tabs indicator to display.
@@ -449,7 +455,8 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     tabStyle,
     labelStyle,
     position: positionProp,
-    useScrollNativeDriver = true,
+    useNativeScrollDriver = true,
+    scrollAnimationEnabled = true,
     renderIndicator = defaultIndicator,
     indicatorStyle,
     indicatorEnabled = true,
@@ -557,10 +564,16 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     if (flatList && scrollEnabled && scrollOffset !== null) {
       flatList.scrollToOffset({
         offset: scrollOffset,
-        animated: true
+        animated: scrollAnimationEnabled
       })
     }
-  }, [scrollEnabled, scrollOffset, isDynamicWidth, hasMeasuredTabWidths])
+  }, [
+    scrollEnabled,
+    scrollOffset,
+    isDynamicWidth,
+    hasMeasuredTabWidths,
+    scrollAnimationEnabled
+  ])
 
   React.useEffect(() => {
     mountedRef.current = true
@@ -591,9 +604,9 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
             }
           }
         ],
-        { useNativeDriver: useScrollNativeDriver }
+        { useNativeDriver: useNativeScrollDriver }
       ),
-    [scrollAmount, useScrollNativeDriver]
+    [scrollAmount, useNativeScrollDriver]
   )
 
   const handleLayout = useLatestCallback((event: LayoutChangeEvent) => {
