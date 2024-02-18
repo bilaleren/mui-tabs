@@ -478,7 +478,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
   const flattenedPaddingLeft = getFlattenedPaddingLeft(contentContainerStyle)
 
   const position = useAnimatedValue(0)
-  const scrollAmount = useAnimatedValue(0)
+  const scrollOffsetX = useAnimatedValue(0)
   const mountedRef = React.useRef<boolean>(false)
   const flatListRef = React.useRef<Animated.FlatList>(null)
   const [layoutWidth, setLayoutWidth] = React.useState(initialLayoutWidth)
@@ -584,13 +584,21 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     []
   )
 
-  const updateTabWidths = React.useCallback(() => {
+  const updateTabWidths = React.useCallback((tabs: TabItem<Value>[]) => {
+    const measuredWidths = tabs.reduce<Record<TabValue, number>>(
+      (acc, curr) => {
+        acc[curr.value] = measuredTabWidths.current[curr.value] || 0
+        return acc
+      },
+      {}
+    )
+
     setTabWidths((prevState) => {
-      if (isEqual(prevState, measuredTabWidths.current)) {
+      if (isEqual(prevState, measuredWidths)) {
         return prevState
       }
 
-      return { ...measuredTabWidths.current }
+      return { ...measuredWidths }
     })
   }, [])
 
@@ -600,16 +608,16 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
         [
           {
             nativeEvent: {
-              contentOffset: { x: scrollAmount }
+              contentOffset: { x: scrollOffsetX }
             }
           }
         ],
         { useNativeDriver: useNativeScrollDriver }
       ),
-    [scrollAmount, useNativeScrollDriver]
+    [scrollOffsetX, useNativeScrollDriver]
   )
 
-  const handleLayout = useLatestCallback((event: LayoutChangeEvent) => {
+  const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
     const {
       nativeEvent: { layout }
     } = event
@@ -621,7 +629,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
 
       return layout.width
     })
-  })
+  }, [])
 
   const handleViewableItemsChanged = useLatestCallback(
     ({ changed }: { changed: ViewToken[] }) => {
@@ -636,7 +644,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
         item?.isViewable &&
         (index % 10 === 0 || index === tabIndex || index === tabs.length - 1)
       ) {
-        updateTabWidths()
+        updateTabWidths(tabs)
       }
     }
   )
@@ -716,11 +724,11 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
                         measuredTabWidths.current
                       )
                     ) {
-                      updateTabWidths()
+                      updateTabWidths(tabs.slice(0, MEASURE_PER_BATCH))
                     } else if (
                       isMeasuredTabWidths(tabs, measuredTabWidths.current)
                     ) {
-                      updateTabWidths()
+                      updateTabWidths(tabs)
                     }
                   }
                 : undefined
@@ -780,7 +788,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
               ? {
                   transform: [
                     {
-                      translateX: Animated.multiply(scrollAmount, -1)
+                      translateX: Animated.multiply(scrollOffsetX, -1)
                     }
                   ]
                 }
@@ -833,7 +841,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
           keyboardShouldPersistTaps="handled"
           scrollEventThrottle={16}
           initialNumToRender={MEASURE_PER_BATCH}
-          onScroll={scrollEnabled ? handleScroll : undefined}
+          onScroll={handleScroll}
           contentContainerStyle={memoizedContentContainerStyle}
           onViewableItemsChanged={handleViewableItemsChanged}
           alwaysBounceHorizontal={false}
