@@ -16,8 +16,6 @@ MUI Tabs is now available with React Native.
 
 ## Examples
 
-#### [Tab View](./NATIVE_TABVIEW_README.md)
-
 #### Basic example
 
 ```tsx
