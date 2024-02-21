@@ -145,16 +145,16 @@ export interface TabsProps<Value extends TabValue = TabValue> {
   position?: Animated.AnimatedInterpolation<number>
 
   /**
-   * When `true`, uses the local driver for the scroll event.
-   * @default true
-   */
-  useNativeScrollDriver?: boolean
-
-  /**
    * When true, the scroll is animated.
    * @default true
    */
   scrollAnimationEnabled?: boolean
+
+  /**
+   * https://github.com/bilaleren/mui-tabs/blob/master/KNOWN_ISSUES.md#indicator-does-not-move-during-scrolling
+   * @default false
+   */
+  forceUpdateScrollAmountValue?: boolean
 
   /**
    * Render the tabs indicator to display.
@@ -455,7 +455,6 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     tabStyle,
     labelStyle,
     position: positionProp,
-    useNativeScrollDriver = true,
     scrollAnimationEnabled = true,
     renderIndicator = defaultIndicator,
     indicatorStyle,
@@ -467,7 +466,8 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     pressOpacity,
     disabledOpacity,
     estimatedTabWidth = 0,
-    initialLayoutWidth = Dimensions.get('window').width
+    initialLayoutWidth = Dimensions.get('window').width,
+    forceUpdateScrollAmountValue = false
   } = props
 
   const tabIndex = tabs.findIndex((tab) => value === tab.value)
@@ -478,7 +478,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
   const flattenedPaddingLeft = getFlattenedPaddingLeft(contentContainerStyle)
 
   const position = useAnimatedValue(0)
-  const scrollOffsetX = useAnimatedValue(0)
+  const scrollAmount = useAnimatedValue(0)
   const mountedRef = React.useRef<boolean>(false)
   const flatListRef = React.useRef<Animated.FlatList>(null)
   const [layoutWidth, setLayoutWidth] = React.useState(initialLayoutWidth)
@@ -576,6 +576,22 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
   ])
 
   React.useEffect(() => {
+    if (
+      forceUpdateScrollAmountValue &&
+      !mountedRef.current &&
+      scrollEnabled &&
+      indicatorEnabled
+    ) {
+      scrollAmount.setValue(0)
+    }
+  }, [
+    scrollAmount,
+    scrollEnabled,
+    indicatorEnabled,
+    forceUpdateScrollAmountValue
+  ])
+
+  React.useEffect(() => {
     mountedRef.current = true
   }, [])
 
@@ -608,13 +624,13 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
         [
           {
             nativeEvent: {
-              contentOffset: { x: scrollOffsetX }
+              contentOffset: { x: scrollAmount }
             }
           }
         ],
-        { useNativeDriver: useNativeScrollDriver }
+        { useNativeDriver: true }
       ),
-    [scrollOffsetX, useNativeScrollDriver]
+    [scrollAmount]
   )
 
   const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
@@ -788,7 +804,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
               ? {
                   transform: [
                     {
-                      translateX: Animated.multiply(scrollOffsetX, -1)
+                      translateX: Animated.multiply(scrollAmount, -1)
                     }
                   ]
                 }

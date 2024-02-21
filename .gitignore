@@ -46,6 +46,7 @@
 # local env files
 **/.env
 **/.env*
+**/.xcode.env.local
 !**/.env.example
 
 # typescript

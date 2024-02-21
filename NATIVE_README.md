@@ -2,12 +2,21 @@
 
 MUI Tabs is now available with React Native.
 
-### Previews
+> See [here](./KNOWN_ISSUES.md) for solutions to known issues.
 
-- [iOS Preview](./previews/ios-preview.mp4)
-- [Android Preview](./previews/android-preview.mp4)
+## TabView
 
-### Examples
+> See [here](./NATIVE_TABVIEW_README.md) for TabView documentation.
+
+## Previews
+
+|                                   Android                                   |                                 iOS                                 |
+|:---------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
+| <img src="images/android-preview.gif" alt="MUI Tabs Android" width="325" /> | <img src="images/ios-preview.gif" alt="MUI Tabs iOS" width="325" /> |
+
+## Examples
+
+#### [Tab View](./NATIVE_TABVIEW_README.md)
 
 #### Basic example
 

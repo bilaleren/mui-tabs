@@ -2,11 +2,6 @@
 
 You can switch between screens using TabView.
 
-### Previews
-
-- [iOS Preview](./previews/ios-preview.mp4)
-- [Android Preview](./previews/android-preview.mp4)
-
 ### Installation
 
 ```bash

@@ -1,6 +1,6 @@
 {
   "name": "mui-tabs",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "Material UI tabs for React and React Native projects.",
   "author": "Bilal Eren",
   "license": "MIT",
@@ -15,7 +15,6 @@
     "native-example": "yarn --cwd examples/native-example",
     "start-web-example": "yarn web-example dev",
     "build-web-example": "yarn web-example build",
-    "native-example-android": "yarn native-example android",
     "test": "NODE_ENV=test mocha --dry-run --config mocha.config.js",
     "build": "NODE_ENV=production gulp build",
     "fix": "eslint --fix \"./src/**/*.{ts,tsx}\"",
@@ -103,6 +102,7 @@
   "keywords": [
     "mui tabs",
     "react tabs",
+    "tab view",
     "react native tabs",
     "react native tab view",
     "material tabs",
