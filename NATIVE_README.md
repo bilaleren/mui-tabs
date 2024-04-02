@@ -109,7 +109,7 @@ const App = () => {
       ]}
       value={value}
       onChange={setValue}
-      TabComponent={RippleButton}
+      tabComponent={RippleButton}
     />
   )
 }

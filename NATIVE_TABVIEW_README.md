@@ -15,7 +15,8 @@ yarn add react-native-pager-view
 ```tsx
 import * as React from 'react'
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
-import { TabView, SceneMap } from 'mui-tabs/native/TabView'
+import type { RenderTabBar } from 'mui-tabs/native'
+import { TabView, SceneMap, TabBar } from 'mui-tabs/native/TabView'
 import PlatformPressable from 'mui-tabs/native/PlatformPressable'
 
 const Home = () => (
@@ -56,6 +57,18 @@ const App = () => {
     { key: 'MyAccount', label: 'My Account' }
   ])
 
+  const renderTabBar: RenderTabBar = React.useCallback(
+    (props) => (
+      <TabBar
+        {...props}
+        tabStyle={styles.tab}
+        tabComponent={PlatformPressable}
+        estimatedTabWidth={80}
+      />
+    ),
+    []
+  );
+
   return (
     <View style={styles.container}>
       <TabView
@@ -64,13 +77,7 @@ const App = () => {
         renderScene={renderScene}
         onIndexChange={setIndex}
         scrollEnabled={true}
-        tabBarProps={{
-          tabStyle: {
-            width: 'auto'
-          },
-          TabComponent: PlatformPressable,
-          estimatedTabWidth: 80
-        }}
+        renderTabBar={renderTabBar}
         renderLazyPlaceholder={renderLazyPlaceholder}
       />
     </View>
@@ -80,6 +87,9 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1
+  },
+  tab: {
+    width: 'auto'
   },
   screenContainer: {
     flex: 1,
