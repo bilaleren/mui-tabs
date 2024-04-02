@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
-import { TabView, SceneMap } from 'mui-tabs/native/TabView';
+import type { RenderTabBar } from 'mui-tabs/native';
+import { TabView, SceneMap, TabBar } from 'mui-tabs/native/TabView';
 import PlatformPressable from 'mui-tabs/native/PlatformPressable';
 import LazyPlaceholder from './components/LazyPlaceholder';
 
@@ -35,6 +36,11 @@ const TopTabViewExample = () => {
     []
   );
 
+  const renderTabBar: RenderTabBar = React.useCallback(
+    (props) => <TabBar {...props} tabComponent={PlatformPressable} />,
+    []
+  );
+
   return (
     <View style={{ flex: 1 }}>
       <TabView
@@ -43,9 +49,7 @@ const TopTabViewExample = () => {
         renderScene={renderScene}
         onIndexChange={setIndex}
         scrollEnabled={true}
-        tabBarProps={{
-          TabComponent: PlatformPressable
-        }}
+        renderTabBar={renderTabBar}
         renderLazyPlaceholder={renderLazyPlaceholder}
       />
     </View>

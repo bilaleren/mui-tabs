@@ -285,7 +285,7 @@ const TabsExample = () => (
           tabs={generateTabs(3)}
           value={value}
           onChange={onChange}
-          TabComponent={RippleButton}
+          tabComponent={RippleButton}
           initialLayoutWidth={initialLayoutWidth}
         />
       )}
@@ -312,7 +312,7 @@ const TabsExample = () => (
             backgroundColor: 'rgba(255, 255, 255, 0.5)'
           }}
           pressColor="rgba(255, 255, 255, .32)"
-          TabComponent={RippleButton}
+          tabComponent={RippleButton}
           initialLayoutWidth={initialLayoutWidth}
         />
       )}

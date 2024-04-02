@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { Text, Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { TabView, SceneMap } from 'mui-tabs/native/TabView';
+import type { RenderTabBar } from 'mui-tabs/native';
+import { TabView, SceneMap, TabBar } from 'mui-tabs/native/TabView';
 import PlatformPressable from 'mui-tabs/native/PlatformPressable';
 import { repository as githubRepoUrl } from '../package.json';
 import TabsExample from './TabsExample';
@@ -43,6 +44,20 @@ const App: React.FC = () => {
     []
   );
 
+  const renderTabBar: RenderTabBar = React.useCallback(
+    (props) => (
+      <TabBar
+        {...props}
+        tabStyle={{
+          width: 'auto'
+        }}
+        tabComponent={PlatformPressable}
+        estimatedTabWidth={130}
+      />
+    ),
+    []
+  );
+
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <SafeAreaView style={styles.container}>
@@ -53,13 +68,7 @@ const App: React.FC = () => {
           renderScene={renderScene}
           onIndexChange={setIndex}
           scrollEnabled={true}
-          tabBarProps={{
-            tabStyle: {
-              width: 'auto'
-            },
-            TabComponent: PlatformPressable,
-            estimatedTabWidth: 130
-          }}
+          renderTabBar={renderTabBar}
           renderLazyPlaceholder={renderLazyPlaceholder}
         />
       </SafeAreaView>
