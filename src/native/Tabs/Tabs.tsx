@@ -105,6 +105,11 @@ export interface TabsProps<Value extends TabValue = TabValue> {
   tabGap?: number
 
   /**
+   * An indicator to show if tabs are working within the tab view.
+   */
+  $tabView?: boolean
+
+  /**
    * Determines the style of the tab.
    */
   tabStyle?: StyleProp<ViewStyle>
@@ -145,12 +150,6 @@ export interface TabsProps<Value extends TabValue = TabValue> {
   position?: Animated.AnimatedInterpolation<number>
 
   /**
-   * When true, the scroll is animated.
-   * @default true
-   */
-  scrollAnimationEnabled?: boolean
-
-  /**
    * https://github.com/bilaleren/mui-tabs/blob/master/KNOWN_ISSUES.md#indicator-does-not-move-during-scrolling
    * @default false
    */
@@ -180,7 +179,7 @@ export interface TabsProps<Value extends TabValue = TabValue> {
   /**
    * The component used to render the tabs.
    */
-  TabComponent?: React.ComponentType<TabButtonProps>
+  tabComponent?: React.ComponentType<TabButtonProps>
 
   /**
    * Determines the style of the `FlatList` content container.
@@ -455,19 +454,19 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     tabStyle,
     labelStyle,
     position: positionProp,
-    scrollAnimationEnabled = true,
     renderIndicator = defaultIndicator,
     indicatorStyle,
     indicatorEnabled = true,
     indicatorContainerStyle,
-    TabComponent,
+    tabComponent,
     contentContainerStyle,
     pressColor,
     pressOpacity,
     disabledOpacity,
     estimatedTabWidth = 0,
     initialLayoutWidth = Dimensions.get('window').width,
-    forceUpdateScrollAmountValue = false
+    forceUpdateScrollAmountValue,
+    $tabView
   } = props
 
   const tabIndex = tabs.findIndex((tab) => value === tab.value)
@@ -551,28 +550,36 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
   }, [position, tabIndex, hasProvidedPosition, indicatorEnabled])
 
   React.useEffect(() => {
-    if (!mountedRef.current) {
+    if (!mountedRef.current || (isDynamicWidth && !hasMeasuredTabWidths)) {
       return
     }
 
-    if (isDynamicWidth && !hasMeasuredTabWidths) {
-      return
+    let timer: NodeJS.Timeout
+
+    const scrollToOffset = (): void => {
+      const flatList = flatListRef.current
+
+      if (flatList && scrollEnabled && scrollOffset !== null) {
+        flatList.scrollToOffset({
+          offset: scrollOffset,
+          animated: true
+        })
+      }
     }
 
-    const flatList = flatListRef.current
-
-    if (flatList && scrollEnabled && scrollOffset !== null) {
-      flatList.scrollToOffset({
-        offset: scrollOffset,
-        animated: scrollAnimationEnabled
-      })
+    if (!$tabView) {
+      timer = setTimeout(scrollToOffset, 130)
+    } else {
+      scrollToOffset()
     }
+
+    return () => clearTimeout(timer)
   }, [
-    scrollEnabled,
+    $tabView,
     scrollOffset,
+    scrollEnabled,
     isDynamicWidth,
-    hasMeasuredTabWidths,
-    scrollAnimationEnabled
+    hasMeasuredTabWidths
   ])
 
   React.useEffect(() => {
@@ -602,10 +609,10 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
 
   const updateTabWidths = React.useCallback((tabs: TabItem<Value>[]) => {
     const measuredWidths = tabs.reduce<Record<TabValue, number>>(
-      (acc, curr) => {
-        acc[curr.value] = measuredTabWidths.current[curr.value] || 0
-        return acc
-      },
+      (acc, curr) => ({
+        ...acc,
+        [curr.value]: measuredTabWidths.current[curr.value] || 0
+      }),
       {}
     )
 
@@ -654,10 +661,15 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
       }
 
       const item = changed[changed.length - 1]
-      const index = item?.index || 0
+
+      if (!item) {
+        return
+      }
+
+      const index = item.index || 0
 
       if (
-        item?.isViewable &&
+        item.isViewable &&
         (index % 10 === 0 || index === tabIndex || index === tabs.length - 1)
       ) {
         updateTabWidths(tabs)
@@ -749,7 +761,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
                   }
                 : undefined
             }
-            ButtonComponent={TabComponent}
+            buttonComponent={tabComponent}
           />
         </React.Fragment>
       )
@@ -775,7 +787,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
       renderTabLabel,
       renderTabBadge,
       onTabLongPress,
-      TabComponent,
+      tabComponent,
       onTabPress,
       onChange,
       updateTabWidths
@@ -792,7 +804,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
   )
 
   return (
-    <View
+    <Animated.View
       style={[styles.container, scrollEnabled ? styles.scroll : null, style]}
       onLayout={handleLayout}
     >
@@ -867,7 +879,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
           automaticallyAdjustsScrollIndicatorInsets={false}
         />
       </View>
-    </View>
+    </Animated.View>
   )
 }
 

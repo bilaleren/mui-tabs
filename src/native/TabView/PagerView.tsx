@@ -43,8 +43,8 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
     onSwipeEnd,
     onSwipeStart,
     scrollEnabled = true,
-    keyboardDismissMode = 'auto',
     animationEnabled,
+    keyboardDismissMode = 'auto',
     ...other
   } = props
   const { index } = state

@@ -16,6 +16,7 @@ export type TabBarProps<T extends Route> = Omit<
   | 'position'
   | 'scrollable'
   | 'initialLayoutWidth'
+  | '$tabView'
 > &
   Omit<SceneRendererProps, 'layout'> & {
     state: TabViewState<T>
@@ -51,6 +52,7 @@ const TabBar = <T extends Route>(props: TabBarProps<T>) => {
       position={position}
       scrollable={scrollEnabled}
       initialLayoutWidth={layout?.width}
+      $tabView={true}
     />
   )
 }

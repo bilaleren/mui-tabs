@@ -1,6 +1,6 @@
 {
   "name": "mui-tabs",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "description": "Material UI tabs for React and React Native projects.",
   "author": "Bilal Eren",
   "license": "MIT",
@@ -38,14 +38,10 @@
     },
     "./native": {
       "types": "./lib/types/native/index.d.ts",
-      "import": "./lib/esm/native/index.js",
-      "require": "./lib/cjs/native/index.js",
       "react-native": "./lib/esm/native/index.js"
     },
     "./native/TabView": {
       "types": "./lib/types/native/TabView/index.d.ts",
-      "import": "./lib/esm/native/TabView/index.js",
-      "require": "./lib/cjs/native/TabView/index.js",
       "react-native": "./lib/esm/native/TabView/index.js"
     },
     "./Tab/tabClasses": {
@@ -74,14 +70,10 @@
     },
     "./native/RippleButton": {
       "types": "./lib/types/native/RippleButton/index.d.ts",
-      "import": "./lib/esm/native/RippleButton/index.js",
-      "require": "./lib/cjs/native/RippleButton/index.js",
       "react-native": "./lib/esm/native/RippleButton/index.js"
     },
     "./native/PlatformPressable": {
       "types": "./lib/types/native/PlatformPressable/index.d.ts",
-      "import": "./lib/esm/native/PlatformPressable/index.js",
-      "require": "./lib/cjs/native/PlatformPressable/index.js",
       "react-native": "./lib/esm/native/PlatformPressable/index.js"
     },
     "./RippleButton/touchRippleClasses": {

@@ -81,7 +81,7 @@ export interface TabProps<Value extends TabValue = TabValue>
   /**
    * The component used to render the tab.
    */
-  ButtonComponent?: React.ComponentType<TabButtonProps>
+  buttonComponent?: React.ComponentType<TabButtonProps>
 }
 
 const LABEL_COLOR = '#000000'
@@ -108,7 +108,7 @@ const Tab = <Value extends TabValue>(props: TabProps<Value>) => {
     disabled = false,
     disabledOpacity = 0.2,
     labelStyle: labelStyleProp,
-    ButtonComponent = TabButton,
+    buttonComponent: ButtonComponent = TabButton,
     ...other
   } = props
 

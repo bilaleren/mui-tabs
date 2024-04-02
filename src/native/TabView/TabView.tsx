@@ -6,10 +6,9 @@ import {
   ViewStyle,
   LayoutChangeEvent
 } from 'react-native'
+import TabBar from './TabBar'
 import PagerView from './PagerView'
 import SceneView from './SceneView'
-import TabBar, { TabBarProps } from './TabBar'
-import useLatestCallback from 'use-latest-callback'
 import type {
   Route,
   Layout,
@@ -22,10 +21,6 @@ import type {
 export type TabViewProps<T extends Route> = PagerProps & {
   state: TabViewState<T>
   scrollEnabled?: boolean
-  tabBarProps?: Omit<
-    TabBarProps<T>,
-    'state' | 'scrollEnabled' | 'overScrollMode' | keyof SceneRendererProps
-  >
   onIndexChange: (index: number) => void
   renderScene: (props: SceneRendererProps & { route: T }) => React.ReactNode
   renderLazyPlaceholder?: (props: { route: T }) => React.ReactNode
@@ -49,7 +44,6 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
     lazy = false,
     state,
     pagerStyle,
-    tabBarProps,
     scrollEnabled,
     animationEnabled = true,
     initialLayout,
@@ -81,7 +75,7 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
     [state.index, onIndexChange]
   )
 
-  const handleLayout = useLatestCallback((event: LayoutChangeEvent) => {
+  const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
     const { height, width } = event.nativeEvent.layout
 
     setLayout((prevLayout) => {
@@ -91,7 +85,7 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
 
       return { height, width }
     })
-  })
+  }, [])
 
   return (
     <View style={[styles.pager, style]} onLayout={handleLayout}>
@@ -117,7 +111,6 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
             <React.Fragment>
               {tabBarPosition === 'top' &&
                 renderTabBar({
-                  ...tabBarProps,
                   ...sceneRendererProps,
                   state,
                   scrollEnabled,
@@ -151,7 +144,6 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
 
               {tabBarPosition === 'bottom' &&
                 renderTabBar({
-                  ...tabBarProps,
                   ...sceneRendererProps,
                   state,
                   scrollEnabled,

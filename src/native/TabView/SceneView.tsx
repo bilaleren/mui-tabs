@@ -74,7 +74,6 @@ const SceneView = <T extends Route>(props: SceneViewProps<T>) => {
 
   return (
     <View
-      collapsable={false}
       accessibilityElementsHidden={!focused}
       importantForAccessibility={focused ? 'auto' : 'no-hide-descendants'}
       style={[
