@@ -12,6 +12,7 @@ import SceneView from './SceneView'
 import type {
   Route,
   Layout,
+  SceneProps,
   PagerProps,
   RenderTabBar,
   TabViewState,
@@ -22,7 +23,7 @@ export type TabViewProps<T extends Route> = PagerProps & {
   state: TabViewState<T>
   scrollEnabled?: boolean
   onIndexChange: (index: number) => void
-  renderScene: (props: SceneRendererProps & { route: T }) => React.ReactNode
+  renderScene: (props: SceneProps<T>) => React.ReactNode
   renderLazyPlaceholder?: (props: { route: T }) => React.ReactNode
   renderTabBar?: RenderTabBar
   initialLayout?: Partial<Layout>
@@ -135,6 +136,7 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
                         ? renderLazyPlaceholder({ route })
                         : renderScene({
                             ...sceneRendererProps,
+                            index,
                             route
                           })
                     }

@@ -1,9 +1,5 @@
 import * as React from 'react'
-import type { Route, SceneRendererProps } from '../types'
-
-export type SceneProps = {
-  route: Route
-} & Omit<SceneRendererProps, 'layout'>
+import type { SceneProps } from '../types'
 
 const SceneComponent = React.memo(
   <T extends { component: React.ComponentType<any> } & SceneProps>({
@@ -15,9 +11,10 @@ const SceneComponent = React.memo(
 )
 
 const SceneMap = <T,>(scenes: { [key: string]: React.ComponentType<T> }) => {
-  return ({ route, jumpTo, position }: SceneProps) => (
+  return ({ index, route, jumpTo, position }: SceneProps) => (
     <SceneComponent
       key={route.key}
+      index={index}
       route={route}
       jumpTo={jumpTo}
       position={position}

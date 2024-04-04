@@ -131,6 +131,13 @@ export interface Layout {
   height: number
 }
 
+export interface SceneProps<T extends Route = Route> {
+  route: T
+  index: number
+  jumpTo: (key: string, animated?: boolean) => void
+  position: Animated.AnimatedInterpolation<number>
+}
+
 export interface SceneRendererProps {
   layout: Layout
   jumpTo: (key: string, animated?: boolean) => void
