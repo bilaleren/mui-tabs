@@ -7,6 +7,7 @@ import {
   ScrollViewProps
 } from 'react-native'
 import type { PagerViewProps } from 'react-native-pager-view'
+import type { TabProps } from './Tab'
 import type { TabBarProps } from './TabView'
 import type { TabsIndicatorProps } from './TabsIndicator'
 
@@ -33,6 +34,10 @@ export interface RenderTabBadgeProps<Value extends TabValue = TabValue> {
   selected: boolean
   disabled: boolean
 }
+
+export type RenderTabItem<Value extends TabValue = TabValue> = (
+  props: TabProps<Value>
+) => React.ReactElement
 
 export type RenderTabIcon<Value extends TabValue = TabValue> = (
   props: RenderTabIconProps<Value>

@@ -15,7 +15,7 @@ import {
   LayoutChangeEvent,
   ListRenderItemInfo
 } from 'react-native'
-import Tab from '../Tab'
+import Tab, { TabProps } from '../Tab'
 import TabsIndicator from '../TabsIndicator'
 import { dequal as isEqual } from 'dequal/lite'
 import useLatestCallback from 'use-latest-callback'
@@ -27,6 +27,7 @@ import type {
   OnChange,
   OnTabPress,
   ChangeEvent,
+  RenderTabItem,
   RenderTabLabel,
   RenderTabIcon,
   RenderTabBadge,
@@ -118,6 +119,11 @@ export interface TabsProps<Value extends TabValue = TabValue> {
    * Determines the style of the tab label.
    */
   labelStyle?: StyleProp<TextStyle>
+
+  /**
+   * Render the custom tab item.
+   */
+  renderTabItem?: RenderTabItem<Value>
 
   /**
    * Render the tab icon to display.
@@ -232,7 +238,7 @@ const getTabsWidth = ({
         layoutWidth,
         scrollEnabled,
         estimatedTabWidth,
-        flattenedWidth: flattenedTabWidth,
+        flattenedTabWidth,
         flattenedPaddingLeft,
         flattenedPaddingRight
       }),
@@ -314,7 +320,7 @@ const getScrollAmount = ({
         layoutWidth,
         scrollEnabled,
         estimatedTabWidth,
-        flattenedWidth: flattenedTabWidth,
+        flattenedTabWidth,
         flattenedPaddingLeft,
         flattenedPaddingRight
       })
@@ -351,7 +357,7 @@ const getComputedTabWidth = ({
   layoutWidth,
   scrollEnabled,
   estimatedTabWidth,
-  flattenedWidth,
+  flattenedTabWidth,
   flattenedPaddingLeft,
   flattenedPaddingRight
 }: {
@@ -362,14 +368,14 @@ const getComputedTabWidth = ({
   layoutWidth: number
   scrollEnabled: boolean
   estimatedTabWidth: number
-  flattenedWidth: DimensionValue | undefined
+  flattenedTabWidth: DimensionValue | undefined
   flattenedPaddingLeft: DimensionValue | undefined
   flattenedPaddingRight: DimensionValue | undefined
 }): number => {
-  if (flattenedWidth === 'auto') {
+  if (flattenedTabWidth === 'auto') {
     return tabWidths[tabs[index]?.value] ?? estimatedTabWidth
-  } else if (flattenedWidth != null) {
-    return convertPercentToSize(flattenedWidth, layoutWidth)
+  } else if (flattenedTabWidth != null) {
+    return convertPercentToSize(flattenedTabWidth, layoutWidth)
   } else if (scrollEnabled) {
     return (layoutWidth / 5) * 2
   }
@@ -411,25 +417,25 @@ const convertPercentToSize = (
   return 0
 }
 
-const getFlattenedTabWidth = (style: StyleProp<ViewStyle>) => {
+const getFlattenedWidth = (style: StyleProp<ViewStyle>) => {
   const tabStyle = StyleSheet.flatten(style)
   return tabStyle?.width
 }
 
-const getFlattenedPaddingLeft = (style: StyleProp<ViewStyle>) => {
+const getFlattenedPaddingValues = (style: StyleProp<ViewStyle>) => {
   const flattenStyle = StyleSheet.flatten(style)
 
-  return flattenStyle
-    ? flattenStyle.paddingLeft || flattenStyle.paddingHorizontal || 0
-    : 0
-}
+  if (!flattenStyle) {
+    return {
+      left: 0,
+      right: 0
+    }
+  }
 
-const getFlattenedPaddingRight = (style: StyleProp<ViewStyle>) => {
-  const flattenStyle = StyleSheet.flatten(style)
-
-  return flattenStyle
-    ? flattenStyle.paddingRight || flattenStyle.paddingHorizontal || 0
-    : 0
+  return {
+    left: flattenStyle.paddingLeft || flattenStyle.paddingHorizontal || 0,
+    right: flattenStyle.paddingRight || flattenStyle.paddingHorizontal || 0
+  }
 }
 
 const defaultIndicator: RenderTabsIndicator = (props) => (
@@ -448,6 +454,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     onTabLongPress,
     bounces,
     overScrollMode,
+    renderTabItem,
     renderTabIcon,
     renderTabLabel,
     renderTabBadge,
@@ -471,10 +478,11 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
 
   const tabIndex = tabs.findIndex((tab) => value === tab.value)
   const scrollEnabled = scrollable
-  const flattenedTabWidth = getFlattenedTabWidth(tabStyle)
+  const flattenedTabWidth = getFlattenedWidth(tabStyle)
   const isDynamicWidth = flattenedTabWidth === 'auto'
-  const flattenedPaddingRight = getFlattenedPaddingRight(contentContainerStyle)
-  const flattenedPaddingLeft = getFlattenedPaddingLeft(contentContainerStyle)
+  const hasProvidedPosition = positionProp !== undefined
+  const { left: flattenedPaddingLeft, right: flattenedPaddingRight } =
+    getFlattenedPaddingValues(contentContainerStyle)
 
   const position = useAnimatedValue(0)
   const scrollAmount = useAnimatedValue(0)
@@ -483,8 +491,6 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
   const [layoutWidth, setLayoutWidth] = React.useState(initialLayoutWidth)
   const [tabWidths, setTabWidths] = React.useState<Record<TabValue, number>>({})
   const measuredTabWidths = React.useRef<Record<TabValue, number>>({})
-
-  const hasProvidedPosition = positionProp !== undefined
 
   const hasMeasuredTabWidths =
     tabIndex > -1 &&
@@ -686,91 +692,91 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
       const { value: tabItemValue, disabled } = item
       const selected = value === tabItemValue
 
+      const tabItemProps: TabProps<Value> = {
+        item,
+        tabWidth: !isDynamicWidth
+          ? getComputedTabWidth({
+              index,
+              tabs,
+              tabGap,
+              tabWidths,
+              layoutWidth,
+              scrollEnabled,
+              estimatedTabWidth,
+              flattenedTabWidth,
+              flattenedPaddingLeft,
+              flattenedPaddingRight
+            })
+          : undefined,
+        style: tabStyle,
+        selected,
+        disabled,
+        labelStyle,
+        pressColor,
+        pressOpacity,
+        disabledOpacity,
+        renderIcon: renderTabIcon,
+        renderLabel: renderTabLabel,
+        renderBadge: renderTabBadge,
+        onPress: () => {
+          const event: ChangeEvent<Value> = {
+            item,
+            defaultPrevented: false,
+            preventDefault() {
+              event.defaultPrevented = true
+            }
+          }
+
+          onTabPress?.(event)
+
+          if (!selected && !event.defaultPrevented) {
+            onChange?.(tabItemValue, event)
+          }
+        },
+        onLongPress: onTabLongPress
+          ? () => onTabLongPress({ item })
+          : undefined,
+        onLayout: isDynamicWidth
+          ? (event) => {
+              const {
+                nativeEvent: { layout }
+              } = event
+
+              measuredTabWidths.current[tabItemValue] = layout.width
+
+              if (
+                tabs.length > MEASURE_PER_BATCH &&
+                index === MEASURE_PER_BATCH &&
+                isMeasuredTabWidths(
+                  tabs.slice(0, MEASURE_PER_BATCH),
+                  measuredTabWidths.current
+                )
+              ) {
+                updateTabWidths(tabs.slice(0, MEASURE_PER_BATCH))
+              } else if (isMeasuredTabWidths(tabs, measuredTabWidths.current)) {
+                updateTabWidths(tabs)
+              }
+            }
+          : undefined,
+        buttonComponent: tabComponent
+      }
+
       return (
         <React.Fragment>
           {tabGap > 0 && index > 0 ? <Separator width={tabGap} /> : null}
-          <Tab
-            item={item}
-            tabWidth={
-              !isDynamicWidth
-                ? getComputedTabWidth({
-                    index,
-                    tabs,
-                    tabGap,
-                    tabWidths,
-                    layoutWidth,
-                    scrollEnabled,
-                    estimatedTabWidth,
-                    flattenedWidth: flattenedTabWidth,
-                    flattenedPaddingLeft,
-                    flattenedPaddingRight
-                  })
-                : undefined
-            }
-            style={tabStyle}
-            selected={selected}
-            disabled={disabled}
-            labelStyle={labelStyle}
-            pressColor={pressColor}
-            pressOpacity={pressOpacity}
-            disabledOpacity={disabledOpacity}
-            renderIcon={renderTabIcon}
-            renderLabel={renderTabLabel}
-            renderBadge={renderTabBadge}
-            onPress={() => {
-              const event: ChangeEvent<Value> = {
-                item,
-                defaultPrevented: false,
-                preventDefault() {
-                  event.defaultPrevented = true
-                }
-              }
-
-              onTabPress?.(event)
-
-              if (!selected && !event.defaultPrevented) {
-                onChange?.(tabItemValue, event)
-              }
-            }}
-            onLongPress={
-              onTabLongPress ? () => onTabLongPress({ item }) : undefined
-            }
-            onLayout={
-              isDynamicWidth
-                ? (event) => {
-                    const {
-                      nativeEvent: { layout }
-                    } = event
-
-                    measuredTabWidths.current[tabItemValue] = layout.width
-
-                    if (
-                      tabs.length > MEASURE_PER_BATCH &&
-                      index === MEASURE_PER_BATCH &&
-                      isMeasuredTabWidths(
-                        tabs.slice(0, MEASURE_PER_BATCH),
-                        measuredTabWidths.current
-                      )
-                    ) {
-                      updateTabWidths(tabs.slice(0, MEASURE_PER_BATCH))
-                    } else if (
-                      isMeasuredTabWidths(tabs, measuredTabWidths.current)
-                    ) {
-                      updateTabWidths(tabs)
-                    }
-                  }
-                : undefined
-            }
-            buttonComponent={tabComponent}
-          />
+          {renderTabItem ? (
+            renderTabItem(tabItemProps)
+          ) : (
+            <Tab {...tabItemProps} />
+          )}
         </React.Fragment>
       )
     },
     [
       value,
-      tabGap,
       isDynamicWidth,
       tabs,
+      tabGap,
       tabWidths,
       layoutWidth,
       scrollEnabled,
@@ -788,6 +794,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
       renderTabBadge,
       onTabLongPress,
       tabComponent,
+      renderTabItem,
       onTabPress,
       onChange,
       updateTabWidths
@@ -846,7 +853,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
                 layoutWidth,
                 scrollEnabled,
                 estimatedTabWidth,
-                flattenedWidth: flattenedTabWidth,
+                flattenedTabWidth,
                 flattenedPaddingLeft,
                 flattenedPaddingRight
               })
