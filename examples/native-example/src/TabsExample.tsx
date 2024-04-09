@@ -278,7 +278,7 @@ const TabsExample = () => (
 
     <Example
       title="Ripple Button"
-      description="TabComponent={RippleButton} are used to give ripple effect."
+      description="tabComponent={RippleButton} are used to give ripple effect."
     >
       {({ value, onChange, initialLayoutWidth }) => (
         <Tabs
@@ -343,10 +343,6 @@ const TabsExample = () => (
           }}
           contentContainerStyle={{
             paddingHorizontal: 10
-          }}
-          indicatorContainerStyle={{
-            zIndex: 0,
-            marginVertical: 5
           }}
           initialLayoutWidth={initialLayoutWidth}
         />

@@ -1,12 +1,8 @@
 import * as React from 'react'
-import {
-  Animated,
-  StyleProp,
-  TextStyle,
-  ColorValue,
-  ScrollViewProps
-} from 'react-native'
+import { StyleProp, TextStyle, ColorValue, ScrollViewProps } from 'react-native'
+import type { SharedValue } from 'react-native-reanimated'
 import type { PagerViewProps } from 'react-native-pager-view'
+import type { TabProps } from './Tab'
 import type { TabBarProps } from './TabView'
 import type { TabsIndicatorProps } from './TabsIndicator'
 
@@ -34,6 +30,10 @@ export interface RenderTabBadgeProps<Value extends TabValue = TabValue> {
   disabled: boolean
 }
 
+export type RenderTabItem<Value extends TabValue = TabValue> = (
+  props: TabProps<Value>
+) => React.ReactElement
+
 export type RenderTabIcon<Value extends TabValue = TabValue> = (
   props: RenderTabIconProps<Value>
 ) => React.ReactNode
@@ -60,6 +60,7 @@ export interface TabPressEvent<Value extends TabValue = TabValue> {
 
 export interface TabLongPressEvent<Value extends TabValue = TabValue> {
   item: TabItem<Value>
+  index: number
 }
 
 export type OnChange<Value extends TabValue = TabValue> = (
@@ -115,6 +116,11 @@ export interface TabItem<Value extends TabValue = TabValue> {
   disabled?: boolean
 }
 
+export interface TabItemLayout {
+  x: number
+  width: number
+}
+
 export interface TabViewState<T extends Route> {
   index: number
   routes: T[]
@@ -135,13 +141,13 @@ export interface SceneProps<T extends Route = Route> {
   route: T
   index: number
   jumpTo: (key: string, animated?: boolean) => void
-  position: Animated.AnimatedInterpolation<number>
+  position: SharedValue<number>
 }
 
 export interface SceneRendererProps {
   layout: Layout
   jumpTo: (key: string, animated?: boolean) => void
-  position: Animated.AnimatedInterpolation<number>
+  position: SharedValue<number>
 }
 
 export type PagerProps = Omit<

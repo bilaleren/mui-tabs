@@ -14,6 +14,7 @@ module.exports = {
           'mui-tabs/native': '../../src/native'
         }
       }
-    ]
+    ],
+    'react-native-reanimated/plugin'
   ]
 };

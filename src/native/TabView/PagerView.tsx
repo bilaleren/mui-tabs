@@ -1,11 +1,15 @@
 import * as React from 'react'
-import { Animated, Keyboard, StyleSheet } from 'react-native'
+import { Keyboard, StyleSheet } from 'react-native'
+import Animated, {
+  runOnJS,
+  useSharedValue,
+  SharedValue
+} from 'react-native-reanimated'
 import RNPagerView, {
   PagerViewOnPageSelectedEvent,
   PageScrollStateChangedNativeEvent
 } from 'react-native-pager-view'
 import useLatestCallback from 'use-latest-callback'
-import useAnimatedValue from '@utils/useAnimatedValue'
 import type {
   Route,
   Listener,
@@ -13,6 +17,7 @@ import type {
   TabViewState,
   EventEmitterProps
 } from '../types'
+import usePageScrollHandler from '@utils/usePageScrollHandler'
 
 const AnimatedPagerView = Animated.createAnimatedComponent(RNPagerView)
 
@@ -23,7 +28,7 @@ export interface PagerViewProps<T extends Route> extends PagerProps {
     props: EventEmitterProps & {
       // Animated value which represents the state of current index
       // It can include fractional digits as it represents the intermediate value
-      position: Animated.AnimatedInterpolation<number>
+      position: SharedValue<number>
       // Function to actually render the content of the pager
       // The parent component takes care of rendering
       render: (children: React.ReactNode) => React.ReactNode
@@ -54,12 +59,8 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
   const stateRef = React.useRef<TabViewState<T>>(state)
   const listenersRef = React.useRef<Listener[]>([])
 
-  const position = useAnimatedValue(index)
-  const offset = useAnimatedValue(0)
-  const memoizedPosition = React.useMemo(
-    () => Animated.add<number>(position, offset),
-    [offset, position]
-  )
+  const position = useSharedValue(index)
+  const offset = useSharedValue(0)
 
   React.useEffect(() => {
     stateRef.current = state
@@ -90,7 +91,7 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
         pagerRef.current?.setPage(index)
       } else {
         pagerRef.current?.setPageWithoutAnimation(index)
-        position.setValue(index)
+        position.value = index
       }
     },
     [position, animationEnabled]
@@ -106,33 +107,26 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
         pagerRef.current?.setPage(index)
       } else {
         pagerRef.current?.setPageWithoutAnimation(index)
-        position.setValue(index)
+        position.value = index
       }
     }
   }, [index, keyboardDismissMode, animationEnabled, position])
 
-  const handlePageScroll = React.useMemo(
-    () =>
-      Animated.event(
-        [
-          {
-            nativeEvent: {
-              offset,
-              position
-            }
-          }
-        ],
-        { useNativeDriver: false }
-      ),
-    [offset, position]
-  )
+  const handlePageScroll = usePageScrollHandler({
+    onPageScroll: (event) => {
+      'worklet'
+      position.value = event.offset + event.position
+    }
+  })
 
-  const handlePageSelected = useLatestCallback(
+  const handlePageSelected = React.useCallback(
     (event: PagerViewOnPageSelectedEvent) => {
+      'worklet'
       const index = event.nativeEvent.position
       indexRef.current = index
-      onIndexChange(index)
-    }
+      runOnJS(onIndexChange)(index)
+    },
+    [onIndexChange]
   )
 
   const handlePageScrollStateChanged = useLatestCallback(
@@ -144,16 +138,15 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
           onSwipeEnd?.()
           return
         case 'dragging': {
-          const subscription = offset.addListener(({ value }) => {
-            const next =
-              index + (value > 0 ? Math.ceil(value) : Math.floor(value))
+          const next =
+            index +
+            (offset.value > 0
+              ? Math.ceil(offset.value)
+              : Math.floor(offset.value))
 
-            if (next !== index) {
-              listenersRef.current.forEach((listener) => listener(next))
-            }
-
-            offset.removeListener(subscription)
-          })
+          if (next !== index) {
+            listenersRef.current.forEach((listener) => listener(next))
+          }
 
           onSwipeStart?.()
         }
@@ -174,7 +167,7 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
   }, [])
 
   return children({
-    position: memoizedPosition,
+    position,
     addEnterListener,
     jumpTo,
     render: (children) => (

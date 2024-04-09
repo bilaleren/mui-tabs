@@ -101,11 +101,11 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
         animationEnabled={animationEnabled}
         keyboardDismissMode={keyboardDismissMode}
       >
-        {({ jumpTo, render, position, addEnterListener }) => {
+        {({ render, jumpTo, position, addEnterListener }) => {
           const sceneRendererProps: SceneRendererProps = {
-            position,
+            jumpTo,
             layout,
-            jumpTo
+            position
           }
 
           return (

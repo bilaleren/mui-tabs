@@ -2,7 +2,11 @@
 
 MUI Tabs is now available with React Native.
 
-> See [here](./KNOWN_ISSUES.md) for solutions to known issues.
+## Installation
+
+```shell
+yarn add react-native-reanimated
+```
 
 ## TabView
 
@@ -189,10 +193,6 @@ const App = () => {
       }}
       contentContainerStyle={{
         paddingHorizontal: 10
-      }}
-      indicatorContainerStyle={{
-        zIndex: 0,
-        marginVertical: 5
       }}
     />
   )
