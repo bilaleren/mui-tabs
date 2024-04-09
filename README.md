@@ -28,8 +28,10 @@ This package was developed based on the [Material UI Tabs](https://mui.com/compo
 ## Installation
 
 ```bash
-yarn add mui-tabs
+yarn add mui-tabs@^2
 ```
+
+> See [here](https://github.com/bilaleren/mui-tabs/tree/v3) for v3 installation and documentation.
 
 ## Examples
 
