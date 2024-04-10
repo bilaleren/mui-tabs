@@ -10,6 +10,7 @@ import RNPagerView, {
   PageScrollStateChangedNativeEvent
 } from 'react-native-pager-view'
 import useLatestCallback from 'use-latest-callback'
+import usePageScrollHandler from '@utils/usePageScrollHandler'
 import type {
   Route,
   Listener,
@@ -17,7 +18,6 @@ import type {
   TabViewState,
   EventEmitterProps
 } from '../types'
-import usePageScrollHandler from '@utils/usePageScrollHandler'
 
 const AnimatedPagerView = Animated.createAnimatedComponent(RNPagerView)
 
@@ -115,6 +115,7 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
   const handlePageScroll = usePageScrollHandler({
     onPageScroll: (event) => {
       'worklet'
+      offset.value = event.offset
       position.value = event.offset + event.position
     }
   })
