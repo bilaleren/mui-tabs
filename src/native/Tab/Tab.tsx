@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ColorValue
 } from 'react-native'
+import { TAB_BAR_HEIGHT } from '../constants'
 import TabButton, { TabButtonProps } from '../TabButton'
 import type {
   TabItem,
@@ -184,7 +185,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 48,
+    minHeight: TAB_BAR_HEIGHT,
     maxHeight: 80,
     paddingVertical: 10,
     paddingHorizontal: 17

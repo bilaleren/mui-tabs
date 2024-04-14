@@ -5,19 +5,15 @@ const SceneComponent = React.memo(
   <T extends { component: React.ComponentType<any> } & SceneProps>({
     component,
     ...props
-  }: T) => {
-    return React.createElement(component, props)
-  }
+  }: T) => React.createElement(component, props)
 )
 
 const SceneMap = <T,>(scenes: { [key: string]: React.ComponentType<T> }) => {
-  return ({ index, route, jumpTo, position }: SceneProps) => (
+  return ({ route, ...props }: SceneProps) => (
     <SceneComponent
+      {...props}
       key={route.key}
-      index={index}
       route={route}
-      jumpTo={jumpTo}
-      position={position}
       component={scenes[route.key]}
     />
   )

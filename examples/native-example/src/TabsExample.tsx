@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { Text, ScrollView, StyleSheet } from 'react-native';
 import { Example } from './components';
 import { Tabs } from 'mui-tabs/native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
@@ -358,4 +358,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default TabsExample;
+export default React.memo(TabsExample);

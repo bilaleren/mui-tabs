@@ -76,9 +76,13 @@ export type OnTabLongPress<Value extends TabValue = TabValue> = (
   event: TabLongPressEvent<Value>
 ) => void
 
-export type RenderTabBar = {
-  <T extends Route>(props: TabBarProps<T>): React.ReactNode
-}
+export type RenderScene<T extends Route = Route> = (
+  props: SceneProps<T>
+) => React.ReactNode
+
+export type RenderTabBar<T extends Route = Route> = (
+  props: TabBarProps<T>
+) => React.ReactNode
 
 export type RenderTabsIndicator = (props: TabsIndicatorProps) => React.ReactNode
 
@@ -126,12 +130,6 @@ export interface TabViewState<T extends Route> {
   routes: T[]
 }
 
-export type Listener = (value: number) => void
-
-export interface EventEmitterProps {
-  addEnterListener: (listener: Listener) => () => void
-}
-
 export interface Layout {
   width: number
   height: number
@@ -141,6 +139,7 @@ export interface SceneProps<T extends Route = Route> {
   route: T
   index: number
   jumpTo: (key: string, animated?: boolean) => void
+  focused: boolean
   position: SharedValue<number>
 }
 

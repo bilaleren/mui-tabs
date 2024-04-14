@@ -6,15 +6,15 @@ import Animated, {
   Extrapolation,
   SharedValue
 } from 'react-native-reanimated'
-import type { TabItem } from '../types'
+import type { TabItemLayout } from '../types'
 
 type GetTabWidth = (index: number) => number
 
 export interface TabsIndicatorProps {
   /**
-   * The tab items.
+   * The tab items layout.
    */
-  tabs: TabItem[]
+  itemsLayout: TabItemLayout[]
 
   /**
    * Gets the width of the tab.
@@ -27,7 +27,7 @@ export interface TabsIndicatorProps {
   tabGap: number
 
   /**
-   * Custom animated interpolation value.
+   * Animated position value.
    */
   position: SharedValue<number>
 
@@ -39,20 +39,20 @@ export interface TabsIndicatorProps {
 
 const getWidth = (
   position: SharedValue<number>,
-  tabs: TabItem[],
+  layouts: TabItemLayout[],
   getTabWidth: GetTabWidth
 ): number => {
   'worklet'
 
-  const inputRange = tabs.map((_, index) => index)
+  const inputRange = layouts.map((_, index) => index)
   const outputRange = inputRange.map(getTabWidth)
 
-  if (tabs.length > 1) {
+  if (inputRange.length > 1) {
     return interpolate(
       position.value,
       inputRange,
       outputRange,
-      Extrapolation.CLAMP
+      Extrapolation.EXTEND
     )
   }
 
@@ -61,15 +61,15 @@ const getWidth = (
 
 const getTranslateX = (
   position: SharedValue<number>,
-  tabs: TabItem[],
-  getTabWidth: GetTabWidth,
-  tabGap: number
+  layouts: TabItemLayout[],
+  tabGap: number,
+  getTabWidth: GetTabWidth
 ): number => {
   'worklet'
 
-  if (tabs.length > 1) {
-    const inputRange = tabs.map((_, index) => index)
-    const outputRange = tabs.reduce<number[]>((acc, _, index) => {
+  if (layouts.length > 1) {
+    const inputRange = layouts.map((_, index) => index)
+    const outputRange = layouts.reduce<number[]>((acc, _, index) => {
       if (index === 0) {
         return [0]
       }
@@ -89,13 +89,13 @@ const getTranslateX = (
 }
 
 const TabsIndicator: React.FC<TabsIndicatorProps> = (props) => {
-  const { tabs, style, tabGap, position, getTabWidth } = props
+  const { itemsLayout, style, tabGap, position, getTabWidth } = props
 
   const animatedStyle = useAnimatedStyle(() => ({
-    width: getWidth(position, tabs, getTabWidth),
+    width: getWidth(position, itemsLayout, getTabWidth),
     transform: [
       {
-        translateX: getTranslateX(position, tabs, getTabWidth, tabGap)
+        translateX: getTranslateX(position, itemsLayout, tabGap, getTabWidth)
       }
     ]
   }))
@@ -103,7 +103,8 @@ const TabsIndicator: React.FC<TabsIndicatorProps> = (props) => {
   return (
     <Animated.View
       style={[styles.indicator, animatedStyle, style]}
-      accessibilityRole="none"
+      importantForAccessibility="no-hide-descendants"
+      accessibilityElementsHidden={true}
     />
   )
 }
@@ -111,8 +112,6 @@ const TabsIndicator: React.FC<TabsIndicatorProps> = (props) => {
 const styles = StyleSheet.create({
   indicator: {
     position: 'absolute',
-    left: 0,
-    right: 0,
     bottom: 0,
     height: 2,
     backgroundColor: '#1976D2'

@@ -9,34 +9,25 @@ import RNPagerView, {
   PagerViewOnPageSelectedEvent,
   PageScrollStateChangedNativeEvent
 } from 'react-native-pager-view'
-import useLatestCallback from 'use-latest-callback'
 import usePageScrollHandler from '@utils/usePageScrollHandler'
-import type {
-  Route,
-  Listener,
-  PagerProps,
-  TabViewState,
-  EventEmitterProps
-} from '../types'
+import type { Route, PagerProps, TabViewState } from '../types'
 
 const AnimatedPagerView = Animated.createAnimatedComponent(RNPagerView)
 
 export interface PagerViewProps<T extends Route> extends PagerProps {
   state: TabViewState<T>
   onIndexChange: (index: number) => void
-  children: (
-    props: EventEmitterProps & {
-      // Animated value which represents the state of current index
-      // It can include fractional digits as it represents the intermediate value
-      position: SharedValue<number>
-      // Function to actually render the content of the pager
-      // The parent component takes care of rendering
-      render: (children: React.ReactNode) => React.ReactNode
-      // Callback to call when switching the tab
-      // The tab switch animation is performed even if the index in state is unchanged
-      jumpTo: (key: string, animated?: boolean) => void
-    }
-  ) => React.ReactElement
+  children: (props: {
+    // Animated value which represents the state of current index
+    // It can include fractional digits as it represents the intermediate value
+    position: SharedValue<number>
+    // Function to actually render the content of the pager
+    // The parent component takes care of rendering
+    render: (children: React.ReactNode) => React.ReactNode
+    // Callback to call when switching the tab
+    // The tab switch animation is performed even if the index in state is unchanged
+    jumpTo: (key: string, animated?: boolean) => void
+  }) => React.ReactElement
 }
 
 const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
@@ -57,7 +48,6 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
   const pagerRef = React.useRef<RNPagerView>(null)
   const indexRef = React.useRef<number>(index)
   const stateRef = React.useRef<TabViewState<T>>(state)
-  const listenersRef = React.useRef<Listener[]>([])
 
   const position = useSharedValue(index)
   const offset = useSharedValue(0)
@@ -110,7 +100,7 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
         position.value = index
       }
     }
-  }, [index, keyboardDismissMode, animationEnabled, position])
+  }, [index, position, keyboardDismissMode, animationEnabled])
 
   const handlePageScroll = usePageScrollHandler({
     onPageScroll: (event) => {
@@ -130,7 +120,7 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
     [onIndexChange]
   )
 
-  const handlePageScrollStateChanged = useLatestCallback(
+  const handlePageScrollStateChanged = React.useCallback(
     (event: PageScrollStateChangedNativeEvent) => {
       const { pageScrollState } = event.nativeEvent
 
@@ -138,38 +128,15 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
         case 'idle':
           onSwipeEnd?.()
           return
-        case 'dragging': {
-          const next =
-            index +
-            (offset.value > 0
-              ? Math.ceil(offset.value)
-              : Math.floor(offset.value))
-
-          if (next !== index) {
-            listenersRef.current.forEach((listener) => listener(next))
-          }
-
+        case 'dragging':
           onSwipeStart?.()
-        }
       }
-    }
+    },
+    [onSwipeEnd, onSwipeStart]
   )
-
-  const addEnterListener = React.useCallback((listener: Listener) => {
-    listenersRef.current.push(listener)
-
-    return () => {
-      const index = listenersRef.current.indexOf(listener)
-
-      if (index > -1) {
-        listenersRef.current.splice(index, 1)
-      }
-    }
-  }, [])
 
   return children({
     position,
-    addEnterListener,
     jumpTo,
     render: (children) => (
       <AnimatedPagerView

@@ -15,8 +15,8 @@ yarn add react-native-pager-view
 ```tsx
 import * as React from 'react'
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native'
+import TabView, { SceneMap, TabBar } from 'mui-tabs/native/TabView'
 import type { RenderTabBar } from 'mui-tabs/native'
-import { TabView, SceneMap, TabBar } from 'mui-tabs/native/TabView'
 import PlatformPressable from 'mui-tabs/native/PlatformPressable'
 
 const Home = () => (

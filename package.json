@@ -18,6 +18,7 @@
     "test": "NODE_ENV=test mocha --dry-run --config mocha.config.js",
     "build": "NODE_ENV=production gulp build",
     "prepack": "yarn build",
+    "bootstrap": "yarn install && yarn native-example install",
     "fix": "eslint --fix \"./src/**/*.{ts,tsx}\"",
     "lint": "eslint \"./src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",

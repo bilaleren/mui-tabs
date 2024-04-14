@@ -13,8 +13,8 @@ export type TabBarProps<T extends Route> = Omit<
   | 'tabs'
   | 'value'
   | 'onChange'
-  | 'position'
   | 'scrollable'
+  | 'animatedPosition'
   | 'initialLayoutWidth'
 > &
   Omit<SceneRendererProps, 'layout'> & {

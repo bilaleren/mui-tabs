@@ -63,7 +63,7 @@ export const getComputedTabWidth = ({
   'worklet'
 
   if (flattenedTabWidth === 'auto') {
-    return itemsLayout[index]?.width ?? estimatedTabWidth
+    return itemsLayout[index]?.width || estimatedTabWidth
   } else if (flattenedTabWidth != null) {
     return convertPercentToSize(flattenedTabWidth, layoutWidth)
   } else if (scrollEnabled) {

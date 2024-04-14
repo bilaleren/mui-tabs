@@ -9,11 +9,12 @@ import {
 import TabBar from './TabBar'
 import PagerView from './PagerView'
 import SceneView from './SceneView'
+import { INITIAL_LAYOUT } from '../constants'
 import type {
   Route,
   Layout,
-  SceneProps,
   PagerProps,
+  RenderScene,
   RenderTabBar,
   TabViewState,
   SceneRendererProps
@@ -23,13 +24,14 @@ export type TabViewProps<T extends Route> = PagerProps & {
   state: TabViewState<T>
   scrollEnabled?: boolean
   onIndexChange: (index: number) => void
-  renderScene: (props: SceneProps<T>) => React.ReactNode
+  renderScene: RenderScene<T>
   renderLazyPlaceholder?: (props: { route: T }) => React.ReactNode
-  renderTabBar?: RenderTabBar
+  renderTabBar?: RenderTabBar<T>
   initialLayout?: Partial<Layout>
   tabBarPosition?: 'top' | 'bottom'
   lazy?: ((props: { route: T }) => boolean) | boolean
   lazyPreloadDistance?: number
+  lazyPreloadWaitTime?: number
   sceneContainerStyle?: StyleProp<ViewStyle>
   pagerStyle?: StyleProp<ViewStyle>
   style?: StyleProp<ViewStyle>
@@ -47,7 +49,7 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
     pagerStyle,
     scrollEnabled,
     animationEnabled = true,
-    initialLayout,
+    initialLayout = INITIAL_LAYOUT,
     onSwipeStart,
     onSwipeEnd,
     onIndexChange,
@@ -56,6 +58,7 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
     tabBarPosition = 'top',
     overScrollMode,
     lazyPreloadDistance = 0,
+    lazyPreloadWaitTime = 0,
     renderLazyPlaceholder = defaultLazyPlaceholder,
     sceneContainerStyle,
     keyboardDismissMode = 'auto'
@@ -101,22 +104,24 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
         animationEnabled={animationEnabled}
         keyboardDismissMode={keyboardDismissMode}
       >
-        {({ render, jumpTo, position, addEnterListener }) => {
+        {({ render, jumpTo, position }) => {
           const sceneRendererProps: SceneRendererProps = {
             jumpTo,
             layout,
             position
           }
 
+          const tabBar = renderTabBar({
+            ...sceneRendererProps,
+            state,
+            scrollEnabled,
+            overScrollMode,
+            animationEnabled
+          })
+
           return (
             <React.Fragment>
-              {tabBarPosition === 'top' &&
-                renderTabBar({
-                  ...sceneRendererProps,
-                  state,
-                  scrollEnabled,
-                  overScrollMode
-                })}
+              {tabBarPosition === 'top' && tabBar}
 
               {render(
                 state.routes.map((route, index) => (
@@ -128,8 +133,8 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
                     state={state}
                     layout={layout}
                     style={sceneContainerStyle}
-                    addEnterListener={addEnterListener}
                     lazyPreloadDistance={lazyPreloadDistance}
+                    lazyPreloadWaitTime={lazyPreloadWaitTime}
                   >
                     {({ loading }) =>
                       loading
@@ -137,20 +142,15 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
                         : renderScene({
                             ...sceneRendererProps,
                             index,
-                            route
+                            route,
+                            focused: index === state.index
                           })
                     }
                   </SceneView>
                 ))
               )}
 
-              {tabBarPosition === 'bottom' &&
-                renderTabBar({
-                  ...sceneRendererProps,
-                  state,
-                  scrollEnabled,
-                  overScrollMode
-                })}
+              {tabBarPosition === 'bottom' && tabBar}
             </React.Fragment>
           )
         }}

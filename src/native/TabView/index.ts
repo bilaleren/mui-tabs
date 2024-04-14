@@ -1,4 +1,4 @@
-export { default as TabView } from './TabView'
+export { default } from './TabView'
 export type { TabViewProps } from './TabView'
 
 export { default as TabBar } from './TabBar'

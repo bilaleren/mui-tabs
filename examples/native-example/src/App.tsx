@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Text, Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import type { RenderTabBar } from 'mui-tabs/native';
-import { TabView, SceneMap, TabBar } from 'mui-tabs/native/TabView';
+import TabView, { SceneMap, TabBar } from 'mui-tabs/native/TabView';
 import PlatformPressable from 'mui-tabs/native/PlatformPressable';
 import { repository as githubRepoUrl } from '../package.json';
 import TabsExample from './TabsExample';

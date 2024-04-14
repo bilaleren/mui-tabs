@@ -2,7 +2,6 @@ import * as React from 'react'
 import clsx from 'clsx'
 import type { TabProps } from '../Tab'
 import ScrollbarSize from './ScrollbarSize'
-import debounce from '@utils/debounce'
 import useLatestCallback from 'use-latest-callback'
 import type {
   TabValue,
@@ -13,6 +12,7 @@ import type {
 } from '../types'
 import TabButton, { TabButtonProps } from '../TabButton'
 import animate from '@utils/animate'
+import debounce from '@utils/debounce'
 import ownerWindow from '@utils/ownerWindow'
 import getDocumentDir from '@utils/getDocumentDir'
 import isReactFragment from '@utils/isReactFragment'
@@ -195,7 +195,10 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
       end: false
     })
 
-    const [scrollerStyle, setScrollerStyle] = React.useState<any>({
+    const [scrollerStyle, setScrollerStyle] = React.useState<{
+      overflow: string | undefined
+      scrollbarWidth: number
+    }>({
       overflow: 'hidden',
       scrollbarWidth: 0
     })
@@ -496,7 +499,7 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
     const handleScrollbarSizeChange = React.useCallback(
       (scrollbarWidth: number) => {
         setScrollerStyle({
-          overflow: null,
+          overflow: undefined,
           scrollbarWidth
         })
       },

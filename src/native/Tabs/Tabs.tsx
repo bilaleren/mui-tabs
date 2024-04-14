@@ -1,8 +1,8 @@
 import * as React from 'react'
 import {
   View,
-  Dimensions,
   StyleSheet,
+  ColorValue,
   StyleProp,
   TextStyle,
   ViewStyle,
@@ -21,13 +21,13 @@ import Animated, {
   useAnimatedReaction,
   useAnimatedScrollHandler,
   SharedValue,
-  WithTimingConfig,
-  AnimationCallback
+  WithTimingConfig
 } from 'react-native-reanimated'
+import { WINDOW_DIM } from '../constants'
 import { dequal as isEqual } from 'dequal/lite'
 import Tab, { TabProps } from '../Tab'
 import TabsIndicator from '../TabsIndicator'
-import useReactiveSharedValue from '@utils/useReactiveSharedValue'
+import useAnimatableSharedValue from '@utils/useAnimatableSharedValue'
 import {
   getScrollOffset,
   getFlattenedWidth,
@@ -101,6 +101,21 @@ export interface TabsProps<Value extends TabValue = TabValue> {
   initialLayoutWidth?: number
 
   /**
+   * Background color to be applied when the tab is pressed.
+   */
+  pressColor?: ColorValue
+
+  /**
+   * Opacity to be applied when the tab is pressed.
+   */
+  pressOpacity?: number
+
+  /**
+   * Determines the opacity of disabled.
+   */
+  disabledOpacity?: number
+
+  /**
    * Determines the tab gap.
    * @default 0
    */
@@ -150,6 +165,11 @@ export interface TabsProps<Value extends TabValue = TabValue> {
    * Animated position value.
    */
   animatedPosition?: SharedValue<number>
+
+  /**
+   * @default true
+   */
+  animationEnabled?: boolean
 
   /**
    * Determines the animation config of the indicator.
@@ -215,14 +235,18 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     tabStyle,
     labelStyle,
     animatedPosition,
+    animationEnabled = true,
     animationConfig = defaultAnimationConfig,
     renderIndicator = defaultIndicator,
     indicatorStyle,
     indicatorEnabled = true,
     tabComponent,
     contentContainerStyle,
+    pressColor,
+    pressOpacity,
+    disabledOpacity,
     estimatedTabWidth = 0,
-    initialLayoutWidth = Dimensions.get('window').width
+    initialLayoutWidth = WINDOW_DIM.width
   } = props
 
   const tabIndex = tabs.findIndex((tab) => value === tab.value)
@@ -233,7 +257,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     getFlattenedPaddingValues(contentContainerStyle)
   const hasProvidedAnimatedPosition = animatedPosition !== undefined
 
-  const position = useReactiveSharedValue(animatedPosition || tabIndex)
+  const position = useAnimatableSharedValue(animatedPosition || tabIndex)
   const currentPositionToSync = useSharedValue(position.value)
   const targetPositionToSync = useSharedValue(position.value)
   const scrollViewRef = useAnimatedRef<Animated.ScrollView>()
@@ -242,7 +266,10 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
   const [layoutWidth, setLayoutWidth] = React.useState(initialLayoutWidth)
   const [itemsLayout, setItemsLayout] = React.useState<TabItemLayout[]>(
     isDynamicWidth
-      ? []
+      ? Array.from({ length: tabs.length }).map((_, index) => ({
+          x: index * estimatedTabWidth,
+          width: estimatedTabWidth
+        }))
       : getInitialItemsLayout({
           tabs,
           tabGap,
@@ -269,8 +296,9 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
   }
 
   const getTabWidth = React.useCallback(
-    (index: number) => {
+    (index: number): number => {
       'worklet'
+
       return getComputedTabWidth({
         index,
         tabGap,
@@ -306,16 +334,21 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
   }, [])
 
   const animateToPosition = React.useCallback(
-    (nextPosition: number, callback?: AnimationCallback) => {
+    (nextPosition: number) => {
       'worklet'
-      position.value = withTiming(nextPosition, animationConfig, callback)
+
+      position.value = animationEnabled
+        ? withTiming(nextPosition, animationConfig)
+        : nextPosition
     },
-    [position, animationConfig]
+    [position, animationConfig, animationEnabled]
   )
 
   const handleScroll = useAnimatedScrollHandler({
     onBeginDrag: () => {
-      cancelAnimation(currentPositionToSync)
+      if (animationEnabled) {
+        cancelAnimation(currentPositionToSync)
+      }
     }
   })
 
@@ -324,7 +357,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
       nativeEvent: { layout }
     } = event
 
-    setLayoutWidth((prevLayoutWidth) => {
+    runOnJS(setLayoutWidth)((prevLayoutWidth) => {
       if (layout.width === prevLayoutWidth) {
         return prevLayoutWidth
       }
@@ -335,11 +368,11 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
 
   const renderTab = (item: TabItem<Value>, index: number) => {
     if (item.value == null) {
-      throw new TypeError(`[mui-tabs] Tab [${index}] value not provided.`)
+      throw new TypeError(`[mui-tabs]: tabs[${index}].value not provided.`)
     }
 
-    const { value: tabItemValue, disabled } = item
-    const selected = value === tabItemValue
+    const { value: tabValue, disabled } = item
+    const selected = value === tabValue
 
     const tabItemProps: TabProps<Value> = {
       item,
@@ -347,6 +380,9 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
       style: tabStyle,
       selected,
       disabled,
+      pressColor,
+      pressOpacity,
+      disabledOpacity,
       labelStyle,
       renderIcon: renderTabIcon,
       renderLabel: renderTabLabel,
@@ -365,7 +401,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
         }
 
         if (onChange && !selected && !event.defaultPrevented) {
-          runOnJS(onChange)(tabItemValue, event)
+          runOnJS(onChange)(tabValue, event)
         }
       },
       onLongPress: onTabLongPress
@@ -377,7 +413,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
               nativeEvent: { layout: layoutRect }
             } = event
 
-            itemsLayoutRef.current.set(tabItemValue, {
+            itemsLayoutRef.current.set(tabValue, {
               x: layoutRect.x,
               width: layoutRect.width
             })
@@ -398,7 +434,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     }
 
     return (
-      <React.Fragment key={tabItemValue}>
+      <React.Fragment key={tabValue}>
         {tabGap > 0 && index > 0 ? <Separator width={tabGap} /> : null}
         {renderTabItem ? (
           renderTabItem(tabItemProps)
@@ -412,16 +448,21 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
   useAnimatedReaction(
     () => position.value,
     (nextPosition) => {
-      cancelAnimation(currentPositionToSync)
+      if (animationEnabled) {
+        cancelAnimation(currentPositionToSync)
+      }
+
       targetPositionToSync.value = nextPosition
-      currentPositionToSync.value = withTiming(nextPosition, animationConfig)
+      currentPositionToSync.value = animationEnabled
+        ? withTiming(nextPosition, animationConfig)
+        : nextPosition
     }
   )
 
   useAnimatedReaction(
     () => currentPositionToSync.value === targetPositionToSync.value,
     (canSync) => {
-      if (scrollEnabled && canSync) {
+      if (canSync && scrollEnabled) {
         const scrollOffset = getScrollOffset({
           tabGap,
           position,
@@ -433,10 +474,10 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
           flattenedPaddingRight
         })
 
-        scrollTo(scrollViewRef, scrollOffset, 0, true)
+        scrollTo(scrollViewRef, scrollOffset, 0, animationEnabled)
       }
     },
-    [itemsLayout, layoutWidth, scrollEnabled]
+    [itemsLayout, layoutWidth, scrollEnabled, animationEnabled]
   )
 
   React.useEffect(() => {
@@ -444,12 +485,16 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
       return
     }
 
-    cancelAnimation(position)
+    if (animationEnabled) {
+      cancelAnimation(position)
+    }
+
     runOnUI(animateToPosition)(tabIndex)
   }, [
     position,
     tabIndex,
     indicatorEnabled,
+    animationEnabled,
     animateToPosition,
     hasProvidedAnimatedPosition
   ])
@@ -476,8 +521,8 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     tabGap,
     layoutWidth,
     scrollEnabled,
-    updateItemsLayout,
     isDynamicWidth,
+    updateItemsLayout,
     flattenedTabWidth,
     estimatedTabWidth,
     flattenedPaddingLeft,
@@ -488,16 +533,17 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     <Animated.View style={[styles.container, style]} onLayout={handleLayout}>
       <Animated.ScrollView
         ref={scrollViewRef}
+        onScroll={scrollEnabled ? handleScroll : undefined}
         bounces={bounces}
         horizontal={true}
         scrollsToTop={false}
-        onScroll={scrollEnabled ? handleScroll : undefined}
         scrollEnabled={scrollEnabled}
         overScrollMode={overScrollMode}
         accessibilityRole="tablist"
         keyboardShouldPersistTaps="handled"
         scrollEventThrottle={16}
         contentContainerStyle={contentContainerStyle}
+        pinchGestureEnabled={false}
         alwaysBounceHorizontal={false}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
@@ -508,7 +554,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
 
         {indicatorEnabled
           ? renderIndicator({
-              tabs,
+              itemsLayout,
               tabGap,
               position,
               style: [
