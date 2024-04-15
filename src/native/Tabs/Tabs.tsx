@@ -10,7 +10,6 @@ import {
   LayoutChangeEvent
 } from 'react-native'
 import Animated, {
-  Easing,
   runOnUI,
   runOnJS,
   scrollTo,
@@ -211,11 +210,6 @@ const defaultIndicator: RenderTabsIndicator = (props) => (
   <TabsIndicator {...props} />
 )
 
-const defaultAnimationConfig: WithTimingConfig = {
-  duration: 300,
-  easing: Easing.bezier(0.4, 0, 0.2, 1)
-}
-
 const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
   const {
     tabs,
@@ -236,7 +230,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     labelStyle,
     animatedPosition,
     animationEnabled = true,
-    animationConfig = defaultAnimationConfig,
+    animationConfig,
     renderIndicator = defaultIndicator,
     indicatorStyle,
     indicatorEnabled = true,
@@ -344,7 +338,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     [position, animationConfig, animationEnabled]
   )
 
-  const handleScroll = useAnimatedScrollHandler({
+  const scrollHandler = useAnimatedScrollHandler({
     onBeginDrag: () => {
       if (animationEnabled) {
         cancelAnimation(currentPositionToSync)
@@ -533,7 +527,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
     <Animated.View style={[styles.container, style]} onLayout={handleLayout}>
       <Animated.ScrollView
         ref={scrollViewRef}
-        onScroll={scrollEnabled ? handleScroll : undefined}
+        onScroll={scrollEnabled ? scrollHandler : undefined}
         bounces={bounces}
         horizontal={true}
         scrollsToTop={false}

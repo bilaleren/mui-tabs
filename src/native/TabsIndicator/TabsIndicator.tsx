@@ -91,18 +91,21 @@ const getTranslateX = (
 const TabsIndicator: React.FC<TabsIndicatorProps> = (props) => {
   const { itemsLayout, style, tabGap, position, getTabWidth } = props
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    width: getWidth(position, itemsLayout, getTabWidth),
-    transform: [
-      {
-        translateX: getTranslateX(position, itemsLayout, tabGap, getTabWidth)
-      }
-    ]
-  }))
+  const animatedStyle = useAnimatedStyle(
+    () => ({
+      width: getWidth(position, itemsLayout, getTabWidth),
+      transform: [
+        {
+          translateX: getTranslateX(position, itemsLayout, tabGap, getTabWidth)
+        }
+      ]
+    }),
+    [position, itemsLayout]
+  )
 
   return (
     <Animated.View
-      style={[styles.indicator, animatedStyle, style]}
+      style={[styles.container, animatedStyle, style]}
       importantForAccessibility="no-hide-descendants"
       accessibilityElementsHidden={true}
     />
@@ -110,9 +113,11 @@ const TabsIndicator: React.FC<TabsIndicatorProps> = (props) => {
 }
 
 const styles = StyleSheet.create({
-  indicator: {
+  container: {
     position: 'absolute',
     bottom: 0,
+    left: 0,
+    right: 0,
     height: 2,
     backgroundColor: '#1976D2'
   }

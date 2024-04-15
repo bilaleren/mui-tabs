@@ -25,16 +25,16 @@ export type TabViewProps<T extends Route> = PagerProps & {
   scrollEnabled?: boolean
   onIndexChange: (index: number) => void
   renderScene: RenderScene<T>
-  renderLazyPlaceholder?: (props: { route: T }) => React.ReactNode
-  renderTabBar?: RenderTabBar<T>
   initialLayout?: Partial<Layout>
+  renderTabBar?: RenderTabBar<T>
   tabBarPosition?: 'top' | 'bottom'
   lazy?: ((props: { route: T }) => boolean) | boolean
   lazyPreloadDistance?: number
   lazyPreloadWaitTime?: number
-  sceneContainerStyle?: StyleProp<ViewStyle>
-  pagerStyle?: StyleProp<ViewStyle>
+  renderLazyPlaceholder?: (props: { route: T }) => React.ReactNode
   style?: StyleProp<ViewStyle>
+  pagerStyle?: StyleProp<ViewStyle>
+  sceneContainerStyle?: StyleProp<ViewStyle>
 }
 
 const defaultTabBar: RenderTabBar = (props) => <TabBar {...props} />
@@ -43,15 +43,14 @@ const defaultLazyPlaceholder = () => null
 
 const TabView = <T extends Route>(props: TabViewProps<T>) => {
   const {
-    style,
-    lazy = false,
     state,
+    style,
     pagerStyle,
-    scrollEnabled,
+    lazy = false,
+    scrollEnabled = true,
     animationEnabled = true,
+    setPageAnimationEnabled = animationEnabled,
     initialLayout = INITIAL_LAYOUT,
-    onSwipeStart,
-    onSwipeEnd,
     onIndexChange,
     renderScene,
     renderTabBar = defaultTabBar,
@@ -61,7 +60,8 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
     lazyPreloadWaitTime = 0,
     renderLazyPlaceholder = defaultLazyPlaceholder,
     sceneContainerStyle,
-    keyboardDismissMode = 'auto'
+    keyboardDismissMode = 'auto',
+    ...other
   } = props
 
   const [layout, setLayout] = React.useState<Layout>({
@@ -69,15 +69,6 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
     height: 0,
     ...initialLayout
   })
-
-  const jumpToIndex = React.useCallback(
-    (index: number) => {
-      if (index !== state.index) {
-        onIndexChange(index)
-      }
-    },
-    [state.index, onIndexChange]
-  )
 
   const handleLayout = React.useCallback((event: LayoutChangeEvent) => {
     const { height, width } = event.nativeEvent.layout
@@ -94,14 +85,14 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
   return (
     <View style={[styles.pager, style]} onLayout={handleLayout}>
       <PagerView
+        {...other}
         state={state}
         style={pagerStyle}
         scrollEnabled={scrollEnabled}
-        onSwipeStart={onSwipeStart}
-        onSwipeEnd={onSwipeEnd}
-        onIndexChange={jumpToIndex}
+        onIndexChange={onIndexChange}
         overScrollMode={overScrollMode}
         animationEnabled={animationEnabled}
+        setPageAnimationEnabled={setPageAnimationEnabled}
         keyboardDismissMode={keyboardDismissMode}
       >
         {({ render, jumpTo, position }) => {

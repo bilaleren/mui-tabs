@@ -162,6 +162,7 @@ export type PagerProps = Omit<
 > & {
   keyboardDismissMode?: 'none' | 'on-drag' | 'auto'
   animationEnabled?: boolean
+  setPageAnimationEnabled?: boolean
   onSwipeStart?: () => void
   onSwipeEnd?: () => void
   overScrollMode?: ScrollViewProps['overScrollMode']

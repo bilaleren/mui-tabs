@@ -14,7 +14,7 @@ import type { Route, PagerProps, TabViewState } from '../types'
 
 const AnimatedPagerView = Animated.createAnimatedComponent(RNPagerView)
 
-export interface PagerViewProps<T extends Route> extends PagerProps {
+export type PagerViewProps<T extends Route> = PagerProps & {
   state: TabViewState<T>
   onIndexChange: (index: number) => void
   children: (props: {
@@ -38,30 +38,30 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
     onIndexChange,
     onSwipeEnd,
     onSwipeStart,
-    scrollEnabled = true,
-    animationEnabled,
+    scrollEnabled,
+    setPageAnimationEnabled,
     keyboardDismissMode = 'auto',
     ...other
   } = props
   const { index } = state
 
+  const [initialPage] = React.useState(index)
   const pagerRef = React.useRef<RNPagerView>(null)
   const indexRef = React.useRef<number>(index)
   const stateRef = React.useRef<TabViewState<T>>(state)
 
   const position = useSharedValue(index)
-  const offset = useSharedValue(0)
 
   React.useEffect(() => {
     stateRef.current = state
   })
 
   const jumpTo = React.useCallback(
-    (key: string, animated = animationEnabled) => {
+    (key: string, animated = setPageAnimationEnabled) => {
       const routes = stateRef.current.routes
-      const index = routes.findIndex((route) => key === route.key)
+      const nextIndex = routes.findIndex((route) => key === route.key)
 
-      if (index === -1) {
+      if (nextIndex === -1) {
         if (__DEV__) {
           const keys = routes.map((route) => route.key)
 
@@ -78,44 +78,37 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
       }
 
       if (animated) {
-        pagerRef.current?.setPage(index)
+        pagerRef.current?.setPage(nextIndex)
       } else {
-        pagerRef.current?.setPageWithoutAnimation(index)
-        position.value = index
+        pagerRef.current?.setPageWithoutAnimation(nextIndex)
+        position.value = nextIndex
       }
     },
-    [position, animationEnabled]
+    [position, setPageAnimationEnabled]
   )
 
   React.useEffect(() => {
-    if (keyboardDismissMode === 'auto') {
+    if (keyboardDismissMode === 'auto' && indexRef.current !== index) {
       Keyboard.dismiss()
     }
+  }, [index, keyboardDismissMode])
 
-    if (indexRef.current !== index) {
-      if (animationEnabled) {
-        pagerRef.current?.setPage(index)
-      } else {
-        pagerRef.current?.setPageWithoutAnimation(index)
-        position.value = index
-      }
-    }
-  }, [index, position, keyboardDismissMode, animationEnabled])
-
-  const handlePageScroll = usePageScrollHandler({
+  const pageScrollHandler = usePageScrollHandler({
     onPageScroll: (event) => {
       'worklet'
-      offset.value = event.offset
-      position.value = event.offset + event.position
+      position.value = event.position + event.offset
     }
   })
 
   const handlePageSelected = React.useCallback(
     (event: PagerViewOnPageSelectedEvent) => {
       'worklet'
-      const index = event.nativeEvent.position
-      indexRef.current = index
-      runOnJS(onIndexChange)(index)
+      const { position: nextIndex } = event.nativeEvent
+
+      if (indexRef.current !== nextIndex) {
+        indexRef.current = nextIndex
+        runOnJS(onIndexChange)(nextIndex)
+      }
     },
     [onIndexChange]
   )
@@ -143,12 +136,12 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
         {...other}
         ref={pagerRef}
         style={[styles.container, style]}
-        initialPage={index}
+        initialPage={initialPage}
         keyboardDismissMode={
           keyboardDismissMode === 'auto' ? 'on-drag' : keyboardDismissMode
         }
         scrollEnabled={scrollEnabled}
-        onPageScroll={scrollEnabled ? handlePageScroll : undefined}
+        onPageScroll={scrollEnabled ? pageScrollHandler : undefined}
         onPageSelected={handlePageSelected}
         onPageScrollStateChanged={handlePageScrollStateChanged}
       >
