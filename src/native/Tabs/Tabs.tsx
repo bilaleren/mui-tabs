@@ -370,6 +370,7 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
 
     const tabItemProps: TabProps<Value> = {
       item,
+      index,
       tabWidth: !isDynamicWidth ? getTabWidth(index) : undefined,
       style: tabStyle,
       selected,

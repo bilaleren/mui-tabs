@@ -30,6 +30,11 @@ export interface TabProps<Value extends TabValue = TabValue>
   item: TabItem<Value>
 
   /**
+   * The tab index.
+   */
+  index: number
+
+  /**
    * Determines the tab width.
    */
   tabWidth?: number
@@ -100,6 +105,7 @@ const renderTabLabel: RenderTabLabel = ({ item, style }) => {
 const Tab = <Value extends TabValue>(props: TabProps<Value>) => {
   const {
     item,
+    index,
     style: tabStyle,
     renderIcon,
     renderLabel = renderTabLabel,
@@ -121,6 +127,7 @@ const Tab = <Value extends TabValue>(props: TabProps<Value>) => {
   const icon = renderIcon
     ? renderIcon({
         item,
+        index,
         color: labelColor,
         selected,
         disabled
@@ -131,6 +138,7 @@ const Tab = <Value extends TabValue>(props: TabProps<Value>) => {
     item.label != null
       ? renderLabel({
           item,
+          index,
           color: labelColor,
           style: [styles.label, { color: labelColor }, labelStyle],
           selected,
@@ -141,6 +149,7 @@ const Tab = <Value extends TabValue>(props: TabProps<Value>) => {
   const badge = renderBadge
     ? renderBadge({
         item,
+        index,
         color: labelColor,
         selected,
         disabled

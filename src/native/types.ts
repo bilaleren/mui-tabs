@@ -10,6 +10,7 @@ export type TabValue = string | number
 
 export interface RenderTabIconProps<Value extends TabValue = TabValue> {
   item: TabItem<Value>
+  index: number
   color: ColorValue
   selected: boolean
   disabled: boolean
@@ -17,6 +18,7 @@ export interface RenderTabIconProps<Value extends TabValue = TabValue> {
 
 export interface RenderTabLabelProps<Value extends TabValue = TabValue> {
   item: TabItem<Value>
+  index: number
   color: ColorValue
   style: StyleProp<TextStyle>
   selected: boolean
@@ -25,6 +27,7 @@ export interface RenderTabLabelProps<Value extends TabValue = TabValue> {
 
 export interface RenderTabBadgeProps<Value extends TabValue = TabValue> {
   item: TabItem<Value>
+  index: number
   color: ColorValue
   selected: boolean
   disabled: boolean
