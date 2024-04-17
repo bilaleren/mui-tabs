@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native'
+import { IS_ANDROID } from '../constants'
 import type { Route, TabViewState, SceneRendererProps } from '../types'
 
 export interface SceneViewProps<T extends Route> extends SceneRendererProps {
@@ -75,6 +76,12 @@ const SceneView = <T extends Route>(props: SceneViewProps<T>) => {
           : null,
         style
       ]}
+      {...(IS_ANDROID && {
+        // Note that you can only use View components as children of PagerView.
+        // For Android if View has own children, set prop collapsable to false https://reactnative.dev/docs/view#collapsable-android,
+        // otherwise react-native might remove those children views and and its children will be rendered as separate pages.
+        collapsable: false
+      })}
       importantForAccessibility={focused ? 'auto' : 'no-hide-descendants'}
       accessibilityElementsHidden={!focused}
     >
