@@ -8,6 +8,7 @@ export interface SceneViewProps<T extends Route> extends SceneRendererProps {
   lazy: boolean
   index: number
   children: (props: { loading: boolean }) => React.ReactNode
+  shouldSceneRender: boolean
   lazyPreloadWaitTime: number
   lazyPreloadDistance: number
   style?: StyleProp<ViewStyle>
@@ -20,6 +21,7 @@ const SceneView = <T extends Route>(props: SceneViewProps<T>) => {
     lazy,
     layout,
     index,
+    shouldSceneRender,
     lazyPreloadDistance,
     lazyPreloadWaitTime,
     style
@@ -89,7 +91,11 @@ const SceneView = <T extends Route>(props: SceneViewProps<T>) => {
         // Only render the route only if it's either focused or layout is available
         // When layout is not available, we must not render unfocused routes
         // so that the focused route can fill the screen
-        focused || layout.width ? children({ loading: isLoading }) : null
+        isLoading
+          ? children({ loading: isLoading })
+          : shouldSceneRender
+          ? children({ loading: isLoading })
+          : null
       }
     </View>
   )

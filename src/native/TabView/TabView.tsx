@@ -17,6 +17,7 @@ import type {
   RenderScene,
   RenderTabBar,
   TabViewState,
+  ShouldSceneRender,
   SceneRendererProps
 } from '../types'
 
@@ -29,6 +30,7 @@ export type TabViewProps<T extends Route> = PagerProps & {
   renderTabBar?: RenderTabBar<T>
   tabBarPosition?: 'top' | 'bottom'
   lazy?: ((props: { route: T }) => boolean) | boolean
+  shouldSceneRender?: ShouldSceneRender<T>
   lazyPreloadDistance?: number
   lazyPreloadWaitTime?: number
   renderLazyPlaceholder?: (props: { route: T }) => React.ReactNode
@@ -56,6 +58,7 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
     renderTabBar = defaultTabBar,
     tabBarPosition = 'top',
     overScrollMode,
+    shouldSceneRender,
     lazyPreloadDistance = 0,
     lazyPreloadWaitTime = 0,
     renderLazyPlaceholder = defaultLazyPlaceholder,
@@ -124,6 +127,11 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
                     state={state}
                     layout={layout}
                     style={sceneContainerStyle}
+                    shouldSceneRender={
+                      typeof shouldSceneRender === 'function'
+                        ? shouldSceneRender({ index, state })
+                        : true
+                    }
                     lazyPreloadDistance={lazyPreloadDistance}
                     lazyPreloadWaitTime={lazyPreloadWaitTime}
                   >
@@ -131,9 +139,10 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
                       loading
                         ? renderLazyPlaceholder({ route })
                         : renderScene({
-                            ...sceneRendererProps,
                             index,
                             route,
+                            jumpTo,
+                            position,
                             focused: index === state.index
                           })
                     }

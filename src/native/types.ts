@@ -49,6 +49,11 @@ export type RenderTabBadge<Value extends TabValue = TabValue> = (
   props: RenderTabBadgeProps<Value>
 ) => React.ReactNode
 
+export type ShouldSceneRender<T extends Route = Route> = (props: {
+  index: number
+  state: TabViewState<T>
+}) => boolean
+
 export interface ChangeEvent<Value extends TabValue = TabValue> {
   item: TabItem<Value>
   defaultPrevented: boolean
