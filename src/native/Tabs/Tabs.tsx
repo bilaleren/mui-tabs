@@ -278,15 +278,13 @@ const Tabs = <Value extends TabValue = TabValue>(props: TabsProps<Value>) => {
 
   if (__DEV__ && tabIndex === -1) {
     const values = tabs.map((tab) => tab.value).join(', ')
+    const message = [
+      'The `value` provided to the Tabs component is invalid.',
+      `None of the Tabs match with "${value}" value.`,
+      `You can provide one of the following values: ${values}.`
+    ].join('\n')
 
-    console.warn(
-      '[mui-tabs]',
-      [
-        'The `value` provided to the Tabs component is invalid.',
-        `None of the Tabs match with "${value}" value.`,
-        `You can provide one of the following values: ${values}.`
-      ].join('\n')
-    )
+    console.warn('[mui-tabs]', message)
   }
 
   const getTabWidth = React.useCallback(

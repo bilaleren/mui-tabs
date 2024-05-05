@@ -94,11 +94,11 @@ export type RenderTabBar<T extends Route = Route> = (
 
 export type RenderTabsIndicator = (props: TabsIndicatorProps) => React.ReactNode
 
-export interface Route {
+export interface Route<T extends string = string> {
   /**
    * You can provide your own route key.
    */
-  key: string
+  key: T
 
   /**
    * The tab label.
@@ -146,7 +146,7 @@ export interface Layout {
 export interface SceneProps<T extends Route = Route> {
   route: T
   index: number
-  jumpTo: (key: string, animated?: boolean) => void
+  jumpTo: (key: T['key'], animated?: boolean) => void
   focused: boolean
   position: SharedValue<number>
 }

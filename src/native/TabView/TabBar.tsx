@@ -9,7 +9,7 @@ import type {
 } from '../types'
 
 export type TabBarProps<T extends Route> = Omit<
-  TabsProps<string>,
+  TabsProps<T['key']>,
   | 'tabs'
   | 'value'
   | 'onChange'
@@ -28,7 +28,7 @@ const TabBar = <T extends Route>(props: TabBarProps<T>) => {
 
   const { index, routes } = state
 
-  const tabs: TabItem<string>[] = React.useMemo(
+  const tabs: TabItem<T['key']>[] = React.useMemo(
     () =>
       routes.map(({ key, ...other }) => ({
         value: key,
@@ -43,7 +43,7 @@ const TabBar = <T extends Route>(props: TabBarProps<T>) => {
   )
 
   return (
-    <Tabs<string>
+    <Tabs<T['key']>
       {...other}
       tabs={tabs}
       value={tabs[index]?.value}

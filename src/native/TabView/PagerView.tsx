@@ -26,7 +26,7 @@ export type PagerViewProps<T extends Route> = PagerProps & {
     render: (children: React.ReactNode) => React.ReactNode
     // Callback to call when switching the tab
     // The tab switch animation is performed even if the index in state is unchanged
-    jumpTo: (key: string, animated?: boolean) => void
+    jumpTo: (key: T['key'], animated?: boolean) => void
   }) => React.ReactElement
 }
 
@@ -46,52 +46,50 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
   const { index } = state
 
   const [initialPage] = React.useState(index)
+  const position = useSharedValue(index)
   const pagerRef = React.useRef<RNPagerView>(null)
   const indexRef = React.useRef<number>(index)
   const stateRef = React.useRef<TabViewState<T>>(state)
-
-  const position = useSharedValue(index)
 
   React.useEffect(() => {
     stateRef.current = state
   })
 
+  const setPage = React.useCallback(
+    (page: number, animated = setPageAnimationEnabled) => {
+      if (animated) {
+        pagerRef.current?.setPage(page)
+      } else {
+        pagerRef.current?.setPageWithoutAnimation(page)
+        position.value = page
+      }
+    },
+    [position, setPageAnimationEnabled]
+  )
+
   const jumpTo = React.useCallback(
-    (key: string, animated = setPageAnimationEnabled) => {
+    (key: T['key'], animated?: boolean) => {
       const routes = stateRef.current.routes
       const nextIndex = routes.findIndex((route) => key === route.key)
 
       if (nextIndex === -1) {
         if (__DEV__) {
           const keys = routes.map((route) => route.key)
+          const message = [
+            `Route matching key [${key}] not found.`,
+            `You can provide one of the following keys: ${keys.join(', ')}.`
+          ].join('\n')
 
-          console.error(
-            '[mui-tabs]',
-            [
-              `Route matching key [${key}] not found.`,
-              `You can provide one of the following keys: ${keys.join(', ')}.`
-            ].join('\n')
-          )
+          console.error('[mui-tabs]', message)
         }
 
         return
       }
 
-      if (animated) {
-        pagerRef.current?.setPage(nextIndex)
-      } else {
-        pagerRef.current?.setPageWithoutAnimation(nextIndex)
-        position.value = nextIndex
-      }
+      setPage(nextIndex, animated)
     },
-    [position, setPageAnimationEnabled]
+    [setPage]
   )
-
-  React.useEffect(() => {
-    if (keyboardDismissMode === 'auto' && indexRef.current !== index) {
-      Keyboard.dismiss()
-    }
-  }, [index, keyboardDismissMode])
 
   const pageScrollHandler = usePageScrollHandler({
     onPageScroll: (event) => {
@@ -102,7 +100,6 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
 
   const handlePageSelected = React.useCallback(
     (event: PagerViewOnPageSelectedEvent) => {
-      'worklet'
       const { position: nextIndex } = event.nativeEvent
 
       if (indexRef.current !== nextIndex) {
@@ -127,6 +124,16 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
     },
     [onSwipeEnd, onSwipeStart]
   )
+
+  React.useEffect(() => {
+    if (keyboardDismissMode === 'auto') {
+      Keyboard.dismiss()
+    }
+
+    if (indexRef.current !== index) {
+      setPage(index)
+    }
+  }, [index, setPage, keyboardDismissMode])
 
   return children({
     position,
