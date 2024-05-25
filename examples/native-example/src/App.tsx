@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { Text, Linking, StyleSheet, TouchableOpacity } from 'react-native';
-import IonIcon from 'react-native-vector-icons/Ionicons';
+import { StyleSheet } from 'react-native';
 import type { RenderTabBar } from 'mui-tabs/native';
-import TabView, { SceneMap, TabBar } from 'mui-tabs/native/TabView';
+import TabView, { TabBar, SceneMap } from 'mui-tabs/native/TabView';
 import PlatformPressable from 'mui-tabs/native/PlatformPressable';
-import { repository as githubRepoUrl } from '../package.json';
 import TabsExample from './TabsExample';
 import TopTabViewExample from './TopTabViewExample';
 import BottomTabViewExample from './BottomTabViewExample';
@@ -13,23 +11,13 @@ import {
   SafeAreaProvider,
   initialWindowMetrics
 } from 'react-native-safe-area-context';
-import LazyPlaceholder from './components/LazyPlaceholder';
+import { LazyPlaceholder, ViewOnGithubButton } from './components';
 
 const renderScene = SceneMap({
   TabsExample,
   TopTabViewExample,
   BottomTabViewExample
 });
-
-const ViewOnGithubButton: React.FC = () => (
-  <TouchableOpacity
-    style={styles.viewOnGithubButton}
-    onPress={() => Linking.openURL(githubRepoUrl)}
-  >
-    <IonIcon name="logo-github" size={40} />
-    <Text>View On Github</Text>
-  </TouchableOpacity>
-);
 
 const App: React.FC = () => {
   const [index, setIndex] = React.useState(0);

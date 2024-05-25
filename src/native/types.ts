@@ -174,4 +174,5 @@ export type PagerProps = Omit<
   onSwipeStart?: () => void
   onSwipeEnd?: () => void
   overScrollMode?: ScrollViewProps['overScrollMode']
+  animatedPosition?: SharedValue<number>
 }

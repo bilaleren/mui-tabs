@@ -1,6 +1,8 @@
 import { Platform, Dimensions } from 'react-native'
 import type { Layout } from './types'
 
+export const IS_IOS = Platform.OS === 'ios'
+
 export const IS_ANDROID = Platform.OS === 'android'
 
 export const WINDOW_DIM = Dimensions.get('window')
