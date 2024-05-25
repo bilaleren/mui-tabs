@@ -2,8 +2,8 @@ import * as React from 'react'
 import Tabs, { TabsProps } from '../Tabs'
 import type {
   Route,
-  TabItem,
   Layout,
+  TabItem,
   TabViewState,
   SceneRendererProps
 } from '../types'

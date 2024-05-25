@@ -1,16 +1,13 @@
 import * as React from 'react'
 import { Keyboard, StyleSheet } from 'react-native'
-import Animated, {
-  runOnJS,
-  useSharedValue,
-  SharedValue
-} from 'react-native-reanimated'
+import Animated, { runOnJS, SharedValue } from 'react-native-reanimated'
 import RNPagerView, {
   PagerViewOnPageSelectedEvent,
   PageScrollStateChangedNativeEvent
 } from 'react-native-pager-view'
 import usePageScrollHandler from '@utils/usePageScrollHandler'
 import type { Route, PagerProps, TabViewState } from '../types'
+import useAnimatableSharedValue from '@utils/useAnimatableSharedValue'
 
 const AnimatedPagerView = Animated.createAnimatedComponent(RNPagerView)
 
@@ -39,14 +36,18 @@ const PagerView = <T extends Route>(props: PagerViewProps<T>) => {
     onSwipeEnd,
     onSwipeStart,
     scrollEnabled,
-    setPageAnimationEnabled,
+    animationEnabled = true,
+    animatedPosition,
+    setPageAnimationEnabled = animationEnabled,
     keyboardDismissMode = 'auto',
     ...other
   } = props
   const { index } = state
 
   const [initialPage] = React.useState(index)
-  const position = useSharedValue(index)
+  const position = useAnimatableSharedValue(
+    animatedPosition === undefined ? (0 as number) : animatedPosition
+  )
   const pagerRef = React.useRef<RNPagerView>(null)
   const indexRef = React.useRef<number>(index)
   const stateRef = React.useRef<TabViewState<T>>(state)

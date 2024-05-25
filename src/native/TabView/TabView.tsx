@@ -43,7 +43,7 @@ const defaultTabBar: RenderTabBar = (props) => <TabBar {...props} />
 
 const defaultLazyPlaceholder = () => null
 
-const TabView = <T extends Route>(props: TabViewProps<T>) => {
+const TabView = <T extends Route = Route>(props: TabViewProps<T>) => {
   const {
     state,
     style,
@@ -58,6 +58,7 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
     renderTabBar = defaultTabBar,
     tabBarPosition = 'top',
     overScrollMode,
+    animatedPosition,
     shouldSceneRender,
     lazyPreloadDistance = 0,
     lazyPreloadWaitTime = 0,
@@ -94,6 +95,7 @@ const TabView = <T extends Route>(props: TabViewProps<T>) => {
         scrollEnabled={scrollEnabled}
         onIndexChange={onIndexChange}
         overScrollMode={overScrollMode}
+        animatedPosition={animatedPosition}
         animationEnabled={animationEnabled}
         setPageAnimationEnabled={setPageAnimationEnabled}
         keyboardDismissMode={keyboardDismissMode}
