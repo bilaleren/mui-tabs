@@ -46,18 +46,6 @@
       "types": "./lib/types/native/TabView/index.d.ts",
       "react-native": "./lib/esm/native/TabView/index.js"
     },
-    "./native/CollapsibleTabView": {
-      "types": "./lib/types/native/CollapsibleTabView/index.d.ts",
-      "react-native": "./lib/esm/native/CollapsibleTabView/index.js"
-    },
-    "./native/CollapsibleTabView/FlashList": {
-      "types": "./lib/types/native/CollapsibleTabView/components/FlashList.d.ts",
-      "react-native": "./lib/esm/native/CollapsibleTabView/components/FlashList.js"
-    },
-    "./native/CollapsibleTabView/MasonryFlashList": {
-      "types": "./lib/types/native/CollapsibleTabView/components/MasonryFlashList.d.ts",
-      "react-native": "./lib/esm/native/CollapsibleTabView/components/MasonryFlashList.js"
-    },
     "./Tab/tabClasses": {
       "types": "./lib/types/web/Tab/tabClasses.d.ts",
       "import": "./lib/esm/web/Tab/tabClasses.js",
@@ -125,7 +113,6 @@
     "clsx": "*",
     "react": "18.x",
     "react-native": "*",
-    "@shopify/flash-list": "*",
     "react-native-pager-view": "*",
     "react-native-reanimated": ">=2.2.0",
     "react-transition-group": "*"
@@ -138,9 +125,6 @@
       "optional": false
     },
     "react-native": {
-      "optional": true
-    },
-    "@shopify/flash-list": {
       "optional": true
     },
     "react-transition-group": {
@@ -163,7 +147,6 @@
     "@babel/preset-typescript": "^7.18.6",
     "@babel/register": "^7.23.7",
     "@babel/runtime": "^7.20.7",
-    "@shopify/flash-list": "^1.6.4",
     "@testing-library/dom": "^9.3.3",
     "@testing-library/react": "^14.1.2",
     "@types/chai": "^4.3.11",

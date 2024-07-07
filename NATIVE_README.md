@@ -12,10 +12,6 @@ yarn add react-native-reanimated
 
 > See [here](./NATIVE_TABVIEW_README.md) for TabView documentation.
 
-## Collapsible TabView
-
-> See [here](./NATIVE_COLLAPSIBLE_TABVIEW_README.md) for CollapsibleTabView documentation.
-
 ## Previews
 
 |                                   Android                                   |                                 iOS                                 |
