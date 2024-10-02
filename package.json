@@ -15,7 +15,7 @@
     "native-example": "yarn --cwd examples/native-example",
     "start-web-example": "yarn web-example dev",
     "build-web-example": "yarn web-example build",
-    "test": "NODE_ENV=test mocha --dry-run --config mocha.config.js",
+    "test": "NODE_ENV=test mocha --config mocha.config.js",
     "build": "NODE_ENV=production gulp build",
     "prepack": "yarn build",
     "bootstrap": "yarn install && yarn web-example install && yarn native-example install",
@@ -105,8 +105,9 @@
     "react native material tabs"
   ],
   "dependencies": {
+    "debounce": "^2.1.1",
     "dequal": "^2.0.3",
-    "use-latest-callback": "^0.1.9"
+    "use-latest-callback": "^0.2.1"
   },
   "peerDependencies": {
     "@babel/runtime": "*",

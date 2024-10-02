@@ -1,7 +1,7 @@
 import * as React from 'react'
-import debounce from '@utils/debounce'
+import debounce from 'debounce'
 import ownerWindow from '@utils/ownerWindow'
-import useLatestCallback from 'use-latest-callback'
+import useLatestCallback from '@utils/useLatestCallback'
 
 const styles: React.CSSProperties = {
   width: 99,
@@ -46,7 +46,7 @@ const ScrollbarSize: React.FC<ScrollbarSizeProps> = (props) => {
       if (prevHeight !== scrollbarHeight.current) {
         onChange(scrollbarHeight.current)
       }
-    })
+    }, 166)
 
     const containerWindow = ownerWindow(nodeRef.current)
     containerWindow.addEventListener('resize', handleResize)

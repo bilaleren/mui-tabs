@@ -1,8 +1,16 @@
 import * as React from 'react'
 import clsx from 'clsx'
-import type { TabProps } from '../Tab'
 import ScrollbarSize from './ScrollbarSize'
-import useLatestCallback from 'use-latest-callback'
+import TabButton, { TabButtonProps } from '../TabButton'
+import debounce from 'debounce'
+import animate from '@utils/animate'
+import ownerWindow from '@utils/ownerWindow'
+import getDocumentDir from '@utils/getDocumentDir'
+import isReactFragment from '@utils/isReactFragment'
+import useLatestCallback from '@utils/useLatestCallback'
+import TabScrollButton, { TabScrollButtonProps } from '../TabScrollButton'
+import { useTabsClasses, TabsClasses } from './tabsClasses'
+import { detectScrollType, getNormalizedScrollLeft } from '@utils/scrollLeft'
 import type {
   TabValue,
   TabsVariant,
@@ -10,15 +18,7 @@ import type {
   TabsOrientation,
   ClassesWithClassValue
 } from '../types'
-import TabButton, { TabButtonProps } from '../TabButton'
-import animate from '@utils/animate'
-import debounce from '@utils/debounce'
-import ownerWindow from '@utils/ownerWindow'
-import getDocumentDir from '@utils/getDocumentDir'
-import isReactFragment from '@utils/isReactFragment'
-import TabScrollButton, { TabScrollButtonProps } from '../TabScrollButton'
-import { useTabsClasses, TabsClasses } from './tabsClasses'
-import { detectScrollType, getNormalizedScrollLeft } from '@utils/scrollLeft'
+import type { TabProps } from '../Tab'
 
 export interface TabsRefAttributes {
   updateIndicator: () => void
@@ -35,25 +35,14 @@ export interface TabsProps<Value extends TabValue = any> extends BaseTabsProps {
   value?: Value
 
   /**
-   * Props applied to the tab element.
-   * @default {}
-   */
-  tabProps?: Partial<
-    Omit<
-      TabProps,
-      | 'value'
-      | 'onChange'
-      | 'selected'
-      | 'indicator'
-      | 'fullWidth'
-      | 'ButtonComponent'
-    >
-  >
-
-  /**
    * Callback fired when the value changes.
    */
   onChange?: ChangeHandler<Value>
+
+  /**
+   * Callback fired when the tab pressed.
+   */
+  onTabClick?: React.MouseEventHandler<HTMLButtonElement>
 
   /**
    * If `true`, the tabs are centered.
@@ -165,9 +154,9 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
       value,
       centered = false,
       onChange,
+      onTabClick,
       classes: classesProp = {},
       className,
-      tabProps = {},
       variant = 'standard',
       selectionFollowsFocus,
       scrollButtons = 'auto',
@@ -517,7 +506,7 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
       const handleResize = debounce(() => {
         updateIndicatorState()
         updateScrollButtonState()
-      })
+      }, 166)
 
       const win = ownerWindow(tabs)
 
@@ -545,7 +534,7 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
     }, [updateIndicatorState, updateScrollButtonState])
 
     const handleTabsScroll = React.useMemo(
-      () => debounce(updateScrollButtonState),
+      () => debounce(updateScrollButtonState, 166),
       [updateScrollButtonState]
     )
 
@@ -603,8 +592,8 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
         )
       }
 
-      const props = child.props as Record<string, any>
-      const childValue = props.value === undefined ? index : props.value
+      const tabProps = child.props as TabProps
+      const childValue = tabProps.value === undefined ? index : tabProps.value
       const selected = childValue === value
 
       valueToIndexRef.current.set(childValue, index)
@@ -614,12 +603,19 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
         selected,
         onChange,
         value: childValue,
+        onClick:
+          onTabClick || tabProps.onClick
+            ? (event: React.MouseEvent<HTMLButtonElement>) => {
+                onTabClick?.(event)
+                tabProps.onClick?.(event)
+              }
+            : undefined,
         indicator: selected && !mounted && indicator,
-        className: props.className,
+        className: tabProps.className,
         fullWidth: variant === 'fullWidth',
         selectionFollowsFocus,
         ButtonComponent: TabComponent,
-        ...(index === 1 && !props.tabIndex ? { tabIndex: 0 } : {})
+        ...(index === 1 && !tabProps.tabIndex ? { tabIndex: 0 } : null)
       })
     })
 

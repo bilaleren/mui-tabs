@@ -2,7 +2,7 @@ import * as React from 'react'
 import clsx from 'clsx'
 import TabButton, { TabButtonProps } from '../TabButton'
 import { useTabClasses, TabClasses } from './tabClasses'
-import useLatestCallback from 'use-latest-callback'
+import useLatestCallback from '@utils/useLatestCallback'
 import type {
   TabValue,
   IconPosition,
@@ -150,6 +150,7 @@ const Tab: React.FC<TabProps> = (props) => {
       {...other}
       role="tab"
       disabled={disabled}
+      aria-disabled={disabled}
       aria-selected={selected}
       onFocus={handleFocus}
       onClick={handleClick}

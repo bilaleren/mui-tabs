@@ -1,7 +1,6 @@
 import * as React from 'react'
 import Tab from '../../Tab'
 import tabsClasses from '../tabsClasses'
-import tabClasses from '../../Tab/tabClasses'
 import { act } from '@testing-library/react'
 import { createRenderer } from 'test-utils'
 import { fireEvent } from '@testing-library/dom'
@@ -19,14 +18,14 @@ function findScrollButton(
 
 function hasLeftScrollButton(container: HTMLElement): boolean {
   const button = findScrollButton(container, 'left')
-  return !!(
+  return Boolean(
     button && !button.classList.contains(tabScrollButtonClasses.disabled)
   )
 }
 
 function hasRightScrollButton(container: HTMLElement): boolean {
   const button = findScrollButton(container, 'right')
-  return !!(
+  return Boolean(
     button && !button.classList.contains(tabScrollButtonClasses.disabled)
   )
 }
@@ -336,6 +335,40 @@ describe('<Tabs />', () => {
       })
 
       expect(handleChange.callCount).to.equal(0)
+    })
+  })
+
+  describe('prop: onTabClick', () => {
+    it('should call onTabClick when tab clicking', () => {
+      const handleTabClick = sinon.spy()
+      const { getAllByRole } = render(
+        <Tabs value={0} onTabClick={handleTabClick}>
+          <Tab />
+          <Tab />
+        </Tabs>
+      )
+
+      fireEvent.click(getAllByRole('tab')[0])
+      fireEvent.click(getAllByRole('tab')[1])
+
+      expect(handleTabClick.callCount).to.equal(2)
+      expect(handleTabClick.args[0][0]).not.to.empty
+      expect(handleTabClick.args[1][0]).not.to.empty
+    })
+
+    it('should not call onTabClick when tab disabled', () => {
+      const handleTabClick = sinon.spy()
+      const { getAllByRole } = render(
+        <Tabs value={0} onTabClick={handleTabClick}>
+          <Tab />
+          <Tab disabled={true} />
+        </Tabs>
+      )
+
+      fireEvent.click(getAllByRole('tab')[1])
+
+      expect(handleTabClick.callCount).to.equal(0)
+      expect(handleTabClick.args).to.empty
     })
   })
 
@@ -829,26 +862,6 @@ describe('<Tabs />', () => {
       )!.style
 
       expect(style).to.have.property('backgroundColor', 'green')
-    })
-  })
-
-  describe('prop: tabProps', () => {
-    it('should merge the style', () => {
-      const { container } = render(
-        <Tabs
-          value={0}
-          tabProps={{ style: { color: 'purple', backgroundColor: 'yellow' } }}
-        >
-          <Tab />
-        </Tabs>
-      )
-
-      const style = container.querySelector<HTMLElement>(
-        `.${tabsClasses.flexContainer} .${tabClasses.root}`
-      )!.style
-
-      expect(style).to.have.property('color', 'purple')
-      expect(style).to.have.property('backgroundColor', 'yellow')
     })
   })
 

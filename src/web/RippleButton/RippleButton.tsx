@@ -6,7 +6,7 @@ import TouchRipple, {
 import clsx from 'clsx'
 import TabButton, { TabButtonProps } from '../TabButton'
 import useForkRef from '@utils/useForkRef'
-import useLatestCallback from 'use-latest-callback'
+import useLatestCallback from '@utils/useLatestCallback'
 import useIsFocusVisible from '@utils/useIsFocusVisible'
 
 export interface RippleButtonActionRefAttributes {

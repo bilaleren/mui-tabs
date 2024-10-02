@@ -29,11 +29,10 @@ const App = () => {
     <Tabs
       value={value}
       onChange={(value) => setValue(value)}
-      tabProps={{ style: { color: 'purple' } }}
-      indicatorProps={{ style: { backgroundColor: 'purple' } }}
+      indicatorProps={{ style: { backgroundColor: 'white' } }}
     >
-      <Tab value={1} label="Tab 1" />
-      <Tab value={2} label="Tab 2" />
+      <Tab value={1} label="Tab 1" style={{ backgroundColor: 'purple' }} />
+      <Tab value={2} label="Tab 2" style={{ backgroundColor: 'purple' }} />
     </Tabs>
   )
 }
