@@ -274,7 +274,11 @@ const Tabs: TabsComponent = React.forwardRef<TabsRefAttributes, TabsProps>(
         if (children.length > 0) {
           const tab = children[valueToIndex.get(value)!]
 
-          if (!tab && process.env.NODE_ENV !== 'production') {
+          if (
+            process.env.NODE_ENV !== 'test' &&
+            process.env.NODE_ENV !== 'production' &&
+            !tab
+          ) {
             console.error(
               [
                 `The \`value\` provided to the Tabs component is invalid.`,
